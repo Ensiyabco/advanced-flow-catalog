@@ -1,0 +1,143 @@
+/* إعدادات عامة */
+body {
+    font-family: "Tahoma", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f7f7f7;
+    color: #333;
+}
+
+/* الحاوية */
+.container {
+    width: 90%;
+    margin: auto;
+}
+
+/* الهيدر */
+.site-header {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-area img {
+    width: 60px;
+    height: 60px;
+}
+
+.main-nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.main-nav a:hover {
+    color: #007bff;
+}
+
+/* القسم الرئيسي */
+.hero {
+    background: #007bff;
+    color: #fff;
+    padding: 40px;
+    text-align: center;
+}
+
+/* البحث */
+.search-section {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.search-section input {
+    width: 80%;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* الأقسام */
+.categories {
+    padding: 30px 0;
+}
+
+.categories .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.cat-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.cat-card img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* المنتجات المميزة */
+.featured {
+    padding: 30px 0;
+}
+
+.featured .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.product-card img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* نبذة */
+.about {
+    padding: 30px;
+    background: #fff;
+    margin: 20px 0;
+    border-radius: 10px;
+}
+
+/* التواصل */
+.contact {
+    padding: 30px;
+    background: #fff;
+    margin: 20px 0;
+    border-radius: 10px;
+}
+
+/* الفوتر */
+.footer {
+    background: #222;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+}
