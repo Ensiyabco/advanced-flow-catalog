@@ -6,7 +6,8 @@
     <title>الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<body>    
     <header class="site-header">
         <div class="container header-flex">
           <a href="index.html" class="logo-area" style="text-decoration: none; color: inherit;">
@@ -60,5 +61,16 @@
     <footer class="footer">
         <p>© 2026 الأنسياب المتقدم — جميع الحقوق محفوظة</p>
     </footer>
+    <script>
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+      if (!user) {
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+      }
+    });
+  }
+</script>
 </body>
 </html>
