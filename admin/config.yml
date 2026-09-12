@@ -7,13 +7,13 @@ public_folder: "/assets/images/products"
 
 collections:
   # --------------------------------------------------
-  # 1. مجموعة إدارة الأقسام الرئيسية والفرعية
+  # 1. إدارة الأقسام
   # --------------------------------------------------
   - name: "categories"
     label: "إدارة الأقسام"
     folder: "content/categories"
     create: true
-    slug: "{{slug}}"
+    slug: "{{main_category}}"
     identifier_field: "main_category"
     fields:
       - { label: "اسم القسم الرئيسي", name: "main_category", widget: "string" }
@@ -24,13 +24,13 @@ collections:
         field: { label: "اسم القسم الفرعي", name: "subcategory_name", widget: "string" }
 
   # --------------------------------------------------
-  # 2. مجموعة المنتجات
+  # 2. المنتجات
   # --------------------------------------------------
   - name: "products"
     label: "المنتجات"
     folder: "content/products"
     create: true
-    slug: "{{slug}}"
+    slug: "{{title}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
       
@@ -52,5 +52,7 @@ collections:
         required: false
 
       - { label: "السعر (ر.س)", name: "price", widget: "number", value_type: "float", required: false }
+      - { label: "الكمية المتاحة", name: "quantity", widget: "number", value_type: "int", required: false, hint: "إجمالي عدد القطع أو الكراتين المتوفرة" }
+      - { label: "شد الكرتون (عدد الحبات)", name: "carton_pack", widget: "string", required: false, hint: "مثال: 12 حبة، 24 حبة" }
       - { label: "صورة المنتج", name: "image", widget: "image" }
       - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
