@@ -1,0 +1,24 @@
+backend:
+  name: git-gateway
+  branch: main # أو master حسب اسم الفرع الرئيسي لديك
+
+media_folder: "images/products"
+public_folder: "images/products"
+
+collections:
+  - name: "products"
+    label: "المنتجات"
+    folder: "content/products"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "اسم المنتج", name: "title", widget: "string" }
+      - { 
+          label: "القسم", 
+          name: "category", 
+          widget: "select", 
+          options: ["مواقد غاز", "لوحات تحكم", "معدات رحلات", "ملحقات وصيانة"] 
+        }
+      - { label: "السعر (ر.س)", name: "price", widget: "string" }
+      - { label: "صورة المنتج", name: "image", widget: "image" }
+      - { label: "وصف المنتج", name: "body", widget: "markdown" }
