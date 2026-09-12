@@ -185,3 +185,31 @@ p {
   font-weight: bold;
   text-decoration: none;
 }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-area img {
+  width: 60px;
+  height: auto;
+}
+
+.main-nav {
+  display: flex;
+  gap: 20px;
+}
+
+.main-nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
