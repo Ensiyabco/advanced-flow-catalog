@@ -141,3 +141,16 @@ body {
     text-align: center;
     padding: 15px;
 }
+/* توحيد المسافات بين الأقسام */
+section, .categories, .featured, .about, .contact {
+    padding: 40px 20px;   /* مسافة داخلية */
+    margin: 20px 0;       /* مسافة خارجية */
+}
+/* توحيد مسافات النصوص */
+h1, h2, h3 {
+    margin-bottom: 15px;
+}
+
+p {
+    margin-bottom: 10px;
+}
