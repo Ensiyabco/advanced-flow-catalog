@@ -213,3 +213,50 @@ header {
   color: #333;
   font-weight: bold;
 }
+/* Modern Header */
+.modern-header {
+  text-align: center;
+  padding: 20px 0;
+  background: transparent;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.logo-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-center img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.logo-center h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.modern-nav {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
+
+.modern-nav a {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.modern-nav a:hover {
+  color: #FFD700;
+}
