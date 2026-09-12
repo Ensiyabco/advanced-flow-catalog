@@ -19,6 +19,7 @@ body {
     border-bottom: 1px solid #ddd;
     padding: 15px 0;
 }
+padding-top: 140px;
 
 .header-flex {
     display: flex;
