@@ -1,11 +1,31 @@
 backend:
   name: git-gateway
-  branch: main # أو master حسب اسم الفرع الرئيسي لديك
+  branch: main
 
-media_folder: "images/products"
-public_folder: "images/products"
+media_folder: "assets/images/products"
+public_folder: "/assets/images/products"
 
 collections:
+  # --------------------------------------------------
+  # 1. مجموعة إدارة الأقسام الرئيسية والفرعية
+  # --------------------------------------------------
+  - name: "categories"
+    label: "إدارة الأقسام"
+    folder: "content/categories"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "main_category"
+    fields:
+      - { label: "اسم القسم الرئيسي", name: "main_category", widget: "string" }
+      - label: "الأقسام الفرعية التابعة له"
+        name: "subcategories"
+        widget: "list"
+        required: false
+        field: { label: "اسم القسم الفرعي", name: "subcategory_name", widget: "string" }
+
+  # --------------------------------------------------
+  # 2. مجموعة المنتجات
+  # --------------------------------------------------
   - name: "products"
     label: "المنتجات"
     folder: "content/products"
@@ -13,12 +33,24 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { 
-          label: "القسم", 
-          name: "category", 
-          widget: "select", 
-          options: ["مواقد غاز", "لوحات تحكم", "معدات رحلات", "ملحقات وصيانة"] 
-        }
-      - { label: "السعر (ر.س)", name: "price", widget: "string" }
+      
+      - label: "القسم الرئيسي"
+        name: "category"
+        widget: "relation"
+        collection: "categories"
+        search_fields: ["main_category"]
+        value_field: "main_category"
+        display_fields: ["main_category"]
+
+      - label: "القسم الفرعي"
+        name: "subcategory"
+        widget: "relation"
+        collection: "categories"
+        search_fields: ["subcategories"]
+        value_field: "subcategories.*"
+        display_fields: ["subcategories.*"]
+        required: false
+
+      - { label: "السعر (ر.س)", name: "price", widget: "number", value_type: "float", required: false }
       - { label: "صورة المنتج", name: "image", widget: "image" }
-      - { label: "وصف المنتج", name: "body", widget: "markdown" }
+      - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
