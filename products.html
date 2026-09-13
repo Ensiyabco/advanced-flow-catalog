@@ -177,7 +177,6 @@
             margin-bottom: 12px;
         }
 
-        /* تنسيق خانة الكمية والوحدة المتفاعلة */
         .order-options-box {
             display: flex;
             gap: 8px;
@@ -284,14 +283,12 @@
     </header>
 
     <div class="catalog-container">
-        <!-- القائمة الجانبية للأقسام -->
         <aside class="sidebar-filters">
             <div class="sidebar-title">أقسام المتجر</div>
             <a href="products.html" class="reset-filter-btn">عرض كل المنتجات</a>
             <div id="categories-sidebar-container"></div>
         </aside>
 
-        <!-- عرض المنتجات -->
         <main>
             <div style="margin-bottom: 20px;">
                 <h2 id="current-category-title" style="color: var(--primary-color); margin: 0 0 5px 0;">جميع المنتجات</h2>
@@ -324,13 +321,14 @@
             "قطع غيار": ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"],
             "قدور": ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"],
             "ساعات ومنظمات غاز": ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلاا غاز"],
-            "دوافير ودبات": ["dبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
+            "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
             "دفايات": ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"],
             "خضاضات وسطول": ["خضاضات لبن", "سطول لبن", "مواعين سمن"],
             "ادوات ولوازم الشواء": ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
         };
 
-        const unitsList = ["حبة", "كرتون", "ربطة", "درزن", "علبة", "متر", "لفه"];
+        // تم إضافة "قطعة" و "طقم" إلى القائمة
+        const unitsList = ["حبة", "قطعة", "طقم", "كرتون", "ربطة", "درزن", "علبة", "متر", "لفه"];
 
         function renderSidebar(activeCat, activeSub) {
             const container = document.getElementById('categories-sidebar-container');
@@ -399,8 +397,6 @@
             }
 
             const grid = document.getElementById('products-grid');
-            
-            // توليد خيارات الوحدة للقائمة المنسدلة
             let unitsOptionsHtml = unitsList.map(u => `<option value="${u}">${u}</option>`).join('');
 
             grid.innerHTML = `
