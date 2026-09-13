@@ -3,115 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المنتجات | الأنسياب المتقدم</title>
+    <title>المنتجات والأقسام | الأنسياب المتقدم</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
     <style>
-        .category-filter-section {
-            padding: 20px 0;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            margin-bottom: 30px;
+        :root {
+            --primary-color: #1d3557;
+            --secondary-color: #457b9d;
+            --accent-color: #e63946;
+            --bg-light: #f8f9fa;
+            --border-color: #e2e8f0;
+            --text-dark: #333333;
         }
-        .filter-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            max-width: 1200px;
-            margin: 0 auto;
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f8;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .catalog-container {
+            max-width: 1300px;
+            margin: 30px auto;
             padding: 0 15px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
         }
-        .filter-btn {
-            background-color: #ffffff;
-            color: #1d3557;
-            border: 1px solid #dcdcdc;
-            padding: 8px 18px;
-            border-radius: 25px;
-            font-size: 14px;
+
+        @media (max-width: 992px) {
+            .catalog-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* لوحة الفلترة الجانبية والأقسام الرئيسية */
+        .sidebar-filters {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 10px;
+        }
+
+        .category-group {
+            margin-bottom: 12px;
+        }
+
+        .main-cat-btn {
+            width: 100%;
+            text-align: right;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
+            color: var(--primary-color);
             cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
         }
-        .filter-btn:hover, .filter-btn.active {
-            background-color: #1d3557;
+
+        .main-cat-btn:hover, .main-cat-btn.active {
+            background-color: var(--primary-color);
             color: #ffffff;
-            border-color: #1d3557;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(29, 53, 87, 0.2);
+            border-color: var(--primary-color);
         }
-        .back-btn {
-            background-color: #e63946;
-            color: #fff;
-            border-color: #e63946;
+
+        .main-cat-btn::after {
+            content: "▼";
+            font-size: 10px;
+            transition: transform 0.2s;
         }
-        .back-btn:hover {
-            background-color: #d62828;
-            border-color: #d62828;
+
+        .main-cat-btn.active::after {
+            transform: rotate(180deg);
         }
-        
-        /* كروت المنتجات */
+
+        /* الأقسام الفرعية المتفاعلة */
+        .sub-categories-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #fafbfc;
+            border-radius: 0 0 8px 8px;
+            padding: 0 10px;
+        }
+
+        .sub-categories-list.open {
+            max-height: 500px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            margin-bottom: 10px;
+        }
+
+        .sub-cat-item {
+            display: block;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.15s;
+            margin-bottom: 4px;
+        }
+
+        .sub-cat-item:hover, .sub-cat-item.active {
+            background-color: var(--secondary-color);
+            color: #ffffff;
+        }
+
+        /* شبكة المنتجات */
+        .products-section {
+            background: transparent;
+        }
+
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
-            padding: 20px 0;
         }
+
         .product-card {
-            background: #fff;
-            border: 1px solid #e1e8ed;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 15px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+
         .product-card img {
             width: 100%;
-            height: 180px;
+            height: 170px;
             object-fit: contain;
-            border-radius: 8px;
             margin-bottom: 12px;
         }
-        .product-card h3 {
+
+        .product-title {
             font-size: 16px;
-            color: #1d3557;
+            font-weight: bold;
+            color: var(--primary-color);
             margin-bottom: 8px;
         }
 
-        /* حقل الكمية */
+        .product-category-tag {
+            font-size: 12px;
+            color: #718096;
+            background: var(--bg-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
         .quantity-control {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin: 12px 0;
+            margin: 10px 0;
         }
+
         .qty-btn {
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            width: 30px;
-            height: 30px;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            width: 32px;
+            height: 32px;
             border-radius: 6px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
+
         .qty-input {
-            width: 45px;
-            height: 30px;
+            width: 50px;
+            height: 32px;
             text-align: center;
             font-size: 14px;
             font-weight: bold;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
         }
 
@@ -120,198 +218,200 @@
             background-color: #25d366;
             color: white;
             text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             font-weight: bold;
-            font-size: 13px;
-        }
-        .whatsapp-btn:hover {
-            background-color: #1eb954;
+            font-size: 14px;
+            transition: background 0.2s;
         }
 
-        @media (max-width: 768px) {
-            .filter-container {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                justify-content: flex-start;
-                padding-bottom: 10px;
-            }
-            .filter-btn {
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
+        .whatsapp-btn:hover {
+            background-color: #20ba5a;
+        }
+
+        /* زر عرض الكل */
+        .reset-filter-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            text-align: center;
+            text-decoration: none;
+        }
+        .reset-filter-btn:hover {
+            background-color: #d90429;
         }
     </style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="container header-flex">
-            <a href="index.html" class="logo-area" style="text-decoration: none; color: inherit;">
-                <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم">
+
+    <header class="site-header" style="background: #fff; padding: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div class="container header-flex" style="max-width: 1300px; margin: 0 auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" class="logo-area" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+                <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم" style="height: 50px;">
                 <div>
-                    <h1>الأنسياب المتقدم</h1>
-                    <p>لأدوات ولوازم الغاز والرحلات والكشتات</p>
+                    <h1 style="font-size: 18px; margin: 0; color: #1d3557;">الأنسياب المتقدم</h1>
+                    <p style="font-size: 12px; margin: 0; color: #666;">أدوات ولوازم الغاز والرحلات</p>
                 </div>
             </a>
-            <nav class="main-nav">
-                <a href="index.html">الرئيسية</a>
-                <a href="products.html" class="active">المنتجات</a>
-                <a href="about.html">من نحن</a>
-                <a href="contact.html">التواصـل</a>
+            <nav class="main-nav" style="display: flex; gap: 20px;">
+                <a href="index.html" style="text-decoration: none; color: #333; font-weight: 600;">الرئيسية</a>
+                <a href="products.html" style="text-decoration: none; color: #1d3557; font-weight: 600;">المنتجات</a>
+                <a href="about.html" style="text-decoration: none; color: #333; font-weight: 600;">من نحن</a>
+                <a href="contact.html" style="text-decoration: none; color: #333; font-weight: 600;">التواصل</a>
             </nav>
         </div>
     </header>
 
-    <section class="hero" style="padding: 25px 0;">
-        <h2 id="page-category-title">جاري تحميل الأقسام...</h2>
-        <p id="page-category-desc">تصفح المنتجات والأقسام المتاحة</p>
-    </section>
+    <div class="catalog-container">
+        <!-- القائمة الجانبية للأقسام -->
+        <aside class="sidebar-filters">
+            <div class="sidebar-title">أقسام المتجر</div>
+            <a href="products.html" class="reset-filter-btn">عرض كل المنتجات</a>
+            
+            <div id="categories-sidebar-container">
+                <!-- سيتم بناء الأقسام ديناميكياً وتفاعلياً هنا -->
+            </div>
+        </aside>
 
-    <!-- شريط الفلترة الديناميكي -->
-    <section class="category-filter-section">
-        <div class="filter-container" id="subcategories-bar">
-            <!-- يتم توليده تلقائياً من البيانات المرفوعة -->
-        </div>
-    </section>
+        <!-- عرض المنتجات -->
+        <main class="products-section">
+            <div style="margin-bottom: 20px;">
+                <h2 id="current-category-title" style="color: var(--primary-color); margin: 0 0 5px 0;">جميع المنتجات</h2>
+                <p id="current-category-desc" style="color: #666; margin: 0; font-size: 14px;">تصفح كافة منتجات و لوازم الأنسياب المتقدم</p>
+            </div>
 
-    <!-- شبكة المنتجات -->
-    <section class="container" style="margin-bottom: 50px;">
-        <div class="products-grid" id="products-grid">
-            <!-- تظهر المنتجات المرفوعة هنا -->
-        </div>
-    </section>
+            <div class="products-grid" id="products-grid">
+                <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #718096;">جاري تحميل المنتجات...</div>
+            </div>
+        </main>
+    </div>
 
-    <footer class="footer">
-        <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
+    <footer class="footer" style="background: #1d3557; color: white; text-align: center; padding: 20px 0; margin-top: 50px;">
+        <p style="margin: 0; font-size: 14px;">© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
     </footer>
 
     <script>
-      const WHATSAPP_NUMBER = "966500000000"; // ضع رقم الواتساب الخاص بك هنا
+        const WHATSAPP_NUMBER = "966500000000"; // استبدل برقم الواتساب الخاص بك
 
-      // هيكل البيانات المحدث المربوط بـ Decap CMS
-      const subcategoryMap = {
-        "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
-        "مواقد غاز": ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"],
-        "طباخات وفوانيس": ["طباخات غاز", "فوانيس إضاءة", "فتائل واكسسوارات"],
-        "قدور": ["قدور ضغط", "قدور طهي", "قدور رحلات"],
-        "ساعات ومنظمات غاز": ["منظمات غاز إيطالي", "منظمات غاز هندي", "ساعات غاز متغيرة"],
-        "ليات غاز ورجلات": ["ليات غاز برتقالي", "ليات غاز مفحوصة", "رجلات غاز"],
-        "محابس وتواصيل غاز": ["محابس غاز نحاس", "توصيلات غاز", "سنن وتحويلات"],
-        "قطع غيار": ["قطع غيار دوافير", "قطع غيار مواقد", "جلد وجلب غاز"],
-        "خضاضات وسطول ومواعين": ["خضاضات لبن", "سطول ومواعين رحلات"],
-        "ولاعات غاز وشعالات كهرباء": ["ولاعات غاز طويلة", "شعالات كهربائية"],
-        "دفايات": ["دفايات غاز رحلات", "دفايات غاز منازل"],
-        "ادوات ولوازم كشتات": ["شوايات رحلات", "شبك وأدوات شواء", "خيام وكراسي", "لوازم كشتات عامة"]
-      };
+        // خريطة الأقسام الرئيسية والفرعية المتوافقة تماماً مع إعدادات لوحة التحكم
+        const categoriesMapping = {
+            "منزليات": ["أدوات منزلية عامة", "أجهزة مطبخ منزلية", "لوازم طهي منزلية"],
+            "ادوات ولوازم الرحلات": ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"],
+            "ادوات لحام ووصواريخ بقاعدة": ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"],
+            "طباخات وفوانيس": ["طبخات قاز سائل", "فوانيس قاز سائل", "فوانيس بطاريات", "دوافير قاز", "فتايل", "اتاريك", "قزاز فوانيس واتاريك"],
+            "ولاعات وشعالات": ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"],
+            "مواقد غاز": ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"],
+            "محابس وتواصيل": ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"],
+            "ليات غاز": ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"],
+            "قطع غيار": ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"],
+            "قدور": ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"],
+            "ساعات ومنظمات غاز": ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلاا غاز"],
+            "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
+            "دفايات": ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"],
+            "خضاضات وسطول": ["خضاضات لبن", "سطول لبن", "مواعين سمن"],
+            "ادوات ولوازم الشواء": ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
+        };
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const rawCat = urlParams.get('category');
-      const mainCategory = rawCat ? decodeURIComponent(rawCat).trim() : null;
-      const selectedSub = urlParams.get('sub') ? decodeURIComponent(urlParams.get('sub')).trim() : null;
+        function renderSidebar(activeCat, activeSub) {
+            const container = document.getElementById('categories-sidebar-container');
+            let html = '';
 
-      const titleElement = document.getElementById('page-category-title');
-      const descElement = document.getElementById('page-category-desc');
-      const subBar = document.getElementById('subcategories-bar');
+            for (const [mainCat, subList] of Object.entries(categoriesMapping)) {
+                const isMainActive = activeCat === mainCat;
+                html += `
+                    <div class="category-group">
+                        <button class="main-cat-btn ${isMainActive ? 'active' : ''}" onclick="toggleSubMenu(this)">
+                            ${mainCat}
+                        </button>
+                        <div class="sub-categories-list ${isMainActive ? 'open' : ''}">
+                `;
+                
+                subList.forEach(sub => {
+                    const isSubActive = isSubActiveMatch(activeCat, activeSub, mainCat, sub);
+                    html += `<a href="products.html?category=${encodeURIComponent(mainCat)}&sub=${encodeURIComponent(sub)}" class="sub-cat-item ${isSubActive ? 'active' : ''}">${sub}</a>`;
+                });
 
-      function renderNavigation() {
-          let html = "";
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+        }
 
-          // إذا كان المستخدم قد اختار قسماً رئيسياً
-          if (mainCategory && subcategoryMap[mainCategory]) {
-              titleElement.textContent = selectedSub ? `${mainCategory} ← ${selectedSub}` : `قسم: ${mainCategory}`;
-              descElement.textContent = `تصفح الأقسام الفرعية لقسم ${mainCategory}`;
+        function isSubActiveMatch(currentCat, currentSub, cat, sub) {
+            return currentCat === cat && currentSub === sub;
+        }
 
-              // 1. زر الرجوع للأقسام الرئيسية
-              html += `<button onclick="window.location.href='products.html'" class="filter-btn back-btn">← عرض كل الأقسام الرئيسية</button>`;
-              
-              // 2. زر عرض جميع منتجات القسم الحالي
-              const isAllSubActive = !selectedSub ? 'active' : '';
-              html += `<button onclick="filterSub('')" class="filter-btn ${isAllSubActive}">الكل في ${mainCategory}</button>`;
+        function toggleSubMenu(btn) {
+            const list = btn.nextElementSibling;
+            const isOpen = list.classList.contains('open');
+            
+            // إغلاق البقية لإعطاء مظهر مرتب
+            document.querySelectorAll('.sub-categories-list').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.main-cat-btn').forEach(el => el.classList.remove('active'));
 
-              // 3. عرض الأقسام الفرعية للقسم المختار حصراً
-              subcategoryMap[mainCategory].forEach(sub => {
-                  const isActive = selectedSub === sub ? 'active' : '';
-                  html += `<button onclick="filterSub('${sub}')" class="filter-btn ${isActive}">${sub}</button>`;
-              });
-          } 
-          // إذا كان في الصفحة العامة للمنتجات
-          else {
-              titleElement.textContent = "جميع الأقسام والمنتجات";
-              descElement.textContent = "اختر القسـم المطلوب لتصفح منتجاته الفرعية";
-              
-              html += `<button onclick="window.location.href='products.html'" class="filter-btn active">الكل</button>`;
-              Object.keys(subcategoryMap).forEach(cat => {
-                  html += `<button onclick="window.location.href='products.html?category=' + encodeURIComponent('${cat}')" class="filter-btn">${cat}</button>`;
-              });
-          }
+            if (!isOpen) {
+                list.classList.add('open');
+                btn.classList.add('active');
+            }
+        }
 
-          subBar.innerHTML = html;
-      }
+        function changeQty(btn, val) {
+            const input = btn.parentElement.querySelector('.qty-input');
+            let count = parseInt(input.value) || 1;
+            count += val;
+            if (count < 1) count = 1;
+            input.value = count;
+        }
 
-      function filterSub(subName) {
-          if (!subName) {
-              window.location.href = `products.html?category=${encodeURIComponent(mainCategory)}`;
-          } else {
-              window.location.href = `products.html?category=${encodeURIComponent(mainCategory)}&sub=${encodeURIComponent(subName)}`;
-          }
-      }
+        function sendWhatsApp(productTitle, btn) {
+            const card = btn.closest('.product-card');
+            const qty = card.querySelector('.qty-input').value;
+            let text = `السلام عليكم،\nأرغب في طلب:\n\n*المنتج:* ${productTitle}\n*الكمية:* ${qty}`;
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
+        }
 
-      function changeQty(btn, change) {
-          const input = btn.parentElement.querySelector('.qty-input');
-          let val = parseInt(input.value) || 1;
-          val += change;
-          if (val < 1) val = 1;
-          input.value = val;
-      }
+        // محاكاة جلب المنتجات وعرضها
+        async function loadProducts() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentCategory = urlParams.get('category') ? decodeURIComponent(urlParams.get('category')).trim() : null;
+            const currentSubCategory = urlParams.get('sub') ? decodeURIComponent(urlParams.get('sub')).trim() : null;
 
-      function sendWhatsApp(productTitle, cat, sub, btn) {
-          const card = btn.closest('.product-card');
-          const qty = card.querySelector('.qty-input').value;
-          
-          let text = `السلام عليكم، أرغب في طلب المنتج التالي:\n\n`;
-          text += `▪️ *المنتج:* ${productTitle}\n`;
-          text += `▪️ *الكمية:* ${qty}\n`;
-          if (cat) text += `▪️ *القسم:* ${cat}\n`;
-          if (sub) text += `▪️ *الفرعي:* ${sub}\n`;
+            renderSidebar(currentCategory, currentSubCategory);
 
-          window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
-      }
+            if (currentCategory) {
+                document.getElementById('current-category-title').textContent = currentSubCategory ? `${currentCategory} / ${currentSubCategory}` : currentCategory;
+                document.getElementById('current-category-desc').textContent = `عرض المنتجات التابعة للتصنيف المختار`;
+            }
 
-      function renderProducts() {
-          const grid = document.getElementById('products-grid');
-          
-          // هنا يتم عرض منتج تجريبي مرتبط بالقسم الحالي كمعاينة
-          const displayCat = mainCategory || "عام";
-          const displaySub = selectedSub || "جميع المنتجات الفرعية";
+            // هنا يمكنك ربط جلب الملفات الفعلية من مجلد content/products
+            const grid = document.getElementById('products-grid');
+            // مثال توضيحي لشكل المنتج:
+            grid.innerHTML = `
+                <div class="product-card">
+                    <img src="assets/images/logo.png" alt="منتج تجريبي">
+                    <div>
+                        <div class="product-title">منتج تجريبي مقيد بالنظام</div>
+                        <span class="product-category-tag">قسم عام</span>
+                    </div>
+                    <div>
+                        <div class="quantity-control">
+                            <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                            <input type="text" class="qty-input" value="1" readonly>
+                            <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                        </div>
+                        <button class="whatsapp-btn" onclick="sendWhatsApp('منتج تجريبي مقيد بالنظام', this)">اطلب عبر الواتساب</button>
+                    </div>
+                </div>
+            `;
+        }
 
-          grid.innerHTML = `
-              <div class="product-card">
-                  <div>
-                      <img src="assets/images/logo.png" alt="منتج">
-                      <h3>منتج تجريبي في ${displayCat}</h3>
-                      <p style="font-size:12px; color:#6c757d; margin:6px 0;">
-                          <strong>القسم الرئيسي:</strong> ${displayCat}<br>
-                          ${selectedSub ? `<strong>القسم الفرعي:</strong> ${displaySub}` : ''}
-                      </p>
-                  </div>
-                  <div>
-                      <div class="quantity-control">
-                          <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
-                          <input type="number" class="qty-input" value="1" readonly>
-                          <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
-                      </div>
-                      <a href="javascript:void(0)" onclick="sendWhatsApp('منتج تجريبي', '${displayCat}', '${displaySub}', this)" class="whatsapp-btn">
-                          طلب عبر الواتساب
-                      </a>
-                  </div>
-              </div>
-          `;
-      }
-
-      document.addEventListener('DOMContentLoaded', () => {
-          renderNavigation();
-          renderProducts();
-      });
+        document.addEventListener('DOMContentLoaded', loadProducts);
     </script>
 </body>
 </html>
