@@ -40,7 +40,6 @@
             }
         }
 
-        /* لوحة الفلترة الجانبية والأقسام الرئيسية */
         .sidebar-filters {
             background: #ffffff;
             border-radius: 12px;
@@ -97,7 +96,6 @@
             transform: rotate(180deg);
         }
 
-        /* الأقسام الفرعية المتفاعلة */
         .sub-categories-list {
             max-height: 0;
             overflow: hidden;
@@ -108,7 +106,7 @@
         }
 
         .sub-categories-list.open {
-            max-height: 500px;
+            max-height: 600px;
             padding: 10px;
             border: 1px solid var(--border-color);
             border-top: none;
@@ -131,14 +129,9 @@
             color: #ffffff;
         }
 
-        /* شبكة المنتجات */
-        .products-section {
-            background: transparent;
-        }
-
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
         }
 
@@ -184,33 +177,52 @@
             margin-bottom: 12px;
         }
 
+        /* تنسيق خانة الكمية والوحدة المتفاعلة */
+        .order-options-box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin: 12px 0;
+        }
+
         .quantity-control {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin: 10px 0;
+            gap: 4px;
         }
 
         .qty-btn {
             background-color: var(--bg-light);
             border: 1px solid var(--border-color);
-            width: 32px;
+            width: 28px;
             height: 32px;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
         }
 
         .qty-input {
-            width: 50px;
+            width: 40px;
             height: 32px;
             text-align: center;
             font-size: 14px;
             font-weight: bold;
             border: 1px solid var(--border-color);
             border-radius: 6px;
+        }
+
+        .unit-select {
+            height: 34px;
+            padding: 0 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
         }
 
         .whatsapp-btn {
@@ -223,13 +235,15 @@
             font-weight: bold;
             font-size: 14px;
             transition: background 0.2s;
+            width: 100%;
+            border: none;
+            cursor: pointer;
         }
 
         .whatsapp-btn:hover {
             background-color: #20ba5a;
         }
 
-        /* زر عرض الكل */
         .reset-filter-btn {
             display: block;
             width: 100%;
@@ -251,16 +265,16 @@
 </head>
 <body>
 
-    <header class="site-header" style="background: #fff; padding: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-        <div class="container header-flex" style="max-width: 1300px; margin: 0 auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center;">
-            <a href="index.html" class="logo-area" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+    <header style="background: #fff; padding: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="max-width: 1300px; margin: 0 auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
                 <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم" style="height: 50px;">
                 <div>
                     <h1 style="font-size: 18px; margin: 0; color: #1d3557;">الأنسياب المتقدم</h1>
                     <p style="font-size: 12px; margin: 0; color: #666;">أدوات ولوازم الغاز والرحلات</p>
                 </div>
             </a>
-            <nav class="main-nav" style="display: flex; gap: 20px;">
+            <nav style="display: flex; gap: 20px;">
                 <a href="index.html" style="text-decoration: none; color: #333; font-weight: 600;">الرئيسية</a>
                 <a href="products.html" style="text-decoration: none; color: #1d3557; font-weight: 600;">المنتجات</a>
                 <a href="about.html" style="text-decoration: none; color: #333; font-weight: 600;">من نحن</a>
@@ -274,14 +288,11 @@
         <aside class="sidebar-filters">
             <div class="sidebar-title">أقسام المتجر</div>
             <a href="products.html" class="reset-filter-btn">عرض كل المنتجات</a>
-            
-            <div id="categories-sidebar-container">
-                <!-- سيتم بناء الأقسام ديناميكياً وتفاعلياً هنا -->
-            </div>
+            <div id="categories-sidebar-container"></div>
         </aside>
 
         <!-- عرض المنتجات -->
-        <main class="products-section">
+        <main>
             <div style="margin-bottom: 20px;">
                 <h2 id="current-category-title" style="color: var(--primary-color); margin: 0 0 5px 0;">جميع المنتجات</h2>
                 <p id="current-category-desc" style="color: #666; margin: 0; font-size: 14px;">تصفح كافة منتجات و لوازم الأنسياب المتقدم</p>
@@ -293,14 +304,14 @@
         </main>
     </div>
 
-    <footer class="footer" style="background: #1d3557; color: white; text-align: center; padding: 20px 0; margin-top: 50px;">
+    <footer style="background: #1d3557; color: white; text-align: center; padding: 20px 0; margin-top: 50px;">
         <p style="margin: 0; font-size: 14px;">© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
     </footer>
 
     <script>
-        const WHATSAPP_NUMBER = "966500000000"; // استبدل برقم الواتساب الخاص بك
+        // تم تحديث رقم الواتساب بالرقم الجديد المطلوب
+        const WHATSAPP_NUMBER = "966506645562";
 
-        // خريطة الأقسام الرئيسية والفرعية المتوافقة تماماً مع إعدادات لوحة التحكم
         const categoriesMapping = {
             "منزليات": ["أدوات منزلية عامة", "أجهزة مطبخ منزلية", "لوازم طهي منزلية"],
             "ادوات ولوازم الرحلات": ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"],
@@ -313,11 +324,13 @@
             "قطع غيار": ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"],
             "قدور": ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"],
             "ساعات ومنظمات غاز": ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلاا غاز"],
-            "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
+            "دوافير ودبات": ["dبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
             "دفايات": ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"],
             "خضاضات وسطول": ["خضاضات لبن", "سطول لبن", "مواعين سمن"],
             "ادوات ولوازم الشواء": ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
         };
+
+        const unitsList = ["حبة", "كرتون", "ربطة", "درزن", "علبة", "متر", "لفه"];
 
         function renderSidebar(activeCat, activeSub) {
             const container = document.getElementById('categories-sidebar-container');
@@ -334,7 +347,7 @@
                 `;
                 
                 subList.forEach(sub => {
-                    const isSubActive = isSubActiveMatch(activeCat, activeSub, mainCat, sub);
+                    const isSubActive = (currentCat => currentCat === mainCat && activeSub === sub)(activeCat);
                     html += `<a href="products.html?category=${encodeURIComponent(mainCat)}&sub=${encodeURIComponent(sub)}" class="sub-cat-item ${isSubActive ? 'active' : ''}">${sub}</a>`;
                 });
 
@@ -343,15 +356,10 @@
             container.innerHTML = html;
         }
 
-        function isSubActiveMatch(currentCat, currentSub, cat, sub) {
-            return currentCat === cat && currentSub === sub;
-        }
-
         function toggleSubMenu(btn) {
             const list = btn.nextElementSibling;
             const isOpen = list.classList.contains('open');
             
-            // إغلاق البقية لإعطاء مظهر مرتب
             document.querySelectorAll('.sub-categories-list').forEach(el => el.classList.remove('open'));
             document.querySelectorAll('.main-cat-btn').forEach(el => el.classList.remove('active'));
 
@@ -372,11 +380,12 @@
         function sendWhatsApp(productTitle, btn) {
             const card = btn.closest('.product-card');
             const qty = card.querySelector('.qty-input').value;
-            let text = `السلام عليكم،\nأرغب في طلب:\n\n*المنتج:* ${productTitle}\n*الكمية:* ${qty}`;
+            const unit = card.querySelector('.unit-select').value;
+            
+            let text = `السلام عليكم،\nأرغب في طلب:\n\n*المنتج:* ${productTitle}\n*الكمية:* ${qty} ${unit}`;
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // محاكاة جلب المنتجات وعرضها
         async function loadProducts() {
             const urlParams = new URLSearchParams(window.location.search);
             const currentCategory = urlParams.get('category') ? decodeURIComponent(urlParams.get('category')).trim() : null;
@@ -389,9 +398,11 @@
                 document.getElementById('current-category-desc').textContent = `عرض المنتجات التابعة للتصنيف المختار`;
             }
 
-            // هنا يمكنك ربط جلب الملفات الفعلية من مجلد content/products
             const grid = document.getElementById('products-grid');
-            // مثال توضيحي لشكل المنتج:
+            
+            // توليد خيارات الوحدة للقائمة المنسدلة
+            let unitsOptionsHtml = unitsList.map(u => `<option value="${u}">${u}</option>`).join('');
+
             grid.innerHTML = `
                 <div class="product-card">
                     <img src="assets/images/logo.png" alt="منتج تجريبي">
@@ -400,10 +411,15 @@
                         <span class="product-category-tag">قسم عام</span>
                     </div>
                     <div>
-                        <div class="quantity-control">
-                            <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
-                            <input type="text" class="qty-input" value="1" readonly>
-                            <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                        <div class="order-options-box">
+                            <div class="quantity-control">
+                                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                                <input type="text" class="qty-input" value="1" readonly>
+                                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                            </div>
+                            <select class="unit-select">
+                                ${unitsOptionsHtml}
+                            </select>
                         </div>
                         <button class="whatsapp-btn" onclick="sendWhatsApp('منتج تجريبي مقيد بالنظام', this)">اطلب عبر الواتساب</button>
                     </div>
