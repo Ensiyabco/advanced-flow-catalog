@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
-    <!-- تنسيقات كبسولات الأقسام الفرعية وكروت المنتجات -->
     <style>
         .category-filter-section {
             padding: 20px 0;
@@ -44,6 +43,15 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(29, 53, 87, 0.2);
         }
+        .back-btn {
+            background-color: #e63946;
+            color: #fff;
+            border-color: #e63946;
+        }
+        .back-btn:hover {
+            background-color: #d62828;
+            border-color: #d62828;
+        }
         .product-card {
             background: #fff;
             border: 1px solid #e1e8ed;
@@ -51,11 +59,6 @@
             padding: 15px;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         .product-card img {
             max-width: 100%;
@@ -68,12 +71,6 @@
             color: #1d3557;
             margin-bottom: 8px;
         }
-        .product-info {
-            font-size: 13px;
-            color: #6c757d;
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
         .whatsapp-btn {
             display: inline-block;
             background-color: #25d366;
@@ -83,10 +80,6 @@
             border-radius: 6px;
             font-weight: bold;
             font-size: 13px;
-            transition: background 0.2s;
-        }
-        .whatsapp-btn:hover {
-            background-color: #128c7e;
         }
         @media (max-width: 768px) {
             .filter-container {
@@ -124,20 +117,20 @@
 
     <section class="hero" style="padding: 25px 0;">
         <h2 id="page-category-title">جميع المنتجات</h2>
-        <p>تصفح الأقسام الفرعية والمنتجات المتاحة</p>
+        <p id="page-category-desc">تصفح الأقسام الفرعية والمنتجات المتاحة</p>
     </section>
 
-    <!-- شريط الأقسام الفرعية التابع للقسم الرئيسي المختار -->
+    <!-- شريط الفلترة الديناميكي -->
     <section class="category-filter-section">
         <div class="filter-container" id="subcategories-bar">
-            <!-- يتم توليد الأقسام الفرعية هنا ديناميكياً -->
+            <!-- يتم توليد الأقسام هنا -->
         </div>
     </section>
 
-    <!-- شبكة عرض المنتجات -->
+    <!-- شبكة المنتجات -->
     <section class="container" style="margin-bottom: 50px;">
         <div class="grid" id="products-grid">
-            <!-- ستظهر كروت المنتجات المجلوبة هنا -->
+            <!-- ستظهر المنتجات هنا -->
         </div>
     </section>
 
@@ -146,7 +139,7 @@
     </footer>
 
     <script>
-      // خريطة الأقسام الرئيسية وما يتبعها من أقسام فرعية
+      // جدول ربط الأقسام الرئيسية بالأقسام الفرعية
       const subcategoryMap = {
         "دوافير ودبات": ["دوافير ومواقد سفاري", "دبات غاز", "رؤوس دوافير"],
         "مواقد غاز": ["مواقد رحلات وكشتات", "مواقد مطاعم ومنازل", "شعالات مواقد"],
@@ -164,35 +157,50 @@
         "ادوات لحام وواريخ": ["أدوات لحام غاز", "واريخ وتوصيلات"]
       };
 
+      // قراءة اسم القسم من الرابط (URL)
       const urlParams = new URLSearchParams(window.location.search);
-      const mainCategory = urlParams.get('category');
-      const selectedSub = urlParams.get('sub');
+      const rawCat = urlParams.get('category');
+      const mainCategory = rawCat ? decodeURIComponent(rawCat).trim() : null;
+      const selectedSub = urlParams.get('sub') ? decodeURIComponent(urlParams.get('sub')).trim() : null;
+
       const titleElement = document.getElementById('page-category-title');
+      const descElement = document.getElementById('page-category-desc');
       const subBar = document.getElementById('subcategories-bar');
 
-      // 1. تحديث عنوان الصفحة
-      if (mainCategory) {
-          titleElement.textContent = selectedSub ? `قسم: ${mainCategory} - ${selectedSub}` : `منتجات قسم: ${mainCategory}`;
-      } else {
-          titleElement.textContent = `جميع المنتجات`;
-      }
+      function initPage() {
+          let html = "";
 
-      // 2. توليد أزرار الأقسام الفرعية المناسبة
-      function renderSubcategoryFilter() {
-          let html = `<button onclick="filterSub('')" class="filter-btn ${!selectedSub ? 'active' : ''}">الكل</button>`;
-          
+          // إذا تم اختيار قسم رئيسي (مثلاً: مواقد غاز)
           if (mainCategory && subcategoryMap[mainCategory]) {
+              titleElement.textContent = selectedSub ? `قسم: ${mainCategory} - ${selectedSub}` : `قسم: ${mainCategory}`;
+              descElement.textContent = `اختر القسم الفرعي لتصفح المنتجات`;
+
+              // زر العودة لجميع الأقسام
+              html += `<button onclick="window.location.href='products.html'" class="filter-btn back-btn">← كل الأقسام الرئيسية</button>`;
+              
+              // زر "عرض كل منتجات القسم"
+              const isAllActive = !selectedSub ? 'active' : '';
+              html += `<button onclick="filterSub('')" class="filter-btn ${isAllActive}">جميع منتجات ${mainCategory}</button>`;
+
+              // عرض الأقسام الفرعية التابعة لهذا القسم فقط!
               subcategoryMap[mainCategory].forEach(sub => {
                   const isActive = selectedSub === sub ? 'active' : '';
                   html += `<button onclick="filterSub('${sub}')" class="filter-btn ${isActive}">${sub}</button>`;
               });
-          } else {
-              // في حال الدخول لصفحة جميع المنتجات
+          } 
+          // إذا لم يتم تحديد قسم (عرض جميع الأقسام الرئيسية)
+          else {
+              titleElement.textContent = "جميع المنتجات";
+              descElement.textContent = "اختر قسماً رئيسياً لتصفح الأقسام الفرعية والمنتجات";
+              
+              html += `<button onclick="window.location.href='products.html'" class="filter-btn active">الكل</button>`;
               Object.keys(subcategoryMap).forEach(cat => {
-                  html += `<button onclick="location.href='products.html?category=${encodeURIComponent(cat)}'" class="filter-btn">${cat}</button>`;
+                  html += `<button onclick="window.location.href='products.html?category=' + encodeURIComponent('${cat}')" class="filter-btn">${cat}</button>`;
               });
           }
+
           subBar.innerHTML = html;
+          loadProducts();
       }
 
       function filterSub(subName) {
@@ -203,31 +211,24 @@
           }
       }
 
-      // 3. عرض المنتجات المصفاة
-      async function loadProducts() {
+      function loadProducts() {
           const grid = document.getElementById('products-grid');
-          
-          // نموذج كرت المنتج التفاعلي
           grid.innerHTML = `
               <div class="product-card">
                   <img src="assets/images/logo.png" alt="منتج تجريبي">
-                  <h3>راس دافور إيطالي سن كبير</h3>
-                  <div class="product-info">
-                      <p><strong>القسم:</strong> ${mainCategory || 'عام'}</p>
-                      ${selectedSub ? `<p><strong>الفرعي:</strong> ${selectedSub}</p>` : ''}
-                      <p><strong>الشد:</strong> 12 حبة | <strong>الكمية:</strong> متوفر</p>
-                  </div>
-                  <a href="https://wa.me/?text=${encodeURIComponent('السلام عليكم، أرغب في الاستفسار عن: راس دافور إيطالي')}" target="_blank" class="whatsapp-btn">
+                  <h3>منتج تجريبي</h3>
+                  <p style="font-size:13px; color:#6c757d; margin:8px 0;">
+                      <strong>القسم:</strong> ${mainCategory || 'جميع الأقسام'}<br>
+                      ${selectedSub ? `<strong>الفرعي:</strong> ${selectedSub}` : ''}
+                  </p>
+                  <a href="https://wa.me/?text=${encodeURIComponent('السلام عليكم، أرغب في الاستفسار عن منتجات ' + (mainCategory || 'الموقع'))}" target="_blank" class="whatsapp-btn">
                       طلب عبر الواتساب
                   </a>
               </div>
           `;
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-          renderSubcategoryFilter();
-          loadProducts();
-      });
+      document.addEventListener('DOMContentLoaded', initPage);
 
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
