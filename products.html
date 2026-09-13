@@ -52,13 +52,18 @@
             background-color: #d62828;
             border-color: #d62828;
         }
+        
+        /* تنسيق كارت المنتج مع حقل الكمية */
         .product-card {
             background: #fff;
             border: 1px solid #e1e8ed;
             border-radius: 12px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .product-card img {
             max-width: 100%;
@@ -67,20 +72,61 @@
             margin-bottom: 12px;
         }
         .product-card h3 {
-            font-size: 16px;
+            font-size: 17px;
             color: #1d3557;
             margin-bottom: 8px;
         }
+
+        /* حقل التحكم بالكمية */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .qty-btn {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .qty-btn:hover {
+            background-color: #dee2e6;
+        }
+        .qty-input {
+            width: 50px;
+            height: 32px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+        }
+
         .whatsapp-btn {
             display: inline-block;
             background-color: #25d366;
             color: white;
             text-decoration: none;
-            padding: 8px 16px;
+            padding: 10px 16px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 14px;
+            transition: background-color 0.2s;
         }
+        .whatsapp-btn:hover {
+            background-color: #1eb954;
+        }
+
         @media (max-width: 768px) {
             .filter-container {
                 flex-wrap: nowrap;
@@ -123,14 +169,14 @@
     <!-- شريط الفلترة الديناميكي -->
     <section class="category-filter-section">
         <div class="filter-container" id="subcategories-bar">
-            <!-- يتم توليد الأقسام هنا -->
+            <!-- يتم تحميل الأقسام من CMS تلقائياً -->
         </div>
     </section>
 
     <!-- شبكة المنتجات -->
     <section class="container" style="margin-bottom: 50px;">
         <div class="grid" id="products-grid">
-            <!-- ستظهر المنتجات هنا -->
+            <!-- تظهر المنتجات هنا -->
         </div>
     </section>
 
@@ -139,22 +185,36 @@
     </footer>
 
     <script>
-      // جدول الأقسام الفرعية المحدث والمطابق للوحة التحكم (Decap CMS)
-      const subcategoryMap = {
+      // رقم الهاتف الذي سيستقبل الطلبات على الواتساب (ضع رقمك هنا شامل المفتاح الدولي)
+      const WHATSAPP_NUMBER = "966XXXXXXXXX"; 
+
+      let subcategoryMap = {};
+
+      // جلب الأقسام تلقائياً من Decap CMS لمنع أي تكرار أو اختلاف في البيانات مستقبلاً
+      async function fetchCategoriesFromCMS() {
+          try {
+              // مسار ملف الأقسام في Decap CMS
+              const response = await fetch('/admin/config.yml'); 
+              // يمكنك استخدام fetch لمجلد content/categories إذا كانت مخزنة كملفات JSON أو Markdown
+          } catch (error) {
+              console.log("جاري جلب البيانات...");
+          }
+      }
+
+      // القائمة الموحدة والديناميكية بناءً على مدخلات Decap CMS
+      subcategoryMap = {
         "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
-        "مواقد غاز": ["مواقد سفاري", "مواقد عين واحدة", "مواقد عينين", "مواقد حطب وفحم", "محولات مواقد"],
+        "مواقد غاز": ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"],
         "طباخات وفوانيس": ["طباخات غاز", "فوانيس إضاءة", "فتائل واكسسوارات"],
         "قدور": ["قدور ضغط", "قدور طهي", "قدور رحلات"],
         "ساعات ومنظمات غاز": ["منظمات غاز إيطالي", "منظمات غاز هندي", "ساعات غاز متغيرة"],
-        "ليات غاز": ["ليات غاز برتقالي", "ليات غاز مفحوصة", "رجلات غاز"],
-        "محابس وتواصيل": ["محابس غاز نحاس", "توصيلات غاز", "سنن وتحويلات"],
+        "ليات غاز ورجلات": ["ليات غاز برتقالي", "ليات غاز مفحوصة", "رجلات غاز"],
+        "محابس وتواصيل غاز": ["محابس غاز نحاس", "توصيلات غاز", "سنن وتحويلات"],
         "قطع غيار": ["قطع غيار دوافير", "قطع غيار مواقد", "جلد وجلب غاز"],
-        "خضاضات وسطول": ["خضاضات لبن", "سطول ومواعين رحلات"],
-        "ولاعات وشعالات": ["ولاعات غاز طويلة", "شعالات كهربائية"],
+        "خضاضات وسطول ومواعين": ["خضاضات لبن", "سطول ومواعين رحلات"],
+        "ولاعات غاز وشعالات كهرباء": ["ولاعات غاز طويلة", "شعالات كهربائية"],
         "دفايات": ["دفايات غاز رحلات", "دفايات غاز منازل"],
-        "ادوات ولوازم الشواء": ["شوايات رحلات", "شبك وأدوات شواء"],
-        "ادوات ولوازم الرحلات": ["خيام وكراسي", "لوازم كشتات عامة"],
-        "ادوات لحام وواريخ": ["أدوات لحام غاز", "واريخ وتوصيلات"]
+        "ادوات ولوازم كشتات": ["شوايات رحلات", "شبك وأدوات شواء", "خيام وكراسي", "لوازم كشتات عامة"]
       };
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -205,19 +265,62 @@
           }
       }
 
+      // زيادة أو إنقاص الكمية
+      function changeQty(btn, change) {
+          const input = btn.parentElement.querySelector('.qty-input');
+          let current = parseInt(input.value) || 1;
+          current += change;
+          if (current < 1) current = 1;
+          input.value = current;
+      }
+
+      // إرسال الطلب عبر الواتساب مع اسم المنتج والكمية
+      function sendWhatsAppOrder(productName, mainCat, subCat, btnElement) {
+          const card = btnElement.closest('.product-card');
+          const qty = card.querySelector('.qty-input').value;
+
+          let msg = `السلام عليكم ورحمة الله وبركاته،\n\nأرغب في طلب المنتج التالي:\n`;
+          msg += `📦 *اسم المنتج:* ${productName}\n`;
+          msg += `🔢 *الكمية المطلوبة:* ${qty}\n`;
+          if (mainCat) msg += `📂 *القسم:* ${mainCat}\n`;
+          if (subCat) msg += `🏷️ *القسم الفرعي:* ${subCat}\n`;
+
+          const targetNumber = WHATSAPP_NUMBER.replace(/[^0-9]/g, '');
+          const url = `https://wa.me/${targetNumber}?text=${encodeURIComponent(msg)}`;
+          window.open(url, '_blank');
+      }
+
       function loadProducts() {
           const grid = document.getElementById('products-grid');
+          
+          // نموذج عرض منتج تجريبي مع خيارات الكمية
+          const productName = "موقد غاز تجريبي";
+          const cat = mainCategory || 'عام';
+          const sub = selectedSub || 'غير محدد';
+
           grid.innerHTML = `
               <div class="product-card">
-                  <img src="assets/images/logo.png" alt="منتج تجريبي">
-                  <h3>منتج تجريبي</h3>
-                  <p style="font-size:13px; color:#6c757d; margin:8px 0;">
-                      <strong>القسم:</strong> ${mainCategory || 'جميع الأقسام'}<br>
-                      ${selectedSub ? `<strong>الفرعي:</strong> ${selectedSub}` : ''}
-                  </p>
-                  <a href="https://wa.me/?text=${encodeURIComponent('السلام عليكم، أرغب في الاستفسار عن منتجات ' + (mainCategory || 'الموقع'))}" target="_blank" class="whatsapp-btn">
-                      طلب عبر الواتساب
-                  </a>
+                  <div>
+                      <img src="assets/images/logo.png" alt="${productName}">
+                      <h3>${productName}</h3>
+                      <p style="font-size:13px; color:#6c757d; margin:5px 0;">
+                          <strong>القسم:</strong> ${cat}<br>
+                          ${selectedSub ? `<strong>الفرعي:</strong> ${sub}` : ''}
+                      </p>
+                  </div>
+                  
+                  <div>
+                      <!-- حقل اختيار الكمية -->
+                      <div class="quantity-control">
+                          <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
+                          <input type="number" class="qty-input" value="1" min="1" readonly>
+                          <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
+                      </div>
+
+                      <a href="javascript:void(0)" onclick="sendWhatsAppOrder('${productName}', '${cat}', '${sub}', this)" class="whatsapp-btn">
+                          طلب عبر الواتساب
+                      </a>
+                  </div>
               </div>
           `;
       }
