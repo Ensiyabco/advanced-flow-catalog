@@ -83,28 +83,31 @@
         <p>تصفح منتجاتنا المتنوعة لعالم الغاز والرحلات</p>
     </section>
 
-    <!-- شريط الفلترة كبسولات مرتبة -->
+    <!-- شريط الأقسام الموحد بأسلوب الكبسولات -->
     <section class="category-filter-section">
         <div class="filter-container" id="filter-buttons">
             <button onclick="filterCategory('all')" class="filter-btn" data-cat="all">الكل</button>
-            <button onclick="filterCategory('دوافير الغاز')" class="filter-btn" data-cat="دوافير الغاز">دوافير الغاز</button>
-            <button onclick="filterCategory('مواقد الغاز')" class="filter-btn" data-cat="مواقد الغاز">مواقد الغاز</button>
+            <button onclick="filterCategory('دوافير ودبات')" class="filter-btn" data-cat="دوافير ودبات">دوافير ودبات</button>
+            <button onclick="filterCategory('مواقد غاز')" class="filter-btn" data-cat="مواقد غاز">مواقد غاز</button>
+            <button onclick="filterCategory('طباخات وفوانيس')" class="filter-btn" data-cat="طباخات وفوانيس">طباخات وفوانيس</button>
+            <button onclick="filterCategory('قدور')" class="filter-btn" data-cat="قدور">قدور</button>
             <button onclick="filterCategory('ساعات ومنظمات غاز')" class="filter-btn" data-cat="ساعات ومنظمات غاز">ساعات ومنظمات</button>
-            <button onclick="filterCategory('ليات غاز ورجلات')" class="filter-btn" data-cat="ليات غاز ورجلات">ليات ورجلات</button>
-            <button onclick="filterCategory('لوازم الرحلات وادواتها')" class="filter-btn" data-cat="لوازم الرحلات وادواتها">لوازم الرحلات</button>
-            <button onclick="filterCategory('خضاضات وسطول ومواعين')" class="filter-btn" data-cat="خضاضات وسطول ومواعين">خضاضات ومواعين</button>
+            <button onclick="filterCategory('ليات غاز')" class="filter-btn" data-cat="ليات غاز">ليات غاز</button>
+            <button onclick="filterCategory('محابس وتواصيل')" class="filter-btn" data-cat="محابس وتواصيل">محابس وتواصيل</button>
             <button onclick="filterCategory('قطع غيار')" class="filter-btn" data-cat="قطع غيار">قطع غيار</button>
-            <button onclick="filterCategory('محابس وتواصيل غاز')" class="filter-btn" data-cat="محابس وتواصيل غاز">محابس وتواصيل</button>
+            <button onclick="filterCategory('خضاضات وسطول')" class="filter-btn" data-cat="خضاضات وسطول">خضاضات وسطول</button>
+            <button onclick="filterCategory('ولاعات وشعالات')" class="filter-btn" data-cat="ولاعات وشعالات">ولاعات وشعالات</button>
             <button onclick="filterCategory('دفايات')" class="filter-btn" data-cat="دفايات">دفايات</button>
-            <button onclick="filterCategory('ولاعات غاز وشعالات كهرباء')" class="filter-btn" data-cat="ولاعات غاز وشعالات كهرباء">ولاعات وشعالات</button>
-            <button onclick="filterCategory('ادوات ولوازم كشتات')" class="filter-btn" data-cat="ادوات ولوازم كشتات">لوازم كشتات</button>
+            <button onclick="filterCategory('ادوات ولوازم الشواء')" class="filter-btn" data-cat="ادوات ولوازم الشواء">ادوات الشواء</button>
+            <button onclick="filterCategory('ادوات ولوازم الرحلات')" class="filter-btn" data-cat="ادوات ولوازم الرحلات">لوازم الرحلات</button>
+            <button onclick="filterCategory('ادوات لحام وواريخ')" class="filter-btn" data-cat="ادوات لحام وواريخ">لحام وواريخ</button>
         </div>
     </section>
 
     <!-- شبكة عرض المنتجات -->
     <section class="container" style="margin-bottom: 50px;">
         <div class="grid" id="products-grid">
-            <!-- ستظهر كروت المنتجات هنا -->
+            <!-- ستظهر المنتجات هنا -->
         </div>
     </section>
 
@@ -117,7 +120,6 @@
       const categoryParam = urlParams.get('category');
       const titleElement = document.getElementById('page-category-title');
 
-      // تحديد اسم القسم وتظليل الزر النشط
       const currentCat = categoryParam || 'all';
       if (categoryParam) {
           titleElement.textContent = `منتجات قسم: ${categoryParam}`;
@@ -125,7 +127,7 @@
           titleElement.textContent = `جميع المنتجات`;
       }
 
-      // تظليل الكبسولة النشطة
+      // تظليل الزر النشط تلقائياً
       document.querySelectorAll('.filter-btn').forEach(btn => {
           if (btn.getAttribute('data-cat') === currentCat) {
               btn.classList.add('active');
@@ -145,7 +147,7 @@
           grid.innerHTML = `
               <div class="cat-card">
                   <img src="assets/images/logo.png" alt="منتج تجريبي">
-                  <h3>شربوش راس دافور ايطالي سن كبير</h3>
+                  <h3>منتج تجريبي</h3>
                   <p>القسم: ${categoryParam || 'عام'}</p>
               </div>
           `;
