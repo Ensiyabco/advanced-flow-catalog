@@ -2,26 +2,17 @@ backend:
   name: git-gateway
   branch: main
 
-media_folder: "assets/images/uploads"
-public_folder: "assets/images/uploads"
+media_folder: "assets/images/products"
+public_folder: "/assets/images/products"
 
 collections:
-  # --------------------------------------------------
-  # 1. مجموعة المنتجات (Products)
-  # --------------------------------------------------
   - name: "products"
     label: "المنتجات"
     folder: "content/products"
     create: true
-    slug: "{{slug}}"
+    slug: "{{title}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "صورة المنتج", name: "image", widget: "image" }
-      - { label: "السعر", name: "price", widget: "number", value_type: "float", required: false }
-      - { label: "الكمية", name: "quantity", widget: "number", required: false }
-      - { label: "شد الكرتون", name: "carton_pack", widget: "string", required: false }
-
-      # القسم الرئيسي (تطابق أقسام Decap CMS)
       - label: "القسم الرئيسي"
         name: "category"
         widget: "select"
@@ -31,28 +22,69 @@ collections:
           - "طباخات وفوانيس"
           - "قدور"
           - "ساعات ومنظمات غاز"
-          - "ليات غاز"
-          - "محابس وتواصيل"
+          - "ليات غاز ورجلات"
+          - "محابس وتواصيل غاز"
           - "قطع غيار"
-          - "خضاضات وسطول"
-          - "ولاعات وشعالات"
+          - "خضاضات وسطول ومواعين"
+          - "ولاعات غاز وشعالات كهرباء"
           - "دفايات"
-          - "ادوات ولوازم الشواء"
-          - "ادوات ولوازم الرحلات"
-          - "ادوات لحام وواريخ"
-
-      - { label: "القسم الفرعي", name: "subcategory", widget: "string", required: false }
-      - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
-
-  # --------------------------------------------------
-  # 2. مجموعة إدارة الأقسام (Categories)
-  # --------------------------------------------------
-  - name: "categories"
-    label: "إدارة الأقسام"
-    folder: "content/categories"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "اسم القسم", name: "title", widget: "string" }
-      - { label: "صورة القسم", name: "image", widget: "image", default: "assets/images/logo.png" }
-      - { label: "وصف فرعي/ملاحظات", name: "description", widget: "string", required: false }
+          - "ادوات ولوازم كشتات"
+      - label: "القسم الفرعي"
+        name: "subcategory"
+        widget: "select"
+        options:
+          # دوافير ودبات
+          - "دبات غاز"
+          - "روس دوافير"
+          - "روس دوافير بلي"
+          - "دبات غاز سفري"
+          - "اكسسوارات دوافير"
+          # مواقد غاز
+          - "مواقد غاز منزلية"
+          - "مواقد غاز مطاعم"
+          - "مواقد غاز مطابخ"
+          - "مواقد رحلات"
+          - "مواقد كويتي"
+          - "مواقد كنافة"
+          - "مسطحات تماتيك"
+          - "مواقد كهرباء"
+          # طباخات وفوانيس
+          - "طباخات غاز"
+          - "فوانيس إضاءة"
+          - "فتائل واكسسوارات"
+          # قدور
+          - "قدور ضغط"
+          - "قدور طهي"
+          - "قدور رحلات"
+          # ساعات ومنظمات غاز
+          - "منظمات غاز إيطالي"
+          - "منظمات غاز هندي"
+          - "ساعات غاز متغيرة"
+          # ليات غاز ورجلات
+          - "ليات غاز برتقالي"
+          - "ليات غاز مفحوصة"
+          - "رجلات غاز"
+          # محابس وتواصيل غاز
+          - "محابس غاز نحاس"
+          - "توصيلات غاز"
+          - "سنن وتحويلات"
+          # قطع غيار
+          - "قطع غيار دوافير"
+          - "قطع غيار مواقد"
+          - "جلد وجلب غاز"
+          # خضاضات وسطول ومواعين
+          - "خضاضات لبن"
+          - "سطول ومواعين رحلات"
+          # ولاعات غاز وشعالات كهرباء
+          - "ولاعات غاز طويلة"
+          - "شعالات كهربائية"
+          # دفايات
+          - "دفايات غاز رحلات"
+          - "دفايات غاز منازل"
+          # ادوات ولوازم كشتات
+          - "شوايات رحلات"
+          - "شبك وأدوات شواء"
+          - "خيام وكراسي"
+          - "لوازم كشتات عامة"
+      - { label: "شد الكرتون", name: "carton_pack", widget: "string", required: false }
+      - { label: "الصورة", name: "image", widget: "image" }
