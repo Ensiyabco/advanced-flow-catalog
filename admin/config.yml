@@ -2,57 +2,45 @@ backend:
   name: git-gateway
   branch: main
 
-media_folder: "assets/images/products"
-public_folder: "/assets/images/products"
+media_folder: "assets/images/uploads"
+public_folder: "assets/images/uploads"
 
 collections:
-  # --------------------------------------------------
-  # 1. إدارة الأقسام
-  # --------------------------------------------------
-  - name: "categories"
-    label: "إدارة الأقسام"
-    folder: "content/categories"
-    create: true
-    slug: "{{main_category}}"
-    identifier_field: "main_category"
-    fields:
-      - { label: "اسم القسم الرئيسي", name: "main_category", widget: "string" }
-      - label: "الأقسام الفرعية التابعة له"
-        name: "subcategories"
-        widget: "list"
-        required: false
-        field: { label: "اسم القسم الفرعي", name: "subcategory_name", widget: "string" }
-
-  # --------------------------------------------------
-  # 2. المنتجات
-  # --------------------------------------------------
+  # 1. قسم المنتجات
   - name: "products"
     label: "المنتجات"
     folder: "content/products"
     create: true
-    slug: "{{title}}"
+    slug: "{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      
+      - { label: "صورة المنتج", name: "image", widget: "image" }
+      - { label: "السعر", name: "price", widget: "number", value_type: "float", required: false }
+      - { label: "الكمية", name: "quantity", widget: "number", required: false }
+      - { label: "شد الكرتون", name: "carton_pack", widget: "string", required: false }
       - label: "القسم الرئيسي"
         name: "category"
-        widget: "relation"
-        collection: "categories"
-        search_fields: ["main_category"]
-        value_field: "main_category"
-        display_fields: ["main_category"]
-
-      - label: "القسم الفرعي"
-        name: "subcategory"
-        widget: "relation"
-        collection: "categories"
-        search_fields: ["subcategories"]
-        value_field: "subcategories.*"
-        display_fields: ["subcategories.*"]
-        required: false
-
-      - { label: "السعر (ر.س)", name: "price", widget: "number", value_type: "float", required: false }
-      - { label: "الكمية المتاحة", name: "quantity", widget: "number", value_type: "int", required: false, hint: "إجمالي عدد القطع أو الكراتين المتوفرة" }
-      - { label: "شد الكرتون (عدد الحبات)", name: "carton_pack", widget: "string", required: false, hint: "مثال: 12 حبة، 24 حبة" }
-      - { label: "صورة المنتج", name: "image", widget: "image" }
+        widget: "select"
+        options:
+          - "دوافير الغاز والدبات والرؤوس"
+          - "مواقد الغاز"
+          - "ساعات ومنظمات غاز"
+          - "ليات غاز ورجلات"
+          - "لوازم الرحلات وادواتها"
+          - "خضاضات وسطول ومواعين"
+          - "قطع غيار ومحابس وتواصيل غاز"
+          - "دفايات ولاعات غاز وشعالات كهرباء"
+          - "أدوات ولوازم الشواء والكشتات"
+      - { label: "القسم الفرعي", name: "subcategory", widget: "string", required: false }
       - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
+
+  # 2. قسم إدارة الأقسام الرئيسية
+  - name: "categories"
+    label: "إدارة الأقسام"
+    folder: "content/categories"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "اسم القسم", name: "title", widget: "string" }
+      - { label: "صورة القسم", name: "image", widget: "image", default: "assets/images/logo.png" }
+      - { label: "وصف فرعي/ملاحظات", name: "description", widget: "string", required: false }
