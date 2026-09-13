@@ -5,9 +5,6 @@ backend:
 media_folder: "assets/images/products"
 public_folder: "/assets/images/products"
 
-# إعدادات الواجهة باللغة العربية
-locale: 'ar'
-
 collections:
   - name: "products"
     label: "إدارة المنتجات"
@@ -15,16 +12,13 @@ collections:
     folder: "content/products"
     create: true
     slug: "{{title}}"
-    # طريقة عرض المنتجات في لوحة التحكم (الاسم + القسم الرئيسي)
     summary: "{{title}} — [ {{category}} / {{subcategory}} ]"
-    sortable_fields: ["title", "category"]
     fields:
-      - { label: "اسم المنتج", name: "title", widget: "string", hint: "اكتب اسم المنتج بوضوح (مثال: دافور سفري إيطالي)" }
+      - { label: "اسم المنتج", name: "title", widget: "string", hint: "اكتب اسم المنتج بوضوح" }
       
       - label: "القسم الرئيسي"
         name: "category"
         widget: "select"
-        hint: "اختر القسم الرئيسي المناسب"
         options:
           - "دوافير ودبات"
           - "مواقد غاز"
@@ -42,7 +36,6 @@ collections:
       - label: "القسم الفرعي"
         name: "subcategory"
         widget: "select"
-        hint: "اختر القسم الفرعي التابع للقسم الرئيسي"
         options:
           # دوافير ودبات
           - "دبات غاز"
@@ -98,5 +91,5 @@ collections:
           - "خيام وكراسي"
           - "لوازم كشتات عامة"
 
-      - { label: "شد الكرتون / التعبئة", name: "carton_pack", widget: "string", required: false, hint: "مثال: 24 حبة أو اختياري" }
-      - { label: "صورة المنتج", name: "image", widget: "image", hint: "قم برفع صورة المنتجات بجودة مناسبة" }
+      - { label: "شد الكرتون / التعبئة", name: "carton_pack", widget: "string", required: false }
+      - { label: "صورة المنتج", name: "image", widget: "image" }
