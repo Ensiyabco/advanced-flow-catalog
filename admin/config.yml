@@ -7,7 +7,7 @@ public_folder: "assets/images/uploads"
 
 collections:
   # --------------------------------------------------
-  # 1. مجموعة المنتجات (Products Collection)
+  # 1. مجموعة المنتجات (Products)
   # --------------------------------------------------
   - name: "products"
     label: "المنتجات"
@@ -21,43 +21,31 @@ collections:
       - { label: "الكمية", name: "quantity", widget: "number", required: false }
       - { label: "شد الكرتون", name: "carton_pack", widget: "string", required: false }
 
-      # القسم الرئيسي
+      # القسم الرئيسي (تطابق أقسام Decap CMS)
       - label: "القسم الرئيسي"
         name: "category"
         widget: "select"
         options:
-          - "دوافير الغاز"
-          - "مواقد الغاز"
+          - "دوافير ودبات"
+          - "مواقد غاز"
+          - "طباخات وفوانيس"
+          - "قدور"
           - "ساعات ومنظمات غاز"
-          - "ليات غاز ورجلات"
-          - "لوازم الرحلات وادواتها"
-          - "خضاضات وسطول ومواعين"
+          - "ليات غاز"
+          - "محابس وتواصيل"
           - "قطع غيار"
-          - "محابس وتواصيل غاز"
+          - "خضاضات وسطول"
+          - "ولاعات وشعالات"
           - "دفايات"
-          - "ولاعات غاز وشعالات كهرباء"
-          - "ادوات ولوازم كشتات"
+          - "ادوات ولوازم الشواء"
+          - "ادوات ولوازم الرحلات"
+          - "ادوات لحام وواريخ"
 
-      # القسم الفرعي
-      - label: "القسم الفرعي"
-        name: "subcategory"
-        widget: "select"
-        required: false
-        options:
-          - "دوافير ومواقد سفاري"
-          - "مواقد رحلات وكشتات"
-          - "مواقد مطاعم ومنازل"
-          - "منظمات غاز وتوصيلات"
-          - "ليات غاز ورحلات"
-          - "خضاضات ومواعين"
-          - "قطع غيار ومحابس"
-          - "دفايات وشعالات"
-          - "أدوات شواء ولوازم كشتات"
-
+      - { label: "القسم الفرعي", name: "subcategory", widget: "string", required: false }
       - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
 
   # --------------------------------------------------
-  # 2. مجموعة إدارة الأقسام (Categories Collection)
+  # 2. مجموعة إدارة الأقسام (Categories)
   # --------------------------------------------------
   - name: "categories"
     label: "إدارة الأقسام"
@@ -67,4 +55,4 @@ collections:
     fields:
       - { label: "اسم القسم", name: "title", widget: "string" }
       - { label: "صورة القسم", name: "image", widget: "image", default: "assets/images/logo.png" }
-      - { label: "وصف القسم الفرعي", name: "description", widget: "string", required: false }
+      - { label: "وصف فرعي/ملاحظات", name: "description", widget: "string", required: false }
