@@ -38,7 +38,7 @@
     <section id="products" class="categories">
         <h2>تصفح الأقسام</h2>
         <div class="grid" id="categories-grid">
-            <!-- سيتم توليد الأقسام التابعة لـ Decap CMS هنا تلقائياً -->
+            <!-- يتم توليد الأقسام الرئيسية هنا تلقائياً -->
         </div>
     </section>
 
@@ -47,7 +47,6 @@
     </footer>
 
     <script>
-      // قائمة الأقسام الفعلية المطابقة لـ Decap CMS
       const categoriesList = [
         { title: "دوافير ودبات", img: "assets/images/logo.png" },
         { title: "مواقد غاز", img: "assets/images/logo.png" },
@@ -68,14 +67,13 @@
       const gridContainer = document.getElementById('categories-grid');
       if (gridContainer) {
         gridContainer.innerHTML = categoriesList.map(cat => `
-          <div class="cat-card" style="cursor: pointer;" onclick="location.href='products.html?category=${encodeURIComponent(cat.title)}'">
+          <div class="cat-card" style="cursor: pointer;" onclick="window.location.href='products.html?category=' + encodeURIComponent('${cat.title}')">
             <img src="${cat.img}" alt="${cat.title}">
             <h3>${cat.title}</h3>
           </div>
         `).join('');
       }
 
-      // إعدادات Netlify Identity للتسجيل
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
           if (!user) {
