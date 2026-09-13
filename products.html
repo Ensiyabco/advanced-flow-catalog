@@ -6,6 +6,58 @@
     <title>المنتجات | الأنسياب المتقدم</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    
+    <!-- تنسيق كبسولات الأقسام المرتبة -->
+    <style>
+        .category-filter-section {
+            padding: 20px 0;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .filter-btn {
+            background-color: #ffffff;
+            color: #1d3557;
+            border: 1px solid #dcdcdc;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            text-decoration: none;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #1d3557;
+            color: #ffffff;
+            border-color: #1d3557;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(29, 53, 87, 0.2);
+        }
+        @media (max-width: 768px) {
+            .filter-container {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 10px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .filter-btn {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="site-header">
@@ -26,34 +78,33 @@
         </div>
     </header>
 
-    <section class="hero" style="padding: 20px 0;">
+    <section class="hero" style="padding: 25px 0;">
         <h2 id="page-category-title">جميع المنتجات</h2>
         <p>تصفح منتجاتنا المتنوعة لعالم الغاز والرحلات</p>
     </section>
 
-    <!-- شريط فلترة الأقسام والتنقيل السريع -->
-    <section class="search-section" style="margin-bottom: 20px;">
-        <div class="container" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button onclick="filterCategory('all')" class="filter-btn">الكل</button>
-            <button onclick="filterCategory('دوافير الغاز')" class="filter-btn">دوافير الغاز</button>
-            <button onclick="filterCategory('مواقد الغاز')" class="filter-btn">مواقد الغاز</button>
-            <button onclick="filterCategory('ساعات ومنظمات غاز')" class="filter-btn">ساعات ومنظمات</button>
-            <button onclick="filterCategory('ليات غاز ورجلات')" class="filter-btn">ليات ورجلات</button>
-            <button onclick="filterCategory('لوازم الرحلات وادواتها')" class="filter-btn">لوازم الرحلات</button>
-            <button onclick="filterCategory('خضاضات وسطول ومواعين')" class="filter-btn">خضاضات ومواعين</button>
-            <button onclick="filterCategory('قطع غيار')" class="filter-btn">قطع غيار</button>
-            <button onclick="filterCategory('محابس وتواصيل غاز')" class="filter-btn">محابس وتواصيل</button>
-            <button onclick="filterCategory('دفايات')" class="filter-btn">دفايات</button>
-            <button onclick="filterCategory('ولاعات غاز وشعالات كهرباء')" class="filter-btn">ولاعات وشعالات</button>
-            <button onclick="filterCategory('ادوات ولوازم كشتات')" class="filter-btn">لوازم كشتات</button>
+    <!-- شريط الفلترة كبسولات مرتبة -->
+    <section class="category-filter-section">
+        <div class="filter-container" id="filter-buttons">
+            <button onclick="filterCategory('all')" class="filter-btn" data-cat="all">الكل</button>
+            <button onclick="filterCategory('دوافير الغاز')" class="filter-btn" data-cat="دوافير الغاز">دوافير الغاز</button>
+            <button onclick="filterCategory('مواقد الغاز')" class="filter-btn" data-cat="مواقد الغاز">مواقد الغاز</button>
+            <button onclick="filterCategory('ساعات ومنظمات غاز')" class="filter-btn" data-cat="ساعات ومنظمات غاز">ساعات ومنظمات</button>
+            <button onclick="filterCategory('ليات غاز ورجلات')" class="filter-btn" data-cat="ليات غاز ورجلات">ليات ورجلات</button>
+            <button onclick="filterCategory('لوازم الرحلات وادواتها')" class="filter-btn" data-cat="لوازم الرحلات وادواتها">لوازم الرحلات</button>
+            <button onclick="filterCategory('خضاضات وسطول ومواعين')" class="filter-btn" data-cat="خضاضات وسطول ومواعين">خضاضات ومواعين</button>
+            <button onclick="filterCategory('قطع غيار')" class="filter-btn" data-cat="قطع غيار">قطع غيار</button>
+            <button onclick="filterCategory('محابس وتواصيل غاز')" class="filter-btn" data-cat="محابس وتواصيل غاز">محابس وتواصيل</button>
+            <button onclick="filterCategory('دفايات')" class="filter-btn" data-cat="دفايات">دفايات</button>
+            <button onclick="filterCategory('ولاعات غاز وشعالات كهرباء')" class="filter-btn" data-cat="ولاعات غاز وشعالات كهرباء">ولاعات وشعالات</button>
+            <button onclick="filterCategory('ادوات ولوازم كشتات')" class="filter-btn" data-cat="ادوات ولوازم كشتات">لوازم كشتات</button>
         </div>
     </section>
 
-    <!-- شبكة عرض المنتجات المجلوبة من Decap CMS -->
-    <section class="container" style="margin-bottom: 40px;">
+    <!-- شبكة عرض المنتجات -->
+    <section class="container" style="margin-bottom: 50px;">
         <div class="grid" id="products-grid">
-            <!-- ستظهر المنتجات المجلوبة هنا ديناميكياً -->
-            <p style="text-align: center; grid-column: 1 / -1;">جاري تحميل المنتجات...</p>
+            <!-- ستظهر كروت المنتجات هنا -->
         </div>
     </section>
 
@@ -62,18 +113,25 @@
     </footer>
 
     <script>
-      // 1. قراءة القسم المحدد من رابط الصفحة (URL Parameter)
       const urlParams = new URLSearchParams(window.location.search);
       const categoryParam = urlParams.get('category');
       const titleElement = document.getElementById('page-category-title');
 
+      // تحديد اسم القسم وتظليل الزر النشط
+      const currentCat = categoryParam || 'all';
       if (categoryParam) {
           titleElement.textContent = `منتجات قسم: ${categoryParam}`;
       } else {
           titleElement.textContent = `جميع المنتجات`;
       }
 
-      // 2. دالة التصفية عند الضغط على أزرار الأقسام السريعة
+      // تظليل الكبسولة النشطة
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+          if (btn.getAttribute('data-cat') === currentCat) {
+              btn.classList.add('active');
+          }
+      });
+
       function filterCategory(catName) {
           if (catName === 'all') {
               window.location.href = 'products.html';
@@ -82,16 +140,12 @@
           }
       }
 
-      // 3. دالة جلب وعرض المنتجات (محاكاة الربط مع ملفات Decap CMS)
       async function loadProducts() {
           const grid = document.getElementById('products-grid');
-          
-          // يمكنك هنا ربط القائمة مع مجلد /content/products المرفوع عبر Decap CMS
-          // حالياً نعرض هيكلية جاهزة للمنتجات المصفاة
           grid.innerHTML = `
               <div class="cat-card">
                   <img src="assets/images/logo.png" alt="منتج تجريبي">
-                  <h3>منتج تجريبي</h3>
+                  <h3>شربوش راس دافور ايطالي سن كبير</h3>
                   <p>القسم: ${categoryParam || 'عام'}</p>
               </div>
           `;
@@ -99,7 +153,6 @@
 
       document.addEventListener('DOMContentLoaded', loadProducts);
 
-      // Netlify Identity
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
           if (!user) {
