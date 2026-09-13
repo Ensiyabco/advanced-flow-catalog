@@ -47,19 +47,22 @@
     </footer>
 
     <script>
-      // قائمة الأقسام الرئيسية والفرعية المعتمدة في Decap CMS
+      // قائمة الأقسام الفعلية المطابقة لـ Decap CMS
       const categoriesList = [
-        { title: "دوافير الغاز", sub: "دوافير ومواقد سفاري", img: "assets/images/logo.png" },
-        { title: "مواقد الغاز", sub: "مواقد رحلات وكشتات - مطاعم ومنازل", img: "assets/images/logo.png" },
-        { title: "ساعات ومنظمات غاز", sub: "منظمات غاز وتوصيلات", img: "assets/images/logo.png" },
-        { title: "ليات غاز ورجلات", sub: "ليات غاز ورجلات", img: "assets/images/logo.png" },
-        { title: "لوازم الرحلات وادواتها", sub: "أدوات شواء ولوازم كشتات", img: "assets/images/logo.png" },
-        { title: "خضاضات وسطول ومواعين", sub: "خضاضات ومواعين", img: "assets/images/logo.png" },
-        { title: "قطع غيار", sub: "قطع غيار ومحابس", img: "assets/images/logo.png" },
-        { title: "محابس وتواصيل غاز", sub: "قطع غيار ومحابس", img: "assets/images/logo.png" },
-        { title: "دفايات", sub: "دفايات وشعالات", img: "assets/images/logo.png" },
-        { title: "ولاعات غاز وشعالات كهرباء", sub: "دفايات وشعالات", img: "assets/images/logo.png" },
-        { title: "ادوات ولوازم كشتات", sub: "أدوات شواء ولوازم كشتات", img: "assets/images/logo.png" }
+        { title: "دوافير ودبات", img: "assets/images/logo.png" },
+        { title: "مواقد غاز", img: "assets/images/logo.png" },
+        { title: "طباخات وفوانيس", img: "assets/images/logo.png" },
+        { title: "قدور", img: "assets/images/logo.png" },
+        { title: "ساعات ومنظمات غاز", img: "assets/images/logo.png" },
+        { title: "ليات غاز", img: "assets/images/logo.png" },
+        { title: "محابس وتواصيل", img: "assets/images/logo.png" },
+        { title: "قطع غيار", img: "assets/images/logo.png" },
+        { title: "خضاضات وسطول", img: "assets/images/logo.png" },
+        { title: "ولاعات وشعالات", img: "assets/images/logo.png" },
+        { title: "دفايات", img: "assets/images/logo.png" },
+        { title: "ادوات ولوازم الشواء", img: "assets/images/logo.png" },
+        { title: "ادوات ولوازم الرحلات", img: "assets/images/logo.png" },
+        { title: "ادوات لحام وواريخ", img: "assets/images/logo.png" }
       ];
 
       const gridContainer = document.getElementById('categories-grid');
@@ -68,7 +71,6 @@
           <div class="cat-card" style="cursor: pointer;" onclick="location.href='products.html?category=${encodeURIComponent(cat.title)}'">
             <img src="${cat.img}" alt="${cat.title}">
             <h3>${cat.title}</h3>
-            ${cat.sub ? `<p>${cat.sub}</p>` : ''}
           </div>
         `).join('');
       }
