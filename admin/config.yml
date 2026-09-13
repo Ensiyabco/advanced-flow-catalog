@@ -144,4 +144,17 @@ collections:
           - "شنط رحلات"
 
       - { label: "شد الكرتون / التعبئة", name: "carton_pack", widget: "string", required: false }
+      
+      - label: "وحدة القياس / البيع"
+        name: "unit"
+        widget: "select"
+        options:
+          - "حبة"
+          - "كرتون"
+          - "ربطة"
+          - "درزن"
+          - "علبة"
+          - "متر"
+          - "لفه"
+
       - { label: "صورة المنتج", name: "image", widget: "image" }
