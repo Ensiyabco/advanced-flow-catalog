@@ -5,113 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</title>
     <link rel="stylesheet" href="assets/css/style.css">
-     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-</head>   
-<body>    
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
     <header class="site-header">
         <div class="container header-flex">
-          <a href="index.html" class="logo-area" style="text-decoration: none; color: inherit;">
-    <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم">
-    <div>
-        <h1>الأنسياب المتقدم</h1>
-        <p>الأدوات ولوازم الغاز والرحلات والكشتات</p>
-    </div>
-</a>
+            <a href="index.html" class="logo-area" style="text-decoration: none; color: inherit;">
+                <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم">
+                <div>
                     <h1>الأنسياب المتقدم</h1>
                     <p>لأدوات ولوازم الغاز والرحلات والكشتات</p>
                 </div>
-            </div>
+            </a>
             <nav class="main-nav">
                 <a href="index.html" class="active">الرئيسية</a>
                 <a href="products.html">المنتجات</a>
                 <a href="about.html">من نحن</a>
-                <a href="contact.html">التواصل</a>
+                <a href="contact.html">التواصـل</a>
             </nav>
         </div>
     </header>
 
     <section class="hero">
-        <h2>أفضل أدوات الغاز والرحلات… جودة تعتمد عليها</h2>
-        <p>نوفر كل ما تحتاجه للغاز، الشواء، الرحلات، المواقد، ولوازم الكشتات.</p>
+        <h2>أفضل أدوات الغاز والرحلات... جودة تعتمد عليها</h2>
+        <p>نوفر كل ما تحتاجه للغاز، الشواء، الرحلات، ولوازم الكشتات</p>
     </section>
 
     <section class="search-section">
-        <input type="text" placeholder="ابحث عن منتج في الكتالوج…">
+        <input type="text" placeholder="ابحث عن منتج في الكتالوج...">
     </section>
 
-<section id="products" class="categories">
-    <h2>تصفح الأقسام</h2>
-    <div class="grid">
-        <!-- قسم 1 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="دوافير الغاز">
-            <h3>دوافير الغاز والدبات والرؤوس</h3>
+    <section id="products" class="categories">
+        <h2>تصفح الأقسام</h2>
+        <div class="grid" id="categories-grid">
+            <!-- سيتم توليد الأقسام التابعة لـ Decap CMS هنا تلقائياً -->
         </div>
-
-        <!-- قسم 2 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="مواقد الغاز">
-            <h3>مواقد الغاز</h3>
-            <p>مواقد بسيطة - مواقد رحلات - مواقد المطاعم</p>
-        </div>
-
-        <!-- قسم 3 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="ساعات ومنظمات غاز">
-            <h3>ساعات ومنظمات غاز</h3>
-        </div>
-
-        <!-- قسم 4 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="ليات غاز ورجلات">
-            <h3>ليات غاز ورجلات</h3>
-        </div>
-
-        <!-- قسم 5 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="لوازم الرحلات">
-            <h3>لوازم الرحلات وادواتها</h3>
-        </div>
-
-        <!-- قسم 6 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="خضاضات وسطول">
-            <h3>خضاضات وسطول ومواعين</h3>
-        </div>
-
-        <!-- قسم 7 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="قطع غيار">
-            <h3>قطع غيار ومحابس وتواصيل غاز</h3>
-        </div>
-
-        <!-- قسم 8 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="دفايات ولاعات">
-            <h3>دفايات ولاعات غاز وشعالات كهرباء</h3>
-        </div>
-
-        <!-- قسم 9 -->
-        <div class="cat-card">
-            <img src="assets/images/logo.png" alt="أدوات ولوازم الشواء">
-            <h3>أدوات ولوازم الشواء والكشتات</h3>
-        </div>
-    </div>
-</section>
+    </section>
 
     <footer class="footer">
-        <p>© 2026 الأنسياب المتقدم — جميع الحقوق محفوظة</p>
+        <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
     </footer>
+
     <script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", user => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => {
-          document.location.href = "/admin/";
+      // قائمة الأقسام الرئيسية والفرعية المعتمدة في Decap CMS
+      const categoriesList = [
+        { title: "دوافير الغاز", sub: "دوافير ومواقد سفاري", img: "assets/images/logo.png" },
+        { title: "مواقد الغاز", sub: "مواقد رحلات وكشتات - مطاعم ومنازل", img: "assets/images/logo.png" },
+        { title: "ساعات ومنظمات غاز", sub: "منظمات غاز وتوصيلات", img: "assets/images/logo.png" },
+        { title: "ليات غاز ورجلات", sub: "ليات غاز ورجلات", img: "assets/images/logo.png" },
+        { title: "لوازم الرحلات وادواتها", sub: "أدوات شواء ولوازم كشتات", img: "assets/images/logo.png" },
+        { title: "خضاضات وسطول ومواعين", sub: "خضاضات ومواعين", img: "assets/images/logo.png" },
+        { title: "قطع غيار", sub: "قطع غيار ومحابس", img: "assets/images/logo.png" },
+        { title: "محابس وتواصيل غاز", sub: "قطع غيار ومحابس", img: "assets/images/logo.png" },
+        { title: "دفايات", sub: "دفايات وشعالات", img: "assets/images/logo.png" },
+        { title: "ولاعات غاز وشعالات كهرباء", sub: "دفايات وشعالات", img: "assets/images/logo.png" },
+        { title: "ادوات ولوازم كشتات", sub: "أدوات شواء ولوازم كشتات", img: "assets/images/logo.png" }
+      ];
+
+      const gridContainer = document.getElementById('categories-grid');
+      if (gridContainer) {
+        gridContainer.innerHTML = categoriesList.map(cat => `
+          <div class="cat-card" style="cursor: pointer;" onclick="location.href='products.html?category=${encodeURIComponent(cat.title)}'">
+            <img src="${cat.img}" alt="${cat.title}">
+            <h3>${cat.title}</h3>
+            ${cat.sub ? `<p>${cat.sub}</p>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // إعدادات Netlify Identity للتسجيل
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
+            });
+          }
         });
       }
-    });
-  }
-</script>
+    </script>
 </body>
 </html>
