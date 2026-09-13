@@ -150,6 +150,8 @@ collections:
         widget: "select"
         options:
           - "حبة"
+          - "قطعة"
+          - "طقم"
           - "كرتون"
           - "ربطة"
           - "درزن"
