@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     
-    <!-- تنسيق كبسولات الأقسام المرتبة -->
+    <!-- تنسيقات كبسولات الأقسام الفرعية وكروت المنتجات -->
     <style>
         .category-filter-section {
             padding: 20px 0;
@@ -43,6 +43,50 @@
             border-color: #1d3557;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(29, 53, 87, 0.2);
+        }
+        .product-card {
+            background: #fff;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .product-card img {
+            max-width: 100%;
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+        .product-card h3 {
+            font-size: 16px;
+            color: #1d3557;
+            margin-bottom: 8px;
+        }
+        .product-info {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        .whatsapp-btn {
+            display: inline-block;
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        .whatsapp-btn:hover {
+            background-color: #128c7e;
         }
         @media (max-width: 768px) {
             .filter-container {
@@ -80,34 +124,20 @@
 
     <section class="hero" style="padding: 25px 0;">
         <h2 id="page-category-title">جميع المنتجات</h2>
-        <p>تصفح منتجاتنا المتنوعة لعالم الغاز والرحلات</p>
+        <p>تصفح الأقسام الفرعية والمنتجات المتاحة</p>
     </section>
 
-    <!-- شريط الأقسام الموحد بأسلوب الكبسولات -->
+    <!-- شريط الأقسام الفرعية التابع للقسم الرئيسي المختار -->
     <section class="category-filter-section">
-        <div class="filter-container" id="filter-buttons">
-            <button onclick="filterCategory('all')" class="filter-btn" data-cat="all">الكل</button>
-            <button onclick="filterCategory('دوافير ودبات')" class="filter-btn" data-cat="دوافير ودبات">دوافير ودبات</button>
-            <button onclick="filterCategory('مواقد غاز')" class="filter-btn" data-cat="مواقد غاز">مواقد غاز</button>
-            <button onclick="filterCategory('طباخات وفوانيس')" class="filter-btn" data-cat="طباخات وفوانيس">طباخات وفوانيس</button>
-            <button onclick="filterCategory('قدور')" class="filter-btn" data-cat="قدور">قدور</button>
-            <button onclick="filterCategory('ساعات ومنظمات غاز')" class="filter-btn" data-cat="ساعات ومنظمات غاز">ساعات ومنظمات</button>
-            <button onclick="filterCategory('ليات غاز')" class="filter-btn" data-cat="ليات غاز">ليات غاز</button>
-            <button onclick="filterCategory('محابس وتواصيل')" class="filter-btn" data-cat="محابس وتواصيل">محابس وتواصيل</button>
-            <button onclick="filterCategory('قطع غيار')" class="filter-btn" data-cat="قطع غيار">قطع غيار</button>
-            <button onclick="filterCategory('خضاضات وسطول')" class="filter-btn" data-cat="خضاضات وسطول">خضاضات وسطول</button>
-            <button onclick="filterCategory('ولاعات وشعالات')" class="filter-btn" data-cat="ولاعات وشعالات">ولاعات وشعالات</button>
-            <button onclick="filterCategory('دفايات')" class="filter-btn" data-cat="دفايات">دفايات</button>
-            <button onclick="filterCategory('ادوات ولوازم الشواء')" class="filter-btn" data-cat="ادوات ولوازم الشواء">ادوات الشواء</button>
-            <button onclick="filterCategory('ادوات ولوازم الرحلات')" class="filter-btn" data-cat="ادوات ولوازم الرحلات">لوازم الرحلات</button>
-            <button onclick="filterCategory('ادوات لحام وواريخ')" class="filter-btn" data-cat="ادوات لحام وواريخ">لحام وواريخ</button>
+        <div class="filter-container" id="subcategories-bar">
+            <!-- يتم توليد الأقسام الفرعية هنا ديناميكياً -->
         </div>
     </section>
 
     <!-- شبكة عرض المنتجات -->
     <section class="container" style="margin-bottom: 50px;">
         <div class="grid" id="products-grid">
-            <!-- ستظهر المنتجات هنا -->
+            <!-- ستظهر كروت المنتجات المجلوبة هنا -->
         </div>
     </section>
 
@@ -116,44 +146,88 @@
     </footer>
 
     <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const categoryParam = urlParams.get('category');
-      const titleElement = document.getElementById('page-category-title');
+      // خريطة الأقسام الرئيسية وما يتبعها من أقسام فرعية
+      const subcategoryMap = {
+        "دوافير ودبات": ["دوافير ومواقد سفاري", "دبات غاز", "رؤوس دوافير"],
+        "مواقد غاز": ["مواقد رحلات وكشتات", "مواقد مطاعم ومنازل", "شعالات مواقد"],
+        "طباخات وفوانيس": ["طباخات غاز", "فوانيس غاز"],
+        "قدور": ["قدور ضغط", "قدور طهي رحلات"],
+        "ساعات ومنظمات غاز": ["منظمات غاز هندي", "منظمات غاز إيطالي", "توصيلات منظمات"],
+        "ليات غاز": ["ليات غاز برتقالي", "ليات غاز مفحوصة", "رجلات غاز"],
+        "محابس وتواصيل": ["محابس نحاس", "تواصيل وسنّة غاز"],
+        "قطع غيار": ["قطع غيار دوافير", "قطع غيار مواقد", "جلد وجلب غاز"],
+        "خضاضات وسطول": ["خضاضات لبن", "سطول ومواعين رحلات"],
+        "ولاعات وشعالات": ["ولاعات غاز طويلة", "شعالات كهربائية"],
+        "دفايات": ["دفايات غاز رحلات", "دفايات غاز منازل"],
+        "ادوات ولوازم الشواء": ["شوايات رحلات", "شبك وأدوات شواء"],
+        "ادوات ولوازم الرحلات": ["خيام وكراسي", "لوازم كشتات عامة"],
+        "ادوات لحام وواريخ": ["أدوات لحام غاز", "واريخ وتوصيلات"]
+      };
 
-      const currentCat = categoryParam || 'all';
-      if (categoryParam) {
-          titleElement.textContent = `منتجات قسم: ${categoryParam}`;
+      const urlParams = new URLSearchParams(window.location.search);
+      const mainCategory = urlParams.get('category');
+      const selectedSub = urlParams.get('sub');
+      const titleElement = document.getElementById('page-category-title');
+      const subBar = document.getElementById('subcategories-bar');
+
+      // 1. تحديث عنوان الصفحة
+      if (mainCategory) {
+          titleElement.textContent = selectedSub ? `قسم: ${mainCategory} - ${selectedSub}` : `منتجات قسم: ${mainCategory}`;
       } else {
           titleElement.textContent = `جميع المنتجات`;
       }
 
-      // تظليل الزر النشط تلقائياً
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-          if (btn.getAttribute('data-cat') === currentCat) {
-              btn.classList.add('active');
-          }
-      });
-
-      function filterCategory(catName) {
-          if (catName === 'all') {
-              window.location.href = 'products.html';
+      // 2. توليد أزرار الأقسام الفرعية المناسبة
+      function renderSubcategoryFilter() {
+          let html = `<button onclick="filterSub('')" class="filter-btn ${!selectedSub ? 'active' : ''}">الكل</button>`;
+          
+          if (mainCategory && subcategoryMap[mainCategory]) {
+              subcategoryMap[mainCategory].forEach(sub => {
+                  const isActive = selectedSub === sub ? 'active' : '';
+                  html += `<button onclick="filterSub('${sub}')" class="filter-btn ${isActive}">${sub}</button>`;
+              });
           } else {
-              window.location.href = `products.html?category=${encodeURIComponent(catName)}`;
+              // في حال الدخول لصفحة جميع المنتجات
+              Object.keys(subcategoryMap).forEach(cat => {
+                  html += `<button onclick="location.href='products.html?category=${encodeURIComponent(cat)}'" class="filter-btn">${cat}</button>`;
+              });
+          }
+          subBar.innerHTML = html;
+      }
+
+      function filterSub(subName) {
+          if (!subName) {
+              window.location.href = `products.html?category=${encodeURIComponent(mainCategory)}`;
+          } else {
+              window.location.href = `products.html?category=${encodeURIComponent(mainCategory)}&sub=${encodeURIComponent(subName)}`;
           }
       }
 
+      // 3. عرض المنتجات المصفاة
       async function loadProducts() {
           const grid = document.getElementById('products-grid');
+          
+          // نموذج كرت المنتج التفاعلي
           grid.innerHTML = `
-              <div class="cat-card">
+              <div class="product-card">
                   <img src="assets/images/logo.png" alt="منتج تجريبي">
-                  <h3>منتج تجريبي</h3>
-                  <p>القسم: ${categoryParam || 'عام'}</p>
+                  <h3>راس دافور إيطالي سن كبير</h3>
+                  <div class="product-info">
+                      <p><strong>القسم:</strong> ${mainCategory || 'عام'}</p>
+                      ${selectedSub ? `<p><strong>الفرعي:</strong> ${selectedSub}</p>` : ''}
+                      <p><strong>الشد:</strong> 12 حبة | <strong>الكمية:</strong> متوفر</p>
+                  </div>
+                  <a href="https://wa.me/?text=${encodeURIComponent('السلام عليكم، أرغب في الاستفسار عن: راس دافور إيطالي')}" target="_blank" class="whatsapp-btn">
+                      طلب عبر الواتساب
+                  </a>
               </div>
           `;
       }
 
-      document.addEventListener('DOMContentLoaded', loadProducts);
+      document.addEventListener('DOMContentLoaded', () => {
+          renderSubcategoryFilter();
+          loadProducts();
+      });
 
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
