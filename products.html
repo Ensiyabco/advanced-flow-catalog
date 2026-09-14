@@ -1,109 +1,128 @@
-<!-- زر تسجيل الدخول كمسؤول -->
-<button id="admin-login-btn" onclick="toggleAdminMode()" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 15px; background: #1d3557; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
-    تسجيل دخول الأدمن
-</button>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتجات - الأنسياب المتقدم</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f8f9fa; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .product-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; }
+        .product-title { font-size: 1.1rem; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
 
-<script>
-// البيانات الخاصة بحسابك ومستودعك
-const GITHUB_USERNAME = "Ensiyabco";
-const REPO_NAME = "advanced-flow-catalog";
-const FILE_PATH = "products.html";
+    <h1>قائمة المنتجات</h1>
 
-let userToken = localStorage.getItem("github_token");
+    <div class="products-grid">
+        <!-- كروت المنتجات التجريبية -->
+        <div class="product-card">
+            <div class="product-title">دوافير غاز مطورة</div>
+        </div>
+        <div class="product-card">
+            <div class="product-title">منظم غاز إيطالي</div>
+        </div>
+    </div>
 
-function toggleAdminMode() {
-  if (!userToken) {
-    userToken = prompt("أدخل رمز الوصول الخاص بك (GitHub Token):");
+    <!-- زر تسجيل دخول الأدمن -->
+    <button id="admin-login-btn" onclick="toggleAdminMode()" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 12px 20px; background: #1d3557; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+      🔒 دخول الأدمن
+    </button>
+
+    <script>
+    const GITHUB_USERNAME = "Ensiyabco";
+    const REPO_NAME = "advanced-flow-catalog";
+    const FILE_PATH = "products.html";
+
+    let userToken = localStorage.getItem("github_token");
+
+    function toggleAdminMode() {
+      if (!userToken) {
+        userToken = prompt("أدخل رمز الوصول الخاص بك (GitHub Token):");
+        if (userToken) {
+          localStorage.setItem("github_token", userToken);
+          alert("تم حفظ الرمز بنجاح!");
+          enableAdminFeatures();
+        }
+      } else {
+        enableAdminFeatures();
+      }
+    }
+
+    function enableAdminFeatures() {
+      const btn = document.getElementById("admin-login-btn");
+      if (btn) {
+        btn.innerText = "✏️ وضع التعديل مفعل";
+        btn.style.background = "#28a745";
+      }
+
+      const cards = document.querySelectorAll('.product-card');
+      cards.forEach((card) => {
+        if (!card.querySelector('.edit-btn')) {
+          const editBtn = document.createElement('button');
+          editBtn.className = 'edit-btn';
+          editBtn.innerText = '✏️ تعديل المنتج';
+          editBtn.style = 'background: #ffc107; color: #000; border: none; padding: 6px 12px; margin-top: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;';
+          editBtn.onclick = () => saveChangesToGitHub(card);
+          card.appendChild(editBtn);
+        }
+      });
+    }
+
+    async function saveChangesToGitHub(cardElement) {
+      const titleEl = cardElement.querySelector('.product-title');
+      if (!titleEl) return;
+
+      const oldTitle = titleEl.innerText.trim();
+      const newTitle = prompt("أدخل اسم المنتج الجديد:", oldTitle);
+
+      if (!newTitle || newTitle === oldTitle) return;
+
+      alert("جاري الاتصال بـ GitHub لتحديث البيانات...");
+
+      try {
+        const getUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+        const response = await fetch(getUrl, {
+          headers: { "Authorization": `token ${userToken}` }
+        });
+
+        if (!response.ok) throw new Error("تعذر الوصول للملف.");
+
+        const fileData = await response.json();
+        let rawContent = decodeURIComponent(escape(atob(fileData.content)));
+
+        rawContent = rawContent.replace(oldTitle, newTitle);
+
+        const updatedContentBase64 = btoa(unescape(encodeURIComponent(rawContent)));
+
+        const updateResponse = await fetch(getUrl, {
+          method: "PUT",
+          headers: {
+            "Authorization": `token ${userToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `تحديث المنتج: ${newTitle}`,
+            content: updatedContentBase64,
+            sha: fileData.sha
+          })
+        });
+
+        if (updateResponse.ok) {
+          titleEl.innerText = newTitle;
+          alert("تم التحديث بنجاح!");
+        } else {
+          alert("حدث خطأ أثناء الحفظ.");
+        }
+      } catch (err) {
+        alert("فشلت العملية: " + err.message);
+      }
+    }
+
     if (userToken) {
-      localStorage.setItem("github_token", userToken);
-      alert("تم حفظ الرمز بنجاح!");
       enableAdminFeatures();
     }
-  } else {
-    enableAdminFeatures();
-  }
-}
-
-function enableAdminFeatures() {
-  const btn = document.getElementById("admin-login-btn");
-  if (btn) {
-    btn.innerText = "✏️ وضع التعديل مفعل";
-    btn.style.background = "#28a745";
-  }
-
-  const cards = document.querySelectorAll('.product-card');
-  cards.forEach((card) => {
-    if (!card.querySelector('.edit-btn')) {
-      const editBtn = document.createElement('button');
-      editBtn.className = 'edit-btn';
-      editBtn.innerText = '✏️ تعديل المنتج';
-      editBtn.style = 'background: #ffc107; color: #000; border: none; padding: 6px 12px; margin-top: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;';
-      editBtn.onclick = () => saveChangesToGitHub(card);
-      card.appendChild(editBtn);
-    }
-  });
-}
-
-async function saveChangesToGitHub(cardElement) {
-  const titleEl = cardElement.querySelector('.product-title') || cardElement.querySelector('h3');
-  if (!titleEl) {
-    alert("لم يتم العثور على عنوان المنتج داخل البطاقة!");
-    return;
-  }
-
-  const oldTitle = titleEl.innerText.trim();
-  const newTitle = prompt("أدخل اسم المنتج الجديد:", oldTitle);
-
-  if (!newTitle || newTitle === oldTitle) return;
-
-  alert("جاري الاتصال بـ GitHub لتحديث البيانات في الموقع...");
-
-  try {
-    const getUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-    const response = await fetch(getUrl, {
-      headers: { "Authorization": `token ${userToken}` }
-    });
-
-    if (!response.ok) throw new Error("تعذر الوصول للملف، تأكد من صحة الرمز.");
-
-    const fileData = await response.json();
-    let rawContent = decodeURIComponent(escape(atob(fileData.content)));
-
-    if (!rawContent.includes(oldTitle)) {
-      alert("لم يتم العثور على اسم المنتج القديم داخل الكود الأصلي!");
-      return;
-    }
-
-    rawContent = rawContent.replace(oldTitle, newTitle);
-
-    const updatedContentBase64 = btoa(unescape(encodeURIComponent(rawContent)));
-
-    const updateResponse = await fetch(getUrl, {
-      method: "PUT",
-      headers: {
-        "Authorization": `token ${userToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `تحديث اسم المنتج من (${oldTitle}) إلى (${newTitle})`,
-        content: updatedContentBase64,
-        sha: fileData.sha
-      })
-    });
-
-    if (updateResponse.ok) {
-      titleEl.innerText = newTitle;
-      alert("تم التحديث وحفظ التغييرات بنجاح على GitHub!");
-    } else {
-      alert("حدث خطأ أثناء الحفظ. تأكد من إذن الرمز.");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("فشلت العملية: " + err.message);
-  }
-}
-
-if (userToken) {
-  enableAdminFeatures();
-}
-</script>
+    </script>
+</body>
+</html>
