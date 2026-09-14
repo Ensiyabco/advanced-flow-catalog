@@ -35,6 +35,7 @@
       align-items: center;
       gap: 10px;
       cursor: pointer;
+      user-select: none;
     }
 
     .logo-container img {
@@ -415,8 +416,8 @@
 <body>
 
   <header>
-    <!-- تم إضافة مسار صورة اللوجو هنا، يمكنك استبدال الرابط برابط شعارك الخاص -->
-    <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر هنا لتفعيل/تعطيل وضع الأدمن">
+    <!-- تم ضبط الضغطتين (DblClick) هنا لتفعيل وضع الأدمن -->
+    <div class="logo-container" id="site-logo" ondblclick="toggleAdmin()" title="انقر ضغطتين متتاليتين لتفعيل وضع الأدمن">
       <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
     </div>
@@ -583,10 +584,24 @@
       renderProducts();
     }
 
-    // تفعيل الأدمن بضغطة واحدة على اللوجو
+    // تفعيل الأدمن بضغطتين متتاليتين (دبل كليك) مع كلمة مرور (admin123)
     function toggleAdmin() {
-      isAdmin = !isAdmin;
-      alert(isAdmin ? 'تم تفعيل وضع الأدمن بنجاح' : 'تم الخروج من وضع الأدمن');
+      if (!isAdmin) {
+        let password = prompt("الرجاء إدخال كلمة مرور الأدمن:");
+        if (password === "admin123") {
+          isAdmin = true;
+          alert("تم تفعيل وضع الأدمن بنجاح");
+        } else if (password !== null) {
+          alert("كلمة المرور غير صحيحة!");
+          return;
+        } else {
+          return;
+        }
+      } else {
+        isAdmin = false;
+        alert("تم الخروج من وضع الأدمن");
+      }
+      
       document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = isAdmin ? 'block' : 'none');
       renderProducts();
     }
@@ -742,7 +757,6 @@
       const pack = document.getElementById('prod-pack').value || 1;
 
       if (prodId) {
-        // تحديث منتج موجود
         productsData = productsData.map(p => {
           if (p.id == prodId) {
             return { ...p, name, category, unit, pack };
@@ -751,7 +765,6 @@
         });
         alert('تم تعديل المنتج بنجاح!');
       } else {
-        // إضافة منتج جديد
         const newProd = {
           id: Date.now(),
           name,
