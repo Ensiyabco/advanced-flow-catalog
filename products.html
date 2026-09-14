@@ -41,29 +41,30 @@
     }
     .btn-admin:hover { background-color: #2c5282; }
 
-    .main-layout { display: flex; max-width: 1300px; margin: 25px auto; gap: 20px; padding: 0 15px; }
+    .main-layout { max-width: 1300px; margin: 25px auto; padding: 0 15px; }
 
-    .sidebar { width: 320px; flex-shrink: 0; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 15px; height: fit-content; }
-    .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
-    .sidebar-header h3 { font-size: 16px; margin: 0; font-weight: 800; color: #1b365d; }
-
-    .accordion-item { border-bottom: 1px solid #edf2f7; }
-    .accordion-header {
-      width: 100%; text-align: right; background: none; border: none; padding: 10px 5px;
-      font-size: 13px; font-weight: 700; color: #2d3748; cursor: pointer;
-      display: flex; justify-content: space-between; align-items: center; font-family: 'Cairo', sans-serif;
+    .section-title-bar {
+      font-size: 18px; font-weight: 800; color: #1b365d; margin-bottom: 15px;
+      border-right: 4px solid #2b6cb0; padding-right: 10px; display: flex; justify-content: space-between; align-items: center;
     }
-    .accordion-header:hover { color: #2b6cb0; }
-    .accordion-content { display: none; padding: 5px 15px 10px 0; background: #fafbfc; }
-    .accordion-content.active { display: block; }
-    .subcat-link {
-      display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
+    .categories-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin-bottom: 30px;
     }
-    .subcat-link:hover { color: #e53e3e; }
+    .category-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;
+      text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .category-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
+    .category-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 12px; background: #f8fafc; border-radius: 8px; padding: 5px; border: 1px solid #edf2f7; }
+    .category-card h4 { font-size: 14px; font-weight: 800; color: #1b365d; margin: 0; }
+    
+    .cat-edit-badge {
+      position: absolute; top: 10px; left: 10px; background: #edf2f7; border: 1px solid #cbd5e0;
+      border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer;
+    }
 
-    .cat-icon { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0; }
-
-    .products-container { flex: 1; }
+    .products-container { margin-top: 20px; }
     .top-filter-bar {
       background: #fff; padding: 12px 20px; border-radius: 10px; border: 1px solid #e2e8f0;
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
@@ -80,7 +81,12 @@
     .prod-actions-top { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 5; }
     .btn-action { background: rgba(255,255,255,0.9); border: 1px solid #cbd5e0; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 12px; }
 
+    .prod-img-wrapper { position: relative; cursor: pointer; }
     .prod-img { width: 100%; height: 160px; object-fit: contain; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; }
+    .img-count-badge {
+      position: absolute; bottom: 15px; left: 10px; background: rgba(27, 54, 93, 0.8);
+      color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700;
+    }
     .prod-title { font-size: 14px; font-weight: 800; color: #1b365d; margin: 0 0 8px 0; text-align: center; }
 
     .specs-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; background: #f8fafc; }
@@ -102,32 +108,35 @@
 
     .admin-only { display: none !important; }
 
+    /* النوافذ المنبثقة */
     .modal-backdrop {
       display: none; position: fixed; top:0; left:0; width:100%; height:100%;
       background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
     }
     .modal-content {
-      background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 450px;
+      background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 480px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: 'Cairo', sans-serif;
+      max-height: 90vh; overflow-y: auto;
     }
     .modal-content h4 { margin: 0 0 15px 0; color: #1b365d; text-align: center; }
     .form-group { margin-bottom: 12px; text-align: right; }
     .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
     .form-group input { width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-family: 'Cairo'; }
 
-    @media (max-width: 768px) {
-      .main-layout { flex-direction: column; }
-      .sidebar { width: 100%; }
-    }
+    /* معرض الصور المنبثق */
+    .gallery-main-img { width: 100%; height: 280px; object-fit: contain; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+    .gallery-thumbs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; justify-content: center; }
+    .gallery-thumb { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; border: 2px solid #cbd5e0; cursor: pointer; opacity: 0.7; }
+    .gallery-thumb.active { border-color: #2b6cb0; opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- عنصر مخفي موحد لرفع صور الأقسام لتجاوز مشاكل المتصفح -->
+  <!-- حقل ملفات موحد ومخفي لرفع صور الأقسام -->
   <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;" onchange="handleCatFileUpload(event)">
 
   <header>
-    <a href="index.html" class="logo-container">
+    <a href="#" class="logo-container">
       <img src="assets/images/logo.png" alt="شعار المؤسسة" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
       <div class="logo-text">الأنسياب المتقدم</div>
     </a>
@@ -144,25 +153,25 @@
   </header>
 
   <div class="main-layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <h3>أقسام المنتجات</h3>
-        <button class="btn-admin admin-only" onclick="addMainCategory()" style="padding: 3px 8px; font-size: 11px;">+ قسم رئيسي</button>
-      </div>
-      <div id="accordion-container"></div>
-    </aside>
+    
+    <div class="section-title-bar">
+      <span>تصفح الأقسام الرئيسية</span>
+      <button class="btn-admin admin-only" onclick="addMainCategory()" style="padding: 4px 10px; font-size: 12px;">+ قسم رئيسي</button>
+    </div>
+    
+    <div class="categories-grid" id="categories-grid"></div>
 
-    <main class="products-container">
+    <div class="products-container">
       <div class="top-filter-bar">
         <span id="current-category-name" style="font-weight: 800; font-size: 15px; color: #1b365d;">جميع المنتجات</span>
         <span id="products-count" style="font-size: 12px; color: #718096; background: #edf2f7; padding: 3px 8px; border-radius: 12px; font-weight: 700;">0 منتج</span>
       </div>
 
       <div class="products-grid" id="products-grid"></div>
-    </main>
+    </div>
   </div>
 
-  <!-- النافذة المنبثقة لإضافة وتعديل المنتجات -->
+  <!-- النافذة المنبثقة لإضافة وتعديل المنتجات مع دعم عدة صور -->
   <div class="modal-backdrop" id="productModal">
     <div class="modal-content">
       <h4 id="modalTitle">إدارة المنتج</h4>
@@ -184,13 +193,25 @@
       </div>
 
       <div class="form-group">
-        <label>اختر صورة جديدة من الجهاز:</label>
-        <input type="file" id="edit-prod-file" accept="image/*">
+        <label>اختر صور المنتج (يمكنك اختيار عدة صور معاً):</label>
+        <input type="file" id="edit-prod-files" accept="image/*" multiple>
       </div>
 
       <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 15px;">
         <button class="btn-admin" style="background: #718096;" onclick="closeModal()">إلغاء</button>
         <button class="btn-admin" onclick="saveModalProduct()">حفظ التغييرات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- النافذة المنبثقة لمعرض صور المنتج -->
+  <div class="modal-backdrop" id="galleryModal">
+    <div class="modal-content" style="text-align: center;">
+      <h4 id="galleryModalTitle">معرض صور المنتج</h4>
+      <img id="gallery-main-view" class="gallery-main-img" src="" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+      <div class="gallery-thumbs" id="gallery-thumbs-container"></div>
+      <div style="margin-top: 15px;">
+        <button class="btn-admin" style="background: #718096; padding: 6px 20px;" onclick="closeGalleryModal()">إغلاق</button>
       </div>
     </div>
   </div>
@@ -217,7 +238,7 @@
 
     let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
     let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
-    let activeCategoryForImage = null; // الاحتفاظ بمعرف القسم الحالي قيد التعديل
+    let activeCategoryForImage = null;
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products')) || [
       {
@@ -228,14 +249,22 @@
         unit: "حبة",
         boxQty: 12,
         stock: 50,
-        img: "assets/images/logo.png"
+        images: ["assets/images/logo.png"]
       }
     ];
 
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
 
     document.addEventListener('DOMContentLoaded', function() {
-      renderCategories();
+      renderCategoriesGrid();
+      // تحويل المنتجات القديمة التي تستخدم خاصية img مفردة إلى مصفوفة images تلقائياً لضمان عدم حدوث أخطاء
+      products.forEach(p => {
+        if (!p.images && p.img) {
+          p.images = [p.img];
+        } else if (!p.images) {
+          p.images = ['assets/images/logo.png'];
+        }
+      });
       renderProducts(products);
       updateCartBadge();
       checkAdminStatus();
@@ -254,7 +283,7 @@
 
     function saveCategories() {
       localStorage.setItem('ansiyab_categories', JSON.stringify(categoriesData));
-      renderCategories();
+      renderCategoriesGrid();
     }
 
     function saveProducts() {
@@ -271,72 +300,35 @@
       }
     }
 
-    function addSubCategory(catId) {
-      const subName = prompt("أدخل اسم القسم الفرعي الجديد:");
-      if (subName && subName.trim()) {
-        const cat = categoriesData.find(c => c.id === catId);
-        if (cat) {
-          cat.subcategories.push(subName.trim());
-          saveCategories();
-        }
-      }
-    }
+    function renderCategoriesGrid() {
+      const container = document.getElementById('categories-grid');
+      container.innerHTML = '';
 
-    function renderCategories() {
-      const container = document.getElementById('accordion-container');
-      container.innerHTML = `
-        <div class="accordion-item">
-          <button class="accordion-header" onclick="filterBySubcat('ALL', 'جميع المنتجات')">
-            <span>جميع المنتجات</span>
-          </button>
-        </div>
-      `;
-
-      categoriesData.forEach((cat, index) => {
-        const item = document.createElement('div');
-        item.className = 'accordion-item';
-
-        let subHtml = '';
-        if (cat.subcategories && cat.subcategories.length > 0) {
-          cat.subcategories.forEach(sub => {
-            subHtml += `<div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')"><span>• ${sub}</span></div>`;
-          });
-        } else {
-          subHtml = `<div class="subcat-link" onclick="filterBySubcat('${cat.name}', '${cat.name}')"><span>• عرض الكل</span></div>`;
-        }
-
-        subHtml += `<button class="btn-admin admin-only" style="margin-top:5px; padding: 2px 6px; font-size: 10px;" onclick="addSubCategory(${cat.id})">+ فرعي جديد</button>`;
+      categoriesData.forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.onclick = () => filterByCategory(cat.name);
 
         const imgSrc = categoryImages[cat.id] || 'assets/images/logo.png';
 
-        item.innerHTML = `
-          <button class="accordion-header" onclick="toggleAccordion(${index})">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <img src="${imgSrc}" class="cat-icon" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
-              <span>${cat.name}</span>
-              <span class="admin-only" onclick="event.stopPropagation(); triggerCategoryFile(${cat.id})" title="تغيير صورة القسم" style="font-size: 11px; cursor: pointer; background: #e2e8f0; padding: 2px 5px; border-radius: 4px;">📷</span>
-            </div>
-            <span id="arrow-${index}">▼</span>
-          </button>
-          <div class="accordion-content" id="content-${index}">
-            ${subHtml}
-          </div>
+        card.innerHTML = `
+          <span class="cat-edit-badge admin-only" onclick="event.stopPropagation(); triggerCategoryFile(${cat.id})" title="تغيير صورة القسم">📷</span>
+          <img src="${imgSrc}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+          <h4>${cat.name}</h4>
         `;
-        container.appendChild(item);
+        container.appendChild(card);
       });
 
       checkAdminStatus();
     }
 
-    // تفعيل حقل ملفات الصور الموحد للأقسام
     function triggerCategoryFile(catId) {
       activeCategoryForImage = catId;
       const fileInput = document.getElementById('global-cat-file-input');
-      fileInput.value = ""; // مسح القيمة القديمة لضمان عمل الحدث عند اختيار نفس الصورة
+      fileInput.value = "";
       fileInput.click();
     }
 
-    // معالجة رفع وتخزين صورة القسم بصيغة Base64
     function handleCatFileUpload(event) {
       const file = event.target.files[0];
       if (file && activeCategoryForImage !== null) {
@@ -344,35 +336,17 @@
         reader.onload = function(e) {
           categoryImages[activeCategoryForImage] = e.target.result;
           localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
-          renderCategories();
+          renderCategoriesGrid();
           activeCategoryForImage = null;
         };
         reader.readAsDataURL(file);
       }
     }
 
-    function toggleAccordion(index) {
-      const content = document.getElementById(`content-${index}`);
-      const arrow = document.getElementById(`arrow-${index}`);
-      const isOpen = content.classList.contains('active');
-
-      document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('[id^="arrow-"]').forEach(a => a.innerText = '▼');
-
-      if (!isOpen) {
-        content.classList.add('active');
-        arrow.innerText = '▲';
-      }
-    }
-
-    function filterBySubcat(subName, title) {
-      document.getElementById('current-category-name').innerText = title;
-      if (subName === 'ALL') {
-        renderProducts(products);
-      } else {
-        const filtered = products.filter(p => p.subcategory === subName || p.category === subName);
-        renderProducts(filtered);
-      }
+    function filterByCategory(catName) {
+      document.getElementById('current-category-name').innerText = catName;
+      const filtered = products.filter(p => p.category === catName || p.subcategory === catName);
+      renderProducts(filtered);
     }
 
     function renderProducts(list) {
@@ -383,13 +357,20 @@
       list.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
+        const mainImg = (p.images && p.images.length > 0) ? p.images[0] : 'assets/images/logo.png';
+        const imgCount = p.images ? p.images.length : 1;
+
         card.innerHTML = `
           <div class="prod-actions-top admin-only">
             <button class="btn-action admin-only" onclick="editProduct(${p.id})">✏️</button>
             <button class="btn-action admin-only" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
 
-          <img src="${p.img}" class="prod-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+          <div class="prod-img-wrapper" onclick="openGallery(${p.id})" title="عرض صور المنتج">
+            <img src="${mainImg}" class="prod-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+            ${imgCount > 1 ? `<span class="img-count-badge">📷 ${imgCount} صور</span>` : ''}
+          </div>
+
           <h4 class="prod-title">${p.name}</h4>
 
           <table class="specs-table">
@@ -424,13 +405,44 @@
       checkAdminStatus();
     }
 
+    // فتح نافذة المعرض لاستعراض عدة صور للمنتج
+    function openGallery(prodId) {
+      const p = products.find(item => item.id === prodId);
+      if (!p || !p.images || p.images.length === 0) return;
+
+      document.getElementById('galleryModalTitle').innerText = p.name;
+      const mainView = document.getElementById('gallery-main-view');
+      const thumbsContainer = document.getElementById('gallery-thumbs-container');
+      
+      mainView.src = p.images[0];
+      thumbsContainer.innerHTML = '';
+
+      p.images.forEach((imgSrc, idx) => {
+        const thumb = document.createElement('img');
+        thumb.src = imgSrc;
+        thumb.className = `gallery-thumb ${idx === 0 ? 'active' : ''}`;
+        thumb.onclick = () => {
+          mainView.src = imgSrc;
+          document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+        };
+        thumbsContainer.appendChild(thumb);
+      });
+
+      document.getElementById('galleryModal').style.display = 'flex';
+    }
+
+    function closeGalleryModal() {
+      document.getElementById('galleryModal').style.display = 'none';
+    }
+
     function openAddModal() {
       document.getElementById('modalTitle').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "";
       document.getElementById('edit-prod-name').value = "";
       document.getElementById('edit-prod-stock').value = "0";
       document.getElementById('edit-prod-box').value = "1";
-      document.getElementById('edit-prod-file').value = "";
+      document.getElementById('edit-prod-files').value = "";
       document.getElementById('productModal').style.display = 'flex';
     }
 
@@ -438,12 +450,12 @@
       const p = products.find(prod => prod.id === id);
       if (!p) return;
 
-      document.getElementById('modalTitle').innerText = "تعديل بيانات المنتج والصورة";
+      document.getElementById('modalTitle').innerText = "تعديل بيانات وصور المنتج";
       document.getElementById('edit-prod-id').value = p.id;
       document.getElementById('edit-prod-name').value = p.name;
       document.getElementById('edit-prod-stock').value = p.stock;
       document.getElementById('edit-prod-box').value = p.boxQty;
-      document.getElementById('edit-prod-file').value = "";
+      document.getElementById('edit-prod-files').value = "";
       document.getElementById('productModal').style.display = 'flex';
     }
 
@@ -451,21 +463,24 @@
       document.getElementById('productModal').style.display = 'none';
     }
 
+    // حفظ المنتج مع معالجة رفع صور متعددة وتحويلها إلى Base64
     function saveModalProduct() {
       const id = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('edit-prod-name').value;
       const stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
       const boxQty = parseInt(document.getElementById('edit-prod-box').value) || 1;
-      const fileInput = document.getElementById('edit-prod-file');
+      const fileInput = document.getElementById('edit-prod-files');
 
-      const applySave = (imgUrl) => {
+      const processImagesAndSave = (newImagesList) => {
         if (id) {
           const p = products.find(prod => prod.id == id);
           if (p) {
             p.name = name;
             p.stock = stock;
             p.boxQty = boxQty;
-            if (imgUrl) p.img = imgUrl;
+            if (newImagesList && newImagesList.length > 0) {
+              p.images = newImagesList;
+            }
           }
         } else {
           products.push({
@@ -476,19 +491,38 @@
             unit: "حبة",
             boxQty: boxQty,
             stock: stock,
-            img: imgUrl || "assets/images/logo.png"
+            images: (newImagesList && newImagesList.length > 0) ? newImagesList : ["assets/images/logo.png"]
           });
         }
         saveProducts();
         closeModal();
       };
 
-      if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => applySave(e.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
+      if (fileInput.files && fileInput.files.length > 0) {
+        const promises = [];
+        for (let i = 0; i < fileInput.files.length; i++) {
+          promises.new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(fileInput.files[i]);
+          });
+        }
+        
+        // استخدام Promise.all لقراءة جميع الصور المرفوعة بالتوازي
+        const readFiles = Array.from(fileInput.files).file => {
+          return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(file);
+          });
+        };
+
+        Promise.all(Array.from(fileInput.files).map(file => readFiles(file)))
+          .then(base64Images => {
+            processImagesAndSave(base64Images);
+          });
       } else {
-        applySave(null);
+        processImagesAndSave(null);
       }
     }
 
