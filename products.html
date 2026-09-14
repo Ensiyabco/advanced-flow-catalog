@@ -43,21 +43,21 @@
 
     .main-layout { display: flex; max-width: 1300px; margin: 25px auto; gap: 20px; padding: 0 15px; }
 
-    .sidebar { width: 280px; flex-shrink: 0; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 15px; height: fit-content; }
+    .sidebar { width: 300px; flex-shrink: 0; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 15px; height: fit-content; }
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
     .sidebar-header h3 { font-size: 16px; margin: 0; font-weight: 800; color: #1b365d; }
 
     .accordion-item { border-bottom: 1px solid #edf2f7; }
     .accordion-header {
       width: 100%; text-align: right; background: none; border: none; padding: 10px 5px;
-      font-size: 14px; font-weight: 700; color: #2d3748; cursor: pointer;
+      font-size: 13px; font-weight: 700; color: #2d3748; cursor: pointer;
       display: flex; justify-content: space-between; align-items: center; font-family: 'Cairo', sans-serif;
     }
     .accordion-header:hover { color: #2b6cb0; }
-    .accordion-content { display: none; padding: 5px 15px 10px 0; }
+    .accordion-content { display: none; padding: 5px 15px 10px 0; background: #fafbfc; }
     .accordion-content.active { display: block; }
     .subcat-link {
-      display: block; padding: 6px 0; font-size: 13px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
+      display: block; padding: 5px 0; font-size: 12px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
     }
     .subcat-link:hover { color: #e53e3e; }
 
@@ -98,7 +98,7 @@
     }
     .btn-add-cart:hover { background: #2c5282; }
 
-    /* إخفاء أدوات المشرف افتراضياً للعملاء */
+    /* إخفاء أدوات المشرف تلقائياً للزوار */
     .admin-only { display: none !important; }
 
     @media (max-width: 768px) {
@@ -133,7 +133,7 @@
         <button class="btn-admin admin-only" style="padding: 3px 8px; font-size: 11px;">+ قسم رئيسي</button>
       </div>
       <div id="accordion-container">
-        <!-- يتم توليد الأقسام الرئيسية والفرعية تلقائياً -->
+        <!-- يتم جلب جميع الأقسام والكتالوج هنا تلقائياً -->
       </div>
     </aside>
 
@@ -150,27 +150,71 @@
   </div>
 
   <script>
-    // شجرة الأقسام الرئيسية والفرعية
+    // جميع الأقسام الرئيسية والفرعية الخاصة بكم بالكامل
     const categoriesData = [
       {
-        name: "ادوات ولوازم الرحلات",
-        subcategories: ["أدوات رحلات متنوعة", "كراسي وطاولات رحلات", "خيام ومظلات", "فرشات وأسرة سفري"]
+        name: "ادوات لحام ووصواريخ بقاعدة",
+        subcategories: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"]
       },
       {
         name: "مواقد غاز",
-        subcategories: ["دوافير ودبات", "مواقد سفري", "مواقد منزلية", "ملحقات وقطع غيار المواقد"]
+        subcategories: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"]
+      },
+      {
+        name: "ادوات ولوازم الرحلات",
+        subcategories: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"]
       },
       {
         name: "ادوات ولوازم الشواء",
-        subcategories: ["شوايات ومناقل", "فحم وحطب", "ملحقات الشواء", "سخانات ومواقد حطب"]
-      },
-      {
-        name: "ادوات لحام ووصواريخ بقاعدة",
-        subcategories: ["أجهزة لحام", "أسياخ ومستلزمات لحام", "صاروخ بقاعدة وملحقاته"]
+        subcategories: ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
       },
       {
         name: "دفايات",
-        subcategories: ["دفايات غاز", "دفايات كيروسين", "دفايات كهربائية"]
+        subcategories: ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"]
+      },
+      {
+        name: "محابس وتواصيل",
+        subcategories: ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"]
+      },
+      {
+        name: "ساعات ومنظمات غاز",
+        subcategories: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"]
+      },
+      {
+        name: "ليات غاز",
+        subcategories: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"]
+      },
+      {
+        name: "ولاعات وشعالات",
+        subcategories: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"]
+      },
+      {
+        name: "قطع غيار",
+        subcategories: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"]
+      },
+      {
+        name: "قدور",
+        subcategories: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"]
+      },
+      {
+        name: "خضاضات وسطول",
+        subcategories: ["خضاضات لبن", "سطول لبن", "مواعين سمن"]
+      },
+      {
+        name: "دوافير ودبات",
+        subcategories: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"]
+      },
+      {
+        name: "طباخات وفوانيس",
+        subcategories: ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"]
+      },
+      {
+        name: "منزليات",
+        subcategories: []
+      },
+      {
+        name: "اكسسوارات عامة",
+        subcategories: []
       }
     ];
 
@@ -178,8 +222,8 @@
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
-        category: "مواقد غاز",
-        subcategory: "دوافير ودبات",
+        category: "دوافير ودبات",
+        subcategory: "دبات غاز سفري",
         unit: "حبة",
         boxQty: 12,
         stock: 50,
@@ -222,9 +266,13 @@
         item.className = 'accordion-item';
 
         let subHtml = '';
-        cat.subcategories.forEach(sub => {
-          subHtml += `<div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')">• ${sub}</div>`;
-        });
+        if (cat.subcategories && cat.subcategories.length > 0) {
+          cat.subcategories.forEach(sub => {
+            subHtml += `<div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')">• ${sub}</div>`;
+          });
+        } else {
+          subHtml = `<div class="subcat-link" onclick="filterBySubcat('${cat.name}', '${cat.name}')">• عرض الكل</div>`;
+        }
 
         item.innerHTML = `
           <button class="accordion-header" onclick="toggleAccordion(${index})">
