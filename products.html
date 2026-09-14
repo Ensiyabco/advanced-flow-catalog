@@ -1,4 +1,77 @@
+
 <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<style>
+/* =========================================================
+   تنسيق شامـل ومتجاوب لجميع الأجهزة والمتصفحات (RTL)
+   ========================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* تنسيق الجوال والأجهزة الذكية */
+@media (max-width: 768px) {
+  header, .header-container {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 12px !important;
+    padding: 10px !important;
+  }
+
+  nav ul, .nav-links {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    padding: 0 !important;
+  }
+
+  /* ترتيب المنتجات بعمودين متجاورين في الجوال لتسهيل التصفح */
+  .products-grid, .catalog-grid, .products-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 10px !important;
+  }
+
+  .product-card, .card {
+    padding: 10px !important;
+  }
+
+  .hero-section h1, .banner h1, h1 {
+    font-size: 1.3rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .search-bar, input[type="text"] {
+    width: 95% !important;
+    margin: 0 auto !important;
+  }
+
+  /* أزرار لوحة التحكم في الجوال */
+  #admin-controls {
+    bottom: 12px !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+    width: 90%;
+    justify-content: center;
+  }
+
+  #admin-controls button {
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+  }
+}
+</style>
 <html lang="ar" dir="rtl">
 <head>
     <script>
