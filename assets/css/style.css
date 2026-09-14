@@ -6,11 +6,14 @@
   font-family: Arial, sans-serif;
 }
 
+html, body {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
 body {
   background-color: #f8fafc;
   color: #2d3748;
-  direction: rtl;
-  text-align: right;
   line-height: 1.6;
   display: flex;
   flex-direction: column;
