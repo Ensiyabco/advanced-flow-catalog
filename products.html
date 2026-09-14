@@ -11,147 +11,215 @@
   <link rel="stylesheet" href="assets/css/style.css">
 
   <style>
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    /* شريط المشرف العلوي */
+    .admin-bar {
+      background: #1b365d;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      border-bottom: 2px solid #2b6cb0;
+    }
+
+    .admin-bar-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .admin-action-btn {
+      background: #d69e2e;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .admin-action-btn:hover {
+      opacity: 0.9;
+    }
+
+    .shop-layout {
+      display: flex;
       gap: 20px;
       margin-top: 20px;
+    }
+
+    /* الشريط الجانبي للأقسام */
+    .sidebar-categories {
+      width: 280px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      height: fit-content;
+    }
+
+    .sidebar-btn-all {
+      background: #e53e3e;
+      color: white;
+      width: 100%;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .main-cat-item {
+      border-bottom: 1px solid #edf2f7;
+      margin-bottom: 5px;
+    }
+
+    .main-cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #1b365d;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .main-cat-header:hover {
+      background: #edf2f7;
+    }
+
+    .sub-cat-list {
+      display: none;
+      padding: 8px 15px 8px 5px;
+      background: #fff;
+    }
+
+    .sub-cat-list.active {
+      display: block;
+    }
+
+    .sub-cat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed #f1f5f9;
+    }
+
+    .sub-cat-item {
+      font-size: 13px;
+      color: #4a5568;
+      cursor: pointer;
+      flex-grow: 1;
+    }
+
+    .sub-cat-item:hover, .sub-cat-item.active {
+      color: #3182ce;
+      font-weight: 700;
+    }
+
+    .admin-sub-tools {
+      display: none;
+      gap: 5px;
+    }
+
+    body.admin-mode .admin-sub-tools {
+      display: inline-flex;
+    }
+
+    /* منطقة المنتجات */
+    .products-content-area {
+      flex: 1;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 15px;
     }
 
     .product-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 15px;
+      border-radius: 8px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .product-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
     }
 
     .product-card img {
       width: 100%;
-      height: 180px;
-      object-fit: cover;
+      height: 160px;
+      object-fit: contain;
       background: #f8fafc;
       border-radius: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .product-card h3 {
-      font-size: 16px;
+      font-size: 15px;
       color: #1b365d;
-      margin: 0 0 6px 0;
+      margin: 0 0 5px 0;
       font-weight: 800;
-    }
-
-    .product-card .cat-name {
-      font-size: 12px;
-      color: #718096;
-      margin-bottom: 4px;
-    }
-
-    .product-card .subcat-name {
-      font-size: 11px;
-      color: #3182ce;
-      font-weight: 700;
-      margin-bottom: 10px;
     }
 
     .card-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 15px;
+      margin-top: 12px;
       border-top: 1px solid #edf2f7;
-      padding-top: 10px;
+      padding-top: 8px;
     }
 
     .details-btn {
       background: #2b6cb0;
       color: white;
       text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      display: inline-block;
-    }
-
-    .details-btn:hover {
-      background: #1a4971;
-    }
-
-    .filter-section {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .filter-container {
-      margin-bottom: 12px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .filter-btn {
-      background: #ffffff;
-      border: 1px solid #cbd5e0;
-      color: #4a5568;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-family: 'Cairo', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-btn.active, .filter-btn:hover {
-      background: #1b365d;
-      color: white;
-      border-color: #1b365d;
-    }
-
-    .subcat-filter-container {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: #f1f5f9;
-      padding: 10px;
-      border-radius: 8px;
-      min-height: 40px;
-      align-items: center;
-    }
-
-    .sub-filter-btn {
-      background: #ffffff;
-      border: 1px solid #94a3b8;
-      color: #334155;
-      padding: 4px 10px;
-      border-radius: 15px;
-      font-family: 'Cairo', sans-serif;
+      padding: 5px 12px;
+      border-radius: 5px;
       font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      font-weight: 700;
     }
 
-    .sub-filter-btn.active, .sub-filter-btn:hover {
-      background: #3182ce;
-      color: white;
-      border-color: #3182ce;
+    @media (max-width: 768px) {
+      .shop-layout {
+        flex-direction: column;
+      }
+      .sidebar-categories {
+        width: 100%;
+      }
     }
   </style>
 </head>
-<body>
+<body id="page-body">
+
+  <!-- شريط مميزات المشرف العلوي -->
+  <div class="admin-bar" id="admin-bar-container">
+    <span id="admin-status-text">⚠️ أنت في وضع إدارة الموقع (اضغط خروج للإخفاء)</span>
+    <div class="admin-bar-btns">
+      <button class="admin-action-btn" onclick="addNewMainCategory()">+ إضافة قسم رئيسي</button>
+      <button class="admin-action-btn" onclick="addNewProductPage()">+ إضافة منتج جديد</button>
+      <button class="admin-action-btn" style="background:#e53e3e;" onclick="toggleAdminMode()">تسجيل الخروج</button>
+    </div>
+  </div>
 
   <header>
     <a href="index.html" class="logo-container">
@@ -172,26 +240,28 @@
   </header>
 
   <div class="main-container">
-    <h2 style="color:#1b365d; font-weight:900; text-align:center; margin-bottom:20px;">دليل المنتجات والأقسام</h2>
-    
-    <!-- أزرار الأقسام الرئيسية -->
-    <div class="filter-section">
-      <div class="filter-container" id="categories-filter">
-        <button class="filter-btn active" onclick="filterMainCategory('all', this)">كل المنتجات</button>
-        <button class="filter-btn" onclick="filterMainCategory('ادوات لحام ووصواريخ بقاعدة', this)">أدوات اللحام والصواريخ</button>
-        <button class="filter-btn" onclick="filterMainCategory('مواقد غاز', this)">مواقد غاز</button>
-        <button class="filter-btn" onclick="filterMainCategory('ساعات ومنظمات غاز', this)">ساعات ومنظمات غاز</button>
-        <button class="filter-btn" onclick="filterMainCategory('ادوات ولوازم الرحلات', this)">لوازم الرحلات</button>
-        <button class="filter-btn" onclick="filterMainCategory('ادوات ولوازم الشواء', this)">لوازم الشواء</button>
-      </div>
+    <div class="shop-layout">
+      
+      <!-- الشريط الجانبي للأقسام -->
+      <aside class="sidebar-categories">
+        <button class="sidebar-btn-all" onclick="filterCategory('all', 'all', this)">عرض كل المنتجات</button>
+        
+        <div id="sidebar-categories-list">
+          <!-- الأقسام الرئيسية والفرعية -->
+        </div>
 
-      <!-- شريط الأقسام الفرعية الديناميكي -->
-      <div class="subcat-filter-container" id="subcategories-filter">
-        <span style="font-size:12px; color:#64748b; font-weight:700;">اختر القسم الرئيسي لعرض الأقسام الفرعية</span>
-      </div>
+        <div id="add-subcat-section" style="margin-top:10px; display:none;">
+          <button class="admin-action-btn" style="background:#3182ce; width:100%; justify-content:center;" onclick="addNewSubCategoryModal()">+ إضافة قسم فرعي</button>
+        </div>
+      </aside>
+
+      <!-- محتوى المنتجات -->
+      <main class="products-content-area">
+        <h3 id="current-category-title" style="color:#1b365d; font-weight:800; margin-top:0; margin-bottom:15px;">كل المنتجات</h3>
+        <div class="products-grid" id="products-grid"></div>
+      </main>
+
     </div>
-
-    <div class="products-grid" id="products-grid"></div>
   </div>
 
   <!-- مودال السلة -->
@@ -222,72 +292,116 @@
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
-    
-    let currentMainCat = 'all';
-    let currentSubCat = 'all';
+    let isAdmin = localStorage.getItem('ansiyab_admin_mode') === 'true';
+    let selectedMainCatForSub = '';
 
     const placeholderSvg = "data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'><rect width=\'100%\' height=\'100%\' fill=\'%23f1f5f9\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>الأنسياب المتقدم</text></svg>";
 
     document.addEventListener('DOMContentLoaded', function() {
-      applyFilters();
+      updateAdminModeUI();
+      renderSidebarCategories();
+      displayProducts(products, "كل المنتجات");
       updateCartBadge();
     });
 
-    function filterMainCategory(category, btnElement) {
-      document.querySelectorAll('#categories-filter .filter-btn').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
+    function updateAdminModeUI() {
+      const body = document.getElementById('page-body');
+      const adminBar = document.getElementById('admin-bar-container');
+      const addSubSection = document.getElementById('add-subcat-section');
 
-      currentMainCat = category;
-      currentSubCat = 'all';
-
-      renderSubcategoriesBar(category);
-      applyFilters();
+      if (isAdmin) {
+        body.classList.add('admin-mode');
+        adminBar.style.display = 'flex';
+        addSubSection.style.display = 'block';
+      } else {
+        body.classList.remove('admin-mode');
+        adminBar.style.display = 'none';
+        addSubSection.style.display = 'none';
+      }
     }
 
-    function renderSubcategoriesBar(mainCategory) {
-      const subContainer = document.getElementById('subcategories-filter');
-      subContainer.innerHTML = '';
+    function toggleAdminMode() {
+      isAdmin = !isAdmin;
+      localStorage.setItem('ansiyab_admin_mode', isAdmin);
+      updateAdminModeUI();
+      renderSidebarCategories();
+    }
 
-      if (mainCategory === 'all') {
-        subContainer.innerHTML = '<span style="font-size:12px; color:#64748b; font-weight:700;">اختر القسم الرئيسي لعرض الأقسام الفرعية</span>';
-        return;
-      }
-
-      // استخراج الأقسام الفرعية التابعة للقسم الرئيسي الحالي فقط
-      const matchedProducts = products.filter(p => p.mainCat === mainCategory);
-      const subCategories = [...new Set(matchedProducts.map(p => p.subCat).filter(Boolean))];
-
-      if (subCategories.length === 0) {
-        subContainer.innerHTML = '<span style="font-size:12px; color:#64748b; font-weight:700;">لا توجد أقسام فرعية مسجلة لهذا القسم</span>';
-        return;
-      }
-
-      let html = `<button class="sub-filter-btn active" onclick="filterSubCategory('all', this)">كل الأقسام الفرعية</button>`;
-      subCategories.forEach(sub => {
-        html += `<button class="sub-filter-btn" onclick="filterSubCategory('${sub}', this)">${sub}</button>`;
+    function renderSidebarCategories() {
+      const container = document.getElementById('sidebar-categories-list');
+      const mainCats = [...new Set(products.map(p => p.mainCat))];
+      
+      let html = '';
+      mainCats.forEach((mainCat, index) => {
+        const subs = [...new Set(products.filter(p => p.mainCat === mainCat).map(p => p.subCat).filter(Boolean))];
+        
+        html += `
+          <div class="main-cat-item">
+            <div class="main-cat-header" onclick="toggleSubMenu(this, '${mainCat}')">
+              <span>${mainCat}</span>
+              <div style="display:flex; align-items:center; gap:5px;">
+                ${isAdmin ? `<button onclick="event.stopPropagation(); editMainCat('${mainCat}')" style="background:none; border:none; cursor:pointer;" title="تعديل">✏️</button>` : ''}
+                <span>▼</span>
+              </div>
+            </div>
+            <div class="sub-cat-list" id="sub-list-${index}">
+              <div class="sub-cat-row">
+                <div class="sub-cat-item" onclick="filterCategory('${mainCat}', 'all', this)">عرض الكل في ${mainCat}</div>
+              </div>
+        `;
+        
+        subs.forEach(sub => {
+          html += `
+            <div class="sub-cat-row">
+              <div class="sub-cat-item" onclick="filterCategory('${mainCat}', '${sub}', this)">${sub}</div>
+              <div class="admin-sub-tools">
+                <button onclick="deleteSubCat('${mainCat}', '${sub}')" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-size:12px;" title="حذف">❌</button>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+          </div>
+        `;
       });
-      subContainer.innerHTML = html;
+      
+      container.innerHTML = html;
     }
 
-    function filterSubCategory(subCategory, btnElement) {
-      document.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
+    function toggleSubMenu(headerElement, mainCat) {
+      selectedMainCatForSub = mainCat;
+      const subList = headerElement.nextElementSibling;
+      const isOpen = subList.classList.contains('active');
+      
+      document.querySelectorAll('.sub-cat-list').forEach(el => el.classList.remove('active'));
+      if (!isOpen) {
+        subList.classList.add('active');
+      }
 
-      currentSubCat = subCategory;
-      applyFilters();
+      filterCategory(mainCat, 'all', headerElement);
     }
 
-    function applyFilters() {
+    function filterCategory(mainCat, subCat, element) {
+      document.querySelectorAll('.sub-cat-item, .main-cat-header').forEach(el => el.classList.remove('active'));
+      if(element) element.classList.add('active');
+
       let filtered = products;
+      let title = "كل المنتجات";
 
-      if (currentMainCat !== 'all') {
-        filtered = filtered.filter(p => p.mainCat === currentMainCat);
+      if (mainCat !== 'all') {
+        filtered = filtered.filter(p => p.mainCat === mainCat);
+        title = mainCat;
+        selectedMainCatForSub = mainCat;
       }
 
-      if (currentSubCat !== 'all') {
-        filtered = filtered.filter(p => p.subCat === currentSubCat);
+      if (subCat !== 'all') {
+        filtered = filtered.filter(p => p.subCat === subCat);
+        title = `${mainCat} / ${subCat}`;
       }
 
+      document.getElementById('current-category-title').innerText = title;
       displayProducts(filtered);
     }
 
@@ -296,7 +410,7 @@
       grid.innerHTML = '';
 
       if (prodsToDisplay.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:30px;">لا توجد منتجات مطابقة في هذا القسم حالياً.</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:30px;">لا توجد منتجات مطابقة حالياً.</p>';
         return;
       }
 
@@ -313,15 +427,21 @@
         }
 
         let mainImg = (prod.images && prod.images.length > 0 && prod.images[0].trim() !== '') ? prod.images[0] : placeholderSvg;
-        let subCatText = prod.subCat ? `<div class="subcat-name">${prod.subCat}</div>` : '';
+
+        let adminProductTools = isAdmin ? `
+          <div style="margin-top:8px; display:flex; gap:5px;">
+            <a href="edit-product.html?id=${prod.id}" style="background:#d69e2e; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; text-decoration:none;">تعديل</a>
+            <button onclick="deleteProduct(${prod.id})" style="background:#e53e3e; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;">حذف</button>
+          </div>
+        ` : '';
 
         grid.innerHTML += `
           <div class="product-card">
             <div>
               <img src="${mainImg}" alt="${prod.name}" onerror="this.src='${placeholderSvg}'">
-              <div class="cat-name">${prod.mainCat}</div>
-              ${subCatText}
+              <div style="font-size:11px; color:#718096; margin-bottom:3px;">${prod.mainCat}</div>
               <h3>${prod.name}</h3>
+              ${adminProductTools}
             </div>
             <div>
               <div class="card-footer">
@@ -332,6 +452,53 @@
           </div>
         `;
       });
+    }
+
+    // وظائف المشرف الإضافية
+    function addNewMainCategory() {
+      let name = prompt("أدخل اسم القسم الرئيسي الجديد:");
+      if (name && name.trim() !== "") {
+        products.push({ id: Date.now(), name: "منتج تجريبي", mainCat: name.trim(), subCat: "عام", unit: "حبة", boxQty: 1, stock: 10, images: [] });
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        alert("تم إضافة القسم الرئيسي بنجاح!");
+      }
+    }
+
+    function addNewSubCategoryModal() {
+      if (!selectedMainCatForSub) {
+        alert("الرجاء اختيار قسم رئيسي أولاً من القائمة الجانبية لإضافة قسم فرعي تحته.");
+        return;
+      }
+      let subName = prompt(`أدخل اسم القسم الفرعي الجديد تحت (${selectedMainCatForSub}):`);
+      if (subName && subName.trim() !== "") {
+        products.push({ id: Date.now(), name: "منتج تجريبي", mainCat: selectedMainCatForSub, subCat: subName.trim(), unit: "حبة", boxQty: 1, stock: 10, images: [] });
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        alert("تم إضافة القسم الفرعي بنجاح!");
+      }
+    }
+
+    function addNewProductPage() {
+      window.location.href = "add-product.html";
+    }
+
+    function deleteProduct(id) {
+      if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        displayProducts(products, "كل المنتجات");
+      }
+    }
+
+    function deleteSubCat(mainCat, subCat) {
+      if (confirm(`هل أنت متأكد من حذف القسم الفرعي (${subCat})؟`)) {
+        products = products.filter(p => !(p.mainCat === mainCat && p.subCat === subCat));
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        displayProducts(products, "كل المنتجات");
+      }
     }
 
     function updateCartBadge() {
