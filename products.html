@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الأنسياب المتقدم | المنتجات والكتالوج</title>
+  <title>المنتجات | الأنسياب المتقدم</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,70 +15,63 @@
     }
 
     html, body {
-      width: 100% !important;
-      max-width: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
+      width: 100%;
+      margin: 0;
+      padding: 0;
       font-family: 'Cairo', sans-serif !important;
       background-color: #f4f7f9;
       color: #2d3748;
       line-height: 1.6;
     }
 
+    /* الهيدر العلوي متناسق للجوال والكمبيوتر */
     header {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
-      padding: 15px 40px;
+      padding: 12px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-      position: fixed;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+      position: sticky;
       top: 0;
-      left: 0;
-      width: 100%;
       z-index: 1000;
-    }
-
-    body {
-      padding-top: 80px;
     }
 
     .logo-container {
       display: flex;
       align-items: center;
-      gap: 12px;
-      cursor: pointer;
+      gap: 10px;
       text-decoration: none;
-      user-select: none;
     }
 
     .logo-container img {
-      height: 40px;
+      height: 38px;
       object-fit: contain;
     }
 
     .logo-text {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 800;
       color: #1b365d;
-      letter-spacing: -0.3px;
+      white-space: nowrap;
     }
 
     .nav-links {
       display: flex;
-      gap: 15px;
+      gap: 8px;
       align-items: center;
     }
 
     .nav-links a {
       color: #4a5568;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 6px;
       transition: all 0.3s ease;
+      white-space: nowrap;
     }
 
     .nav-links a.active, .nav-links a:hover {
@@ -86,9 +79,11 @@
       background-color: #1b365d;
     }
 
+    /* زر لوحة التحكم للمشرف فقط */
     .admin-nav-btn {
+      display: none;
       background-color: #d69e2e !important;
-      color: #fff !important;
+      color: #ffffff !important;
     }
     .admin-nav-btn:hover {
       background-color: #b7791f !important;
@@ -98,7 +93,7 @@
       background-color: #2b6cb0;
       color: #fff;
       border: none;
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 6px;
       font-weight: 700;
       font-size: 13px;
@@ -107,424 +102,369 @@
       align-items: center;
       gap: 6px;
       font-family: 'Cairo', sans-serif;
-      transition: background 0.2s;
-    }
-
-    .cart-btn-header:hover {
-      background-color: #2c5282;
+      white-space: nowrap;
     }
 
     .cart-badge {
       background-color: #e53e3e;
       color: white;
       border-radius: 50%;
-      padding: 2px 7px;
+      padding: 2px 6px;
       font-size: 11px;
     }
 
-    .products-wrapper {
-      max-width: 1280px;
-      margin: 30px auto;
-      padding: 0 20px;
-      display: flex;
-      gap: 30px;
-    }
-
-    .sidebar {
-      width: 280px;
-      flex-shrink: 0;
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      padding: 20px;
-      align-self: flex-start;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-
-    .sidebar-title {
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 15px;
+    .sub-header-banner {
+      background: #ffffff;
+      padding: 10px 15px;
       text-align: center;
-      color: #1b365d;
-      border-bottom: 2px solid #edf2f7;
-      padding-bottom: 10px;
+      color: #718096;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid #edf2f7;
     }
 
-    .btn-all-products {
+    /* التنسيق العام لشبكة الصفحة */
+    .main-layout {
+      max-width: 1280px;
+      margin: 20px auto;
+      padding: 0 15px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    /* زر إظهار الأقسام في الجوال */
+    .mobile-cat-toggle {
+      display: none;
       width: 100%;
-      background-color: #e53e3e;
+      background: #1b365d;
       color: white;
       border: none;
       padding: 12px;
       border-radius: 8px;
+      font-weight: 800;
+      font-size: 14px;
       font-family: 'Cairo', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
       cursor: pointer;
       margin-bottom: 15px;
-      transition: background 0.2s;
+      text-align: center;
     }
 
-    .btn-all-products:hover {
-      background-color: #c53030;
+    /* القائمة الجانبية للأقسام */
+    .sidebar-categories {
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      padding: 15px;
+      height: fit-content;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 
-    .category-item {
-      border-bottom: 1px solid #edf2f7;
-      margin-bottom: 4px;
+    .cat-btn-all {
+      width: 100%;
+      background: #e53e3e;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 14px;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      margin-bottom: 12px;
+      text-align: center;
     }
 
-    .category-header {
+    /* تنسيق القسم الرئيسي والأقسام الفرعية (Accordion) */
+    .main-cat-item {
+      margin-bottom: 6px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .main-cat-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px;
+      padding: 10px 8px;
+      color: #2d3748;
+      font-weight: 800;
+      font-size: 14px;
       cursor: pointer;
-      font-size: 13px;
-      color: #4a5568;
-      font-weight: 700;
       border-radius: 6px;
       transition: background 0.2s;
     }
 
-    .category-header:hover {
-      background-color: #f7fafc;
+    .main-cat-header:hover {
+      background: #f7fafc;
+      color: #1b365d;
     }
 
-    .category-header.active {
-      background-color: #1b365d;
-      color: #fff;
+    .main-cat-arrow {
+      font-size: 10px;
+      color: #718096;
+      transition: transform 0.3s ease;
     }
 
-    .category-main-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .main-cat-item.open .main-cat-arrow {
+      transform: rotate(180deg);
     }
 
-    .category-main-label img {
-      width: 22px;
-      height: 22px;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-
-    .subcategory-list {
+    /* قائمة الأقسام الفرعية التابعة للقسم الرئيسي */
+    .sub-cat-list {
       display: none;
-      padding: 6px 0 6px 10px;
-      background-color: #ffffff;
+      padding-right: 15px;
+      padding-top: 4px;
+      padding-bottom: 8px;
     }
 
-    .subcategory-list.open {
+    .main-cat-item.open .sub-cat-list {
       display: block;
     }
 
-    .subcategory-item {
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #718096;
+    .sub-cat-item {
+      padding: 6px 10px;
+      font-size: 13px;
       font-weight: 600;
+      color: #4a5568;
       cursor: pointer;
-      text-align: right;
       border-radius: 4px;
+      margin-bottom: 2px;
       transition: all 0.2s;
     }
 
-    .subcategory-item:hover, .subcategory-item.active-sub {
-      color: #e53e3e;
+    .sub-cat-item:hover, .sub-cat-item.active {
+      background: #edf2f7;
+      color: #2b6cb0;
       font-weight: 800;
-      background-color: #fff5f5;
     }
 
-    .content-area {
-      flex: 1;
-    }
-
-    .section-header {
-      background: #fff;
-      padding: 20px 25px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-
-    .section-header h2 {
-      margin: 0 0 5px 0;
-      font-size: 20px;
+    /* عرض المنتجات */
+    .current-category-title {
+      font-size: 18px;
+      font-weight: 800;
       color: #1b365d;
-      font-weight: 800;
-    }
-
-    .section-header p {
-      margin: 0;
-      font-size: 13px;
-      color: #718096;
-      font-weight: 600;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
     }
 
     .products-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 20px;
+      gap: 15px;
     }
 
     .product-card {
-      background: #fff;
+      background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 15px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: transform 0.2s;
     }
 
     .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
     }
 
     .product-img-box {
       width: 100%;
-      height: 140px;
-      background-color: #f8fafc;
+      height: 120px;
+      background: #f8fafc;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 12px;
-      border: 1px solid #edf2f7;
-      padding: 10px;
     }
 
     .product-img-box img {
-      max-width: 85%;
-      max-height: 105px;
+      max-width: 80%;
+      max-height: 90px;
       object-fit: contain;
     }
 
     .product-title {
       font-size: 14px;
-      font-weight: 700;
-      margin: 6px 0 10px 0;
-      color: #2d3748;
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .product-specs-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 10px;
-      width: 100%;
-      margin: 8px 0 12px 0;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      font-size: 12px;
-    }
-
-    .spec-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .spec-label {
-      color: #718096;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .spec-value {
       font-weight: 800;
       color: #1b365d;
-      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: center;
     }
 
-    .customer-qty-box {
+    .product-info-table {
+      width: 100%;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      margin-bottom: 12px;
+      border: 1px solid #edf2f7;
+    }
+
+    .info-item label {
+      display: block;
+      font-size: 10px;
+      color: #a0aec0;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .info-item span {
+      font-size: 12px;
+      color: #2d3748;
+      font-weight: 800;
+    }
+
+    .quantity-control {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100%;
-      background: #fff;
-      border: 1px solid #cbd5e0;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 6px 10px;
-      margin-bottom: 10px;
-      font-size: 13px;
+      padding: 4px 8px;
     }
 
-    .customer-qty-box label {
+    .quantity-control label {
+      font-size: 11px;
       font-weight: 700;
       color: #4a5568;
-      font-size: 12px;
     }
 
-    .qty-input-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .customer-qty-box input {
+    .quantity-control input {
       width: 45px;
-      padding: 5px;
       text-align: center;
       border: 1px solid #cbd5e0;
-      border-radius: 6px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      outline: none;
-      color: #1b365d;
-    }
-
-    .customer-qty-box select {
-      padding: 5px;
-      border: 1px solid #cbd5e0;
-      border-radius: 6px;
+      border-radius: 4px;
+      padding: 3px;
       font-family: 'Cairo', sans-serif;
       font-weight: 700;
       font-size: 12px;
-      outline: none;
-      background: #fff;
-      color: #1b365d;
     }
 
-    .btn-add-to-cart {
-      background-color: #2b6cb0;
+    .quantity-control select {
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+      padding: 3px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .add-to-cart-btn {
+      width: 100%;
+      background: #2b6cb0;
       color: white;
       border: none;
-      width: 100%;
-      padding: 10px;
+      padding: 8px;
       border-radius: 8px;
-      font-family: 'Cairo', sans-serif;
-      font-size: 13px;
       font-weight: 700;
+      font-size: 13px;
+      font-family: 'Cairo', sans-serif;
       cursor: pointer;
-      margin-top: auto;
       transition: background 0.2s;
     }
 
-    .btn-add-to-cart:hover {
-      background-color: #2c5282;
-    }
-
-    .admin-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .admin-btn {
-      display: none;
-      background-color: #2b6cb0;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Cairo', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    #cart-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .cart-modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-
-    .cart-items-list {
-      overflow-y: auto;
-      max-height: 350px;
-      margin: 15px 0;
-      border-top: 1px solid #e2e8f0;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 10px 0;
-    }
-
-    .cart-item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 5px;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 13px;
-    }
-
-    .cart-item-info {
-      font-weight: 700;
-      color: #2d3748;
-    }
-
-    .cart-item-qty {
-      color: #718096;
-      font-weight: 600;
-      font-size: 12px;
-      background: #edf2f7;
-      padding: 3px 8px;
-      border-radius: 4px;
-    }
-
-    .btn-remove-item {
-      background: none;
-      border: none;
-      color: #e53e3e;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 700;
+    .add-to-cart-btn:hover {
+      background: #2c5282;
     }
 
     footer {
       background-color: #1b365d;
       color: white;
       text-align: center;
-      padding: 25px;
-      font-size: 14px;
+      padding: 20px;
+      font-size: 13px;
       font-weight: 600;
-      margin-top: 60px;
+      margin-top: 40px;
     }
 
+    /* تجاوب الشاشات للجوال (Mobile Responsive) */
     @media (max-width: 768px) {
-      .products-wrapper {
+      header {
+        padding: 10px 15px;
         flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
       }
-      .sidebar {
+
+      .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         width: 100%;
       }
-      header {
-        padding: 12px 20px;
+
+      .logo-text {
+        font-size: 13px;
+      }
+
+      .logo-container img {
+        height: 30px;
+      }
+
+      .header-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-top: 1px solid #edf2f7;
+        padding-top: 8px;
+      }
+
+      .nav-links a {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      .cart-btn-header {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+        margin: 10px auto;
+      }
+
+      .mobile-cat-toggle {
+        display: block; /* إظهار زر فتح الأقسام في الجوال */
+      }
+
+      .sidebar-categories {
+        display: none; /* إخفاء القائمة في الجوال حتى يضغط المستخدم الزر */
+      }
+
+      .sidebar-categories.active-mobile {
+        display: block;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr); /* عرض منتجين بجانب بعض في الجوال */
+        gap: 10px;
+      }
+
+      .product-card {
+        padding: 10px;
+      }
+
+      .product-title {
+        font-size: 12px;
+      }
+
+      .add-to-cart-btn {
+        font-size: 11px;
+        padding: 6px;
       }
     }
   </style>
@@ -532,488 +472,324 @@
 <body>
 
   <header>
-    <a href="index.html" class="logo-container" ondblclick="toggleAdmin()" title="ضغطتان لتفعيل وضع الأدمن">
-      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
-      <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
-    </a>
-    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <div class="header-top">
+      <a href="index.html" class="logo-container">
+        <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+        <div class="logo-text">الأنسياب المتقدم</div>
+      </a>
       <button class="cart-btn-header" onclick="openCartModal()">
         <span>قائمة الطلب</span>
         <span class="cart-badge" id="cart-count">0</span>
       </button>
+    </div>
+
+    <div class="header-bottom">
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="products.html" class="active">المنتجات</a>
-        <a href="#" onclick="toggleAdmin(); return false;" class="admin-nav-btn" id="admin-nav-toggle-btn">لوحة التحكم</a>
+        <a href="admin.html" id="admin-nav-link" class="admin-nav-btn">لوحة التحكم</a>
       </nav>
     </div>
   </header>
 
-  <div class="products-wrapper">
-    
-    <aside class="sidebar">
-      <div class="sidebar-title">أقسام المتجر</div>
-      <button class="btn-all-products" onclick="selectCategory('الكل')">عرض كل المنتجات</button>
-      <div id="categories-tree"></div>
-    </aside>
-
-    <main class="content-area">
-      <div class="section-header">
-        <h2 id="current-cat-title">مواقد غاز</h2>
-        <p>استعرض المنتجات والمستلزمات التابعة للتصنيف المختار بكل سهولة</p>
-      </div>
-
-      <div class="admin-controls">
-        <button class="admin-btn btn-add" id="btn-add-prod" onclick="openAddModal()">+ إضافة منتج جديد</button>
-        <button class="admin-btn" id="btn-manage-cat" style="background-color: #319795;" onclick="openCategoryManagerModal()">⚙️ إدارة الأقسام (إضافة/تعديل/حذف)</button>
-      </div>
-
-      <div class="products-grid" id="products-container"></div>
-    </main>
-
+  <div class="sub-header-banner">
+    اختر القسم الرئيسي لاستعراض الأقسام الفرعية والمنتجات
   </div>
 
-  <!-- نافذة إدارة الأقسام (للأدمن فقط) -->
-  <div id="category-manager-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:#fff; padding:25px; border-radius:12px; width:90%; max-width:650px; max-height:85vh; display:flex; flex-direction:column; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-      <h3 style="margin-top:0; color:#1b365d; font-weight:800; text-align:center;">إدارة أقسام المتجر</h3>
-      
-      <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; background:#f7fafc; padding:10px; border-radius:8px;">
-        <span style="font-weight:700; font-size:13px; color:#2d3748;">إضافة قسم رئيسي جديد:</span>
-        <button onclick="promptAddMainCategory()" style="background:#319795; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:12px;">+ قسم رئيسي</button>
-      </div>
+  <div class="main-layout">
+    <!-- زر فتح الأقسام في الجوال -->
+    <div>
+      <button class="mobile-cat-toggle" onclick="toggleMobileSidebar()">
+        📁 تصفح أقسام المتجر (اضغط للعرض)
+      </button>
 
-      <div style="overflow-y:auto; max-height:400px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 0;" id="cat-manager-list">
-        <!-- يتم تعبئتها ديناميكياً -->
+      <!-- القائمة الجانبية للأقسام -->
+      <div class="sidebar-categories" id="sidebar-container">
+        <button class="cat-btn-all" onclick="filterCategory('all', 'جميع المنتجات')">عرض كل المنتجات</button>
+        <div id="sidebar-cat-accordion">
+          <!-- يتم بناء الأقسام والأقسام الفرعية هنا ديناميكياً -->
+        </div>
       </div>
+    </div>
 
-      <div style="margin-top:15px; text-align:center;">
-        <button type="button" onclick="closeCategoryManagerModal()" style="background:#4a5568; color:#fff; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إغلاق</button>
+    <!-- منطقة عرض المنتجات -->
+    <div>
+      <div class="current-category-title" id="current-cat-title">جميع المنتجات</div>
+      <div class="products-grid" id="products-grid-container">
+        <!-- المنتجات يتم عرضها هنا -->
       </div>
     </div>
   </div>
 
-  <!-- نافذة قائمة الطلب (السلة) -->
-  <div id="cart-modal">
-    <div class="cart-modal-content">
+  <!-- نافذة السلة -->
+  <div id="cart-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:20px; border-radius:12px; width:90%; max-width:480px; max-height:85vh; display:flex; flex-direction:column;">
       <h3 style="margin-top:0; color:#1b365d; font-weight:800; text-align:center;">قائمة الطلبات الخاصة بك</h3>
-      <div class="cart-items-list" id="cart-items-container"></div>
-      <div style="display:flex; gap:12px; margin-top:auto;">
-        <button onclick="sendCartToWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إرسال الطلب عبر الواتساب</button>
-        <button type="button" onclick="closeCartModal()" style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إغلاق</button>
+      <div id="cart-items-container" style="overflow-y:auto; max-height:350px; margin:15px 0; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 0;"></div>
+      <div style="display:flex; gap:10px; margin-top:auto;">
+        <button onclick="sendCartToWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700;">إرسال عبر الواتساب</button>
+        <button type="button" onclick="closeCartModal()" style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700;">إغلاق</button>
       </div>
-    </div>
-  </div>
-
-  <!-- نافذة تسجيل دخول الأدمن -->
-  <div id="login-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:#fff; padding:30px; border-radius:12px; width:90%; max-width:380px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-      <h3 style="margin-top:0; color:#1b365d; font-size:18px; text-align:center; margin-bottom:15px; font-weight:800;">تسجيل دخول لوحة التحكم</h3>
-      <form id="login-form">
-        <label style="display:block; margin-bottom:8px; font-size:13px; font-weight:700; color:#4a5568;">كلمة مرور الأدمن:</label>
-        <input type="password" id="admin-password" placeholder="أدخل كلمة المرور..." required style="width:100%; padding:12px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none; text-align:right;">
-        
-        <div style="display:flex; gap:12px; margin-top:20px;">
-          <button type="submit" style="flex:1; background:#2b6cb0; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">دخول</button>
-          <button type="button" onclick="closeLoginModal()" style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إلغاء</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- نافذة إضافة / تعديل منتج للأدمن -->
-  <div id="admin-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:#fff; padding:25px; border-radius:12px; width:90%; max-width:450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-      <h3 id="modal-title" style="margin-top:0; color:#1b365d; font-weight:800;">إضافة منتج جديد</h3>
-      <form id="product-form">
-        <input type="hidden" id="prod-id">
-        
-        <label style="display:block; margin-top:10px; font-size:13px; font-weight:700; color:#4a5568;">القسم الفرعي المستهدف:</label>
-        <input type="text" id="prod-category" readonly style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; background:#edf2f7; color:#4a5568; font-family:'Cairo', sans-serif; font-weight:700;">
-
-        <label style="display:block; margin-top:12px; font-size:13px; font-weight:700; color:#4a5568;">اسم المنتج:</label>
-        <input type="text" id="prod-name" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none;">
-        
-        <div style="display:flex; gap:12px; margin-top:12px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">الوحدة الافتراضية:</label>
-            <select id="prod-unit" style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none; background:#fff;">
-              <option value="كرتون">كرتون</option>
-              <option value="درزن">درزن</option>
-              <option value="حبة">حبة</option>
-              <option value="علبة">علبة</option>
-              <option value="متر">متر</option>
-              <option value="لفه">لفه</option>
-              <option value="ربطه">ربطه</option>
-            </select>
-          </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">شد الكرتون:</label>
-            <input type="number" id="prod-pack" value="1" min="1" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none;">
-          </div>
-        </div>
-
-        <div style="display:flex; gap:12px; margin-top:20px;">
-          <button type="submit" style="flex:1; background:#27ae60; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700;">حفظ المنتج</button>
-          <button type="button" onclick="closeAdminModal()" style="flex:1; background:#e53e3e; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700;">إلغاء</button>
-        </div>
-      </form>
     </div>
   </div>
 
   <footer>
-    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة | <a href="#" onclick="toggleAdmin(); return false;" style="color:#d69e2e; text-decoration:underline;">تسجيل دخول المشرفين</a></p>
+    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة | <span onclick="triggerAdminLogin()" style="cursor:pointer; opacity:0.8;">تسجيل دخول المشرفين</span></p>
   </footer>
 
   <script>
-    const defaultCategories = {
-      "ادوات لحام ووصواريخ بقاعدة": { image: "", subs: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
-      "مواقد غاز": { image: "", subs: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"] },
-      "ادوات ولوازم الرحلات": { image: "", subs: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"] },
-      "ادوات ولوازم الشواء": { image: "", subs: ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"] },
-      "دفايات": { image: "", subs: ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"] },
-      "محابس وتواصيل": { image: "", subs: ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"] },
-      "ساعات ومنظمات غاز": { image: "", subs: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"] },
-      "ليات غاز": { image: "", subs: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"] },
-      "ولاعات وشعالات": { image: "", subs: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"] },
-      "قطع غيار": { image: "", subs: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"] },
-      "قدور": { image: "", subs: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"] },
-      "خضاضات وسطول": { image: "", subs: ["خضاضات لبن", "سطول لبن", "مواعين سمن"] },
-      "دوافير ودبات": { image: "", subs: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"] },
-      "طباخات وفوانيس": { image: "", subs: ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"] },
-      "منزليات": { image: "", subs: ["اكسسوارات عامة"] }
+    // الأقسام الرئيسية والأقسام الفرعية التابعة لكل قسم
+    const storeCategories = {
+      "ادوات لحام ووصواريخ بقاعدة": ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"],
+      "مواقد غاز": ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"],
+      "ادوات ولوازم الرحلات": ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"],
+      "ادوات ولوازم الشواء": ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"],
+      "دفايات": ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"],
+      "محابس وتواصيل": ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"],
+      "ساعات ومنظمات غاز": ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"],
+      "ليات غاز": ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"],
+      "ولاعات وشعالات": ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"],
+      "قطع غيار": ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"],
+      "قدور": ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"],
+      "خضاضات وسطول": ["خضاضات لبن", "سطول لبن", "مواعين سمن"],
+      "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
+      "طباخات وفوانيس": ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"],
+      "منزليات": ["اكسسوارات عامة"]
     };
 
-    let storeCategories = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
-
-    let productsData = JSON.parse(localStorage.getItem('ansiyab_products')) || [
-      { id: 1, name: "مسدس لحام إيطالي فاخر", category: "مسدسات لحام ايطالي", unit: "حبة", pack: 6 },
-      { id: 2, name: "موقد غاز منزلي عالي الأداء", category: "مواقد غاز منزلية", unit: "كرتون", pack: 12 }
+    // نماذج منتجات تجريبية
+    const sampleProducts = [
+      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", defaultUnit: "حبة", boxQty: 6 },
+      { id: 2, name: "مسدس لحام ايطالي عادي", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", defaultUnit: "حبة", boxQty: 1 },
+      { id: 3, name: "صاروخ بقاعدة 4 بوصة", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "صواريخ بقاعدة", defaultUnit: "حبة", boxQty: 4 },
+      { id: 4, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", defaultUnit: "حبة", boxQty: 10 },
+      { id: 5, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", defaultUnit: "حبة", boxQty: 20 }
     ];
 
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
-    let currentSelectedCategory = "";
-    let isAdmin = false;
-
-    function getStoreLogoSrc() {
-      const logoImg = document.getElementById('logo-img');
-      return logoImg ? logoImg.src : 'assets/images/logo.png';
-    }
 
     document.addEventListener('DOMContentLoaded', function() {
-      buildSidebarCategories();
-      updateCartBadge();
+      checkAdminStatus();
+      buildCategoryAccordion();
+      
+      // قراءة القسم الممرر من الرابط عند القدوم من الصفحة الرئيسية
+      const urlParams = new URLSearchParams(window.location.search);
+      const categoryParam = urlParams.get('category');
+      const searchParam = urlParams.get('search');
 
-      const mainKeys = Object.keys(storeCategories);
-      if (mainKeys.length > 0 && storeCategories[mainKeys[0]].subs.length > 0) {
-        selectCategory(storeCategories[mainKeys[0]].subs[0]);
+      if (categoryParam) {
+        filterCategory(categoryParam, categoryParam);
+        openCategoryAccordionBySub(categoryParam);
+      } else if (searchParam) {
+        searchProducts(searchParam);
+      } else {
+        renderProducts(sampleProducts);
       }
+
+      updateCartBadge();
     });
 
-    function saveCategories() {
-      localStorage.setItem('ansiyab_categories', JSON.stringify(storeCategories));
-    }
-
-    function buildSidebarCategories() {
-      const container = document.getElementById('categories-tree');
+    // بناء قائمة الأقسام مع الأقسام الفرعية تحتها (Accordion)
+    function buildCategoryAccordion() {
+      const container = document.getElementById('sidebar-cat-accordion');
       container.innerHTML = '';
 
-      Object.keys(storeCategories).forEach(mainCat => {
-        const catObj = storeCategories[mainCat];
-        const item = document.createElement('div');
-        item.className = 'category-item';
+      Object.keys(storeCategories).forEach((mainCat, index) => {
+        const subCats = storeCategories[mainCat];
 
-        const subArr = catObj.subs || [];
-        const header = document.createElement('div');
-        header.className = 'category-header';
-        
-        let imgHtml = catObj.image ? `<img src="${catObj.image}" alt="">` : '';
-        header.innerHTML = `
-          <div class="category-main-label">${imgHtml}<span>${mainCat}</span></div>
-          <span>▼</span>
-        `;
+        const mainDiv = document.createElement('div');
+        mainDiv.className = 'main-cat-item';
+        mainDiv.id = `main-cat-${index}`;
 
-        const subList = document.createElement('div');
-        subList.className = 'subcategory-list';
-
-        subArr.forEach(sub => {
-          const subItem = document.createElement('div');
-          subItem.className = 'subcategory-item';
-          subItem.innerText = sub;
-          subItem.onclick = function(e) {
-            e.stopPropagation();
-            selectCategory(sub);
-          };
-          subList.appendChild(subItem);
+        let subHtml = '';
+        subCats.forEach(sub => {
+          subHtml += `<div class="sub-cat-item" onclick="selectSubCategory('${sub}', '${mainCat}')">${sub}</div>`;
         });
 
-        header.onclick = function() {
-          const isOpen = subList.classList.contains('open');
-          document.querySelectorAll('.subcategory-list').forEach(l => l.classList.remove('open'));
-          document.querySelectorAll('.category-header').forEach(h => h.classList.remove('active'));
-          
-          if (!isOpen) {
-            subList.classList.add('open');
-            header.classList.add('active');
-          }
-        };
+        mainDiv.innerHTML = `
+          <div class="main-cat-header" onclick="toggleAccordion(${index})">
+            <span>${mainCat}</span>
+            <span class="main-cat-arrow">▼</span>
+          </div>
+          <div class="sub-cat-list">
+            ${subHtml}
+          </div>
+        `;
 
-        item.appendChild(header);
-        item.appendChild(subList);
-        container.appendChild(item);
+        container.appendChild(mainDiv);
       });
     }
 
-    function selectCategory(catName) {
-      currentSelectedCategory = catName;
-      document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
-      
-      document.querySelectorAll('.subcategory-item').forEach(el => {
-        if (el.innerText === catName) {
-          el.classList.add('active-sub');
-        } else {
-          el.classList.remove('active-sub');
+    // فتح/إغلاق القسم الرئيسي لإظهار الأقسام الفرعية التابعة له فقط
+    function toggleAccordion(index) {
+      const element = document.getElementById(`main-cat-${index}`);
+      const isOpen = element.classList.contains('open');
+
+      // إغلاق جميع الأقسام الأخرى
+      document.querySelectorAll('.main-cat-item').forEach(el => el.classList.remove('open'));
+
+      // فتح القسم المحدد فقط إذا لم يكن مفتوحاً
+      if (!isOpen) {
+        element.classList.add('open');
+      }
+    }
+
+    // اختيار قسم فرعي محدد وتصفية المنتجات
+    function selectSubCategory(subCat, mainCat) {
+      document.querySelectorAll('.sub-cat-item').forEach(el => el.classList.remove('active'));
+      event.target.classList.add('active');
+
+      filterCategory(subCat, `${mainCat} > ${subCat}`);
+
+      // إغلاق القائمة في الجوال بعد اختيار القسم
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar-container').classList.remove('active-mobile');
+      }
+    }
+
+    // فتح قائمة القسم الرئيسي تلقائياً إذا جاء العميل من رابط يحتوي قسم فرعي
+    function openCategoryAccordionBySub(targetSub) {
+      Object.keys(storeCategories).forEach((mainCat, index) => {
+        if (storeCategories[mainCat].includes(targetSub)) {
+          const element = document.getElementById(`main-cat-${index}`);
+          if (element) element.classList.add('open');
         }
       });
-      renderProducts();
     }
 
-    function renderProducts() {
-      const container = document.getElementById('products-container');
-      container.innerHTML = '';
+    // فلترة المنتجات
+    function filterCategory(catTarget, displayTitle) {
+      document.getElementById('current-cat-title').innerText = displayTitle;
 
-      let filtered = productsData;
-      if (currentSelectedCategory !== 'الكل' && currentSelectedCategory !== '') {
-        filtered = productsData.filter(p => p.category === currentSelectedCategory);
+      if (catTarget === 'all') {
+        renderProducts(sampleProducts);
+        document.querySelectorAll('.main-cat-item').forEach(el => el.classList.remove('open'));
+        document.querySelectorAll('.sub-cat-item').forEach(el => el.classList.remove('active'));
+      } else {
+        const filtered = sampleProducts.filter(p => p.subCat === catTarget || p.mainCat === catTarget);
+        renderProducts(filtered);
       }
+    }
 
-      if (filtered.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#a0aec0; padding:30px;">لا توجد منتجات مضافة في هذا القسم حالياً.</p>';
+    function searchProducts(query) {
+      document.getElementById('current-cat-title').innerText = `نتائج البحث عن: "${query}"`;
+      const filtered = sampleProducts.filter(p => p.name.includes(query) || p.mainCat.includes(query) || p.subCat.includes(query));
+      renderProducts(filtered);
+    }
+
+    function renderProducts(productsToRender) {
+      const container = document.getElementById('products-grid-container');
+      container.innerHTML = '';
+      const logoSrc = document.getElementById('logo-img').src;
+
+      if (productsToRender.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #a0aec0; padding: 40px; font-weight:700;">لا توجد منتجات مضافة في هذا التصنيف حالياً.</p>';
         return;
       }
 
-      const logoSrc = getStoreLogoSrc();
-
-      filtered.forEach(prod => {
+      productsToRender.forEach(prod => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
           <div class="product-img-box">
-            <img src="${logoSrc}" alt="شعار المؤسسة" onerror="this.style.display='none'">
+            <img src="${logoSrc}" alt="${prod.name}">
           </div>
           <div class="product-title">${prod.name}</div>
-          
-          <div class="product-specs-box">
-            <div class="spec-item">
-              <span class="spec-label">الوحدة الافتراضية</span>
-              <span class="spec-value">${prod.unit}</span>
+          <div class="product-info-table">
+            <div class="info-item">
+              <label>الوحدة</label>
+              <span>${prod.defaultUnit}</span>
             </div>
-            <div style="height:20px; width:1px; background:#e2e8f0;"></div>
-            <div class="spec-item">
-              <span class="spec-label">شد الكرتون</span>
-              <span class="spec-value">${prod.pack}</span>
+            <div class="info-item">
+              <label>شد الكرتون</label>
+              <span>${prod.boxQty}</span>
             </div>
           </div>
-
-          <div class="customer-qty-box">
+          <div class="quantity-control">
             <label>الكمية:</label>
-            <div class="qty-input-wrapper">
-              <input type="number" id="qty-${prod.id}" value="1" min="1">
-              <select id="unit-${prod.id}">
-                <option value="كرتون" ${prod.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
-                <option value="درزن" ${prod.unit === 'درزن' ? 'selected' : ''}>درزن</option>
-                <option value="حبة" ${prod.unit === 'حبة' ? 'selected' : ''}>حبة</option>
-                <option value="علبة" ${prod.unit === 'علبة' ? 'selected' : ''}>علبة</option>
-                <option value="متر" ${prod.unit === 'متر' ? 'selected' : ''}>متر</option>
-                <option value="لفه" ${prod.unit === 'لفه' ? 'selected' : ''}>لفه</option>
-                <option value="ربطه" ${prod.unit === 'ربطه' ? 'selected' : ''}>ربطه</option>
-              </select>
-            </div>
+            <input type="number" id="qty-${prod.id}" value="1" min="1">
+            <select id="unit-${prod.id}">
+              <option value="حبة">حبة</option>
+              <option value="كرتون">كرتون</option>
+            </select>
           </div>
-
-          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}')">إضافة إلى قائمة الطلب</button>
-          
-          ${isAdmin ? `
-            <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
-              <button class="admin-btn" style="display:block; flex:1; background:#d69e2e;" onclick="openEditModal(${prod.id})">تعديل</button>
-              <button class="admin-btn" style="display:block; flex:1; background:#e53e3e;" onclick="deleteProduct(${prod.id})">حذف</button>
-            </div>
-          ` : ''}
+          <button class="add-to-cart-btn" onclick="addToCart(${prod.id}, '${prod.name}')">إضافة للطلب</button>
         `;
         container.appendChild(card);
       });
     }
 
-    function toggleAdmin() {
-      if (!isAdmin) {
-        document.getElementById('admin-password').value = '';
-        document.getElementById('login-modal').style.display = 'flex';
-        document.getElementById('admin-password').focus();
-      } else {
-        isAdmin = false;
-        const btnToggle = document.getElementById('admin-nav-toggle-btn');
-        if (btnToggle) btnToggle.innerText = 'لوحة التحكم';
-        alert("تم الخروج من وضع الأدمن");
-        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = 'none');
-        renderProducts();
+    // إظهار/إخفاء قائمة الأقسام في الجوال
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar-container');
+      sidebar.classList.toggle('active-mobile');
+    }
+
+    // فحص صلاحية المشرف
+    function checkAdminStatus() {
+      if (localStorage.getItem("isAdmin") === "true") {
+        const adminBtn = document.getElementById('admin-nav-link');
+        if (adminBtn) adminBtn.style.display = 'inline-block';
+        showAdminBanner();
       }
     }
 
-    function closeLoginModal() {
-      document.getElementById('login-modal').style.display = 'none';
-    }
-
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const pass = document.getElementById('admin-password').value;
-      if (pass === "admin123") {
-        isAdmin = true;
-        closeLoginModal();
-        const btnToggle = document.getElementById('admin-nav-toggle-btn');
-        if (btnToggle) btnToggle.innerText = 'خروج الأدمن';
-        alert("تم تفعيل وضع الأدمن بنجاح");
-        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = 'block');
-        renderProducts();
-      } else {
-        alert("كلمة المرور غير صحيحة!");
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش')) {
+        e.preventDefault();
+        triggerAdminLogin();
       }
     });
 
-    // --- وظائف إدارة الأقسام ---
-    function openCategoryManagerModal() {
-      renderCategoryManagerList();
-      document.getElementById('category-manager-modal').style.display = 'flex';
-    }
-
-    function closeCategoryManagerModal() {
-      document.getElementById('category-manager-modal').style.display = 'none';
-      buildSidebarCategories();
-    }
-
-    function renderCategoryManagerList() {
-      const container = document.getElementById('cat-manager-list');
-      container.innerHTML = '';
-
-      Object.keys(storeCategories).forEach(mainCat => {
-        const catObj = storeCategories[mainCat];
-        const row = document.createElement('div');
-        row.style.cssText = "background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:10px;";
-
-        let subsHtml = '';
-        if (catObj.subs && catObj.subs.length > 0) {
-          catObj.subs.forEach(sub => {
-            subsHtml += `
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:6px 10px; margin-top:5px; border-radius:6px; font-size:12px;">
-                <span>• ${sub}</span>
-                <button onclick="deleteSubCategory('${mainCat}', '${sub}')" style="background:#e53e3e; color:#fff; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-size:11px;">حذف</button>
-              </div>
-            `;
-          });
-        } else {
-          subsHtml = '<div style="font-size:12px; color:#a0aec0; margin-top:5px;">لا توجد أقسام فرعية</div>';
+    function triggerAdminLogin() {
+      if (localStorage.getItem("isAdmin") === "true") {
+        if (confirm("أنت مسجل الدخول كـ مشرف. هل تريد تسجيل الخروج؟")) {
+          localStorage.removeItem("isAdmin");
+          location.reload();
         }
-
-        row.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #edf2f7; padding-bottom:8px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              ${catObj.image ? `<img src="${catObj.image}" style="width:24px; height:24px; object-fit:contain; border-radius:4px;" onerror="this.style.display='none'">` : ''}
-              <strong style="color:#1b365d; font-size:14px;">${mainCat}</strong>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button onclick="editMainCategoryName('${mainCat}')" style="background:#d69e2e; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-family:'Cairo', sans-serif;">تعديل الاسم</button>
-              <button onclick="editMainCategoryImg('${mainCat}')" style="background:#319795; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-family:'Cairo', sans-serif;">رابط الصورة</button>
-              <button onclick="promptAddSubCategory('${mainCat}')" style="background:#2b6cb0; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-family:'Cairo', sans-serif;">+ فرعي</button>
-              <button onclick="deleteMainCategory('${mainCat}')" style="background:#e53e3e; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-family:'Cairo', sans-serif;">حذف القسم</button>
-            </div>
-          </div>
-          <div style="margin-top:8px; padding-right:10px;">
-            ${subsHtml}
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function promptAddMainCategory() {
-      const name = prompt("أدخل اسم القسم الرئيسي الجديد:");
-      if (!name || name.trim() === "") return;
-      if (storeCategories[name]) {
-        alert("هذا القسم الرئيسي موجود مسبقاً!");
         return;
       }
-      const img = prompt("أدخل رابط صورة القسم الرئيسي (اختياري، يمكنك تركه فارغاً):", "");
-      storeCategories[name] = { image: img || "", subs: [] };
-      saveCategories();
-      renderCategoryManagerList();
-    }
-
-    function editMainCategoryName(oldName) {
-      const newName = prompt("أدخل الاسم الجديد للقسم الرئيسي:", oldName);
-      if (!newName || newName.trim() === "" || newName === oldName) return;
-      if (storeCategories[newName]) {
-        alert("هذا الاسم موجود بالفعل!");
-        return;
-      }
-      storeCategories[newName] = storeCategories[oldName];
-      delete storeCategories[oldName];
-      saveCategories();
-      renderCategoryManagerList();
-    }
-
-    function editMainCategoryImg(mainCat) {
-      const currentImg = storeCategories[mainCat].image || "";
-      const newImg = prompt("أدخل رابط الصورة الجديد للقسم:", currentImg);
-      if (newImg === null) return;
-      storeCategories[mainCat].image = newImg;
-      saveCategories();
-      renderCategoryManagerList();
-    }
-
-    function deleteMainCategory(mainCat) {
-      if (confirm(`هل أنت متأكد من حذف القسم الرئيسي "${mainCat}" وجميع أقسامه الفرعية؟`)) {
-        delete storeCategories[mainCat];
-        saveCategories();
-        renderCategoryManagerList();
+      let pass = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
+      if (pass === "admin123") {
+        localStorage.setItem("isAdmin", "true");
+        alert("تم تسجيل الدخول كـ مشرف بنجاح!");
+        location.reload();
+      } else if (pass !== null) {
+        alert("كلمة المرور غير صحيحة!");
       }
     }
 
-    function promptAddSubCategory(mainCat) {
-      const subName = prompt(`أدخل اسم القسم الفرعي الجديد تحت "${mainCat}":`);
-      if (!subName || subName.trim() === "") return;
-      if (storeCategories[mainCat].subs.includes(subName)) {
-        alert("هذا القسم الفرعي موجود مسبقاً في هذا القسم!");
-        return;
-      }
-      storeCategories[mainCat].subs.push(subName);
-      saveCategories();
-      renderCategoryManagerList();
+    function showAdminBanner() {
+      if (document.getElementById('admin-banner')) return;
+      const banner = document.createElement('div');
+      banner.id = 'admin-banner';
+      banner.style.cssText = 'background: #2b6cb0; color: white; text-align: center; padding: 6px; font-weight: bold; position: sticky; top: 0; z-index: 99999; font-size: 12px;';
+      banner.innerHTML = '⚙️ وضع المشرف مفعل | <a href="#" onclick="logoutAdmin(event)" style="color: #fbd38d; text-decoration: underline; margin-right: 10px;">تسجيل الخروج</a>';
+      document.body.insertBefore(banner, document.body.firstChild);
     }
 
-    function deleteSubCategory(mainCat, subName) {
-      if (confirm(`هل أنت متأكد من حذف القسم الفرعي "${subName}"؟`)) {
-        storeCategories[mainCat].subs = storeCategories[mainCat].subs.filter(s => s !== subName);
-        saveCategories();
-        renderCategoryManagerList();
-      }
+    function logoutAdmin(e) {
+      e.preventDefault();
+      localStorage.removeItem("isAdmin");
+      location.reload();
     }
 
-    // --- سلة التسوق والمنتجات ---
-    function addToCart(prodId, prodName) {
-      const qtyInput = document.getElementById(`qty-${prodId}`);
-      const unitSelect = document.getElementById(`unit-${prodId}`);
-      const quantity = parseInt(qtyInput ? qtyInput.value : 1);
-      const unit = unitSelect ? unitSelect.value : 'حبة';
+    function addToCart(id, name) {
+      const qtyInput = document.getElementById(`qty-${id}`);
+      const unitSelect = document.getElementById(`unit-${id}`);
+      const qty = parseInt(qtyInput.value) || 1;
+      const unit = unitSelect.value;
 
-      const existingIndex = cart.findIndex(item => item.id === prodId && item.unit === unit);
+      const existingIndex = cart.findIndex(item => item.id === id && item.unit === unit);
       if (existingIndex > -1) {
-        cart[existingIndex].quantity += quantity;
+        cart[existingIndex].quantity += qty;
       } else {
-        cart.push({ id: prodId, name: prodName, unit: unit, quantity: quantity });
+        cart.push({ id, name, quantity: qty, unit });
       }
 
       localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
-      alert(`تم إضافة "${prodName}" (${quantity} ${unit}) إلى قائمة الطلب بنجاح!`);
+      alert(`تم إضافة ${name} إلى قائمة الطلب`);
     }
 
     function updateCartBadge() {
@@ -1024,18 +800,17 @@
     function openCartModal() {
       const container = document.getElementById('cart-items-container');
       container.innerHTML = '';
-
       if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#a0aec0; padding:20px;">قائمة الطلب فارغة حالياً.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#a0aec0; padding:20px;">قائمة الطلب فارغة.</p>';
       } else {
         cart.forEach((item, index) => {
           const row = document.createElement('div');
-          row.className = 'cart-item-row';
+          row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #f1f5f9; font-size: 13px;";
           row.innerHTML = `
-            <div class="cart-item-info">${index + 1}. ${item.name}</div>
+            <div style="font-weight: 700; color: #2d3748;">${index + 1}. ${item.name}</div>
             <div style="display:flex; align-items:center; gap:10px;">
-              <span class="cart-item-qty">${item.quantity} ${item.unit}</span>
-              <button class="btn-remove-item" onclick="removeFromCart(${item.id}, '${item.unit}')">✕</button>
+              <span style="color: #718096; font-weight: 600; font-size: 12px; background: #edf2f7; padding: 3px 8px; border-radius: 4px;">${item.quantity} ${item.unit}</span>
+              <button style="background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 14px; font-weight: 700;" onclick="removeFromCart(${index})">✕</button>
             </div>
           `;
           container.appendChild(row);
@@ -1048,8 +823,8 @@
       document.getElementById('cart-modal').style.display = 'none';
     }
 
-    function removeFromCart(prodId, prodUnit) {
-      cart = cart.filter(item => !(item.id === prodId && item.unit === prodUnit));
+    function removeFromCart(index) {
+      cart.splice(index, 1);
       localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       openCartModal();
@@ -1067,67 +842,6 @@
       message += "\nشكراً لكم.";
       window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
     }
-
-    function openAddModal() {
-      if (!currentSelectedCategory || currentSelectedCategory === 'الكل') {
-        alert('الرجاء اختيار قسم فرعي محدد من القائمة الجانبية لإضافة المنتج إليه.');
-        return;
-      }
-      document.getElementById('product-form').reset();
-      document.getElementById('prod-id').value = '';
-      document.getElementById('modal-title').innerText = 'إضافة منتج جديد';
-      document.getElementById('prod-category').value = currentSelectedCategory;
-      document.getElementById('admin-modal').style.display = 'flex';
-    }
-
-    function openEditModal(id) {
-      const prod = productsData.find(p => p.id === id);
-      if (!prod) return;
-
-      document.getElementById('modal-title').innerText = 'تعديل بيانات المنتج';
-      document.getElementById('prod-id').value = prod.id;
-      document.getElementById('prod-category').value = prod.category;
-      document.getElementById('prod-name').value = prod.name;
-      document.getElementById('prod-unit').value = prod.unit;
-      document.getElementById('prod-pack').value = prod.pack;
-      
-      document.getElementById('admin-modal').style.display = 'flex';
-    }
-
-    function closeAdminModal() {
-      document.getElementById('admin-modal').style.display = 'none';
-    }
-
-    document.getElementById('product-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const prodId = document.getElementById('prod-id').value;
-      const name = document.getElementById('prod-name').value;
-      const category = document.getElementById('prod-category').value;
-      const unit = document.getElementById('prod-unit').value;
-      const pack = document.getElementById('prod-pack').value || 1;
-
-      if (prodId) {
-        productsData = productsData.map(p => p.id == prodId ? { ...p, name, category, unit, pack } : p);
-        alert('تم تعديل المنتج بنجاح!');
-      } else {
-        const newProd = { id: Date.now(), name, category, unit, pack };
-        productsData.push(newProd);
-        alert('تم إضافة المنتج بنجاح!');
-      }
-
-      localStorage.setItem('ansiyab_products', JSON.stringify(productsData));
-      renderProducts();
-      closeAdminModal();
-    });
-
-    function deleteProduct(id) {
-      if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-        productsData = productsData.filter(p => p.id !== id);
-        localStorage.setItem('ansiyab_products', JSON.stringify(productsData));
-        renderProducts();
-      }
-    }
   </script>
-
 </body>
 </html>
