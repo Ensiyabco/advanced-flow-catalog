@@ -5,65 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</title>
     <style>
-        :root {
-            --primary-color: #1a365d;
-            --accent-color: #dd6b20;
-            --bg-light: #f7fafc;
-            --card-bg: #ffffff;
-            --text-color: #2d3748;
-        }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 0;
-            background-color: var(--bg-light);
-            color: var(--text-color);
+            background-color: #f8fafc;
+            color: #2d3748;
         }
+
+        /* الهيدر العلوي */
         header {
             background: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
+            position: relative;
             z-index: 100;
         }
-        .logo-container {
-            cursor: pointer;
-            user-select: none;
-        }
-        .logo-container h1 {
-            font-size: 1.4rem;
-            color: var(--primary-color);
-            margin: 0;
+        .logo-title {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #1a365d;
         }
         nav a {
-            margin: 0 10px;
+            margin-right: 20px;
             text-decoration: none;
-            color: var(--primary-color);
+            color: #1a365d;
             font-weight: 600;
+            font-size: 0.95rem;
         }
+
+        /* البانر الرئيسي (Hero) */
         .hero {
-            background: linear-gradient(rgba(26, 54, 93, 0.8), rgba(26, 54, 93, 0.8)), url('https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1200&q=80');
-            background-size: cover;
-            background-position: center;
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+                        url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
             color: white;
             text-align: center;
-            padding: 80px 20px;
+            padding: 90px 20px 80px;
         }
-        .hero h2 { font-size: 2.2rem; margin-bottom: 15px; }
-        .hero p { font-size: 1.1rem; margin-bottom: 25px; }
-        .btn {
-            background: var(--accent-color);
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .hero p {
+            font-size: 1.05rem;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        .hero-btn {
+            background: #e66a26;
             color: white;
-            padding: 12px 28px;
-            border-radius: 6px;
+            padding: 12px 30px;
+            border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
             display: inline-block;
+            transition: background 0.2s;
         }
+        .hero-btn:hover {
+            background: #d05918;
+        }
+
+        /* قسم الأقسام الرئيسية */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -71,49 +76,58 @@
         }
         .section-title {
             text-align: center;
-            color: var(--primary-color);
+            font-size: 1.5rem;
+            color: #1a365d;
             margin-bottom: 30px;
+            font-weight: bold;
         }
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 20px;
         }
         .category-card {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px 20px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border: 1px solid #edf2f7;
             text-decoration: none;
             color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .category-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
         }
         .category-card h3 {
-            color: var(--primary-color);
+            color: #1a365d;
             font-size: 1.1rem;
-            margin: 0 0 10px 0;
+            margin-bottom: 10px;
         }
+        .category-card p {
+            color: #718096;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        /* الفوتر */
         footer {
-            background: var(--primary-color);
+            background: #1e3a5f;
             color: white;
             text-align: center;
-            padding: 25px;
+            padding: 20px;
             margin-top: 60px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
+    <!-- الهيدر العلوي -->
     <header>
-        <div class="logo-container">
-            <h1>الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</h1>
-        </div>
+        <div class="logo-title">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
         <nav>
             <a href="index.html">الرئيسية</a>
             <a href="products.html">المنتجات</a>
@@ -122,31 +136,67 @@
         </nav>
     </header>
 
+    <!-- البانر الرئيسي -->
     <section class="hero">
-        <h2>أدوات ولوازم الغاز والرحلات</h2>
-        <p>معدات أصلية ومضمونة للبر والكشتات والاستخدام المنزلي</p>
-        <a href="products.html" class="btn">تصفح الكتالوج الكامل</a>
+        <h1>أفضل أدوات ولوازم الغاز والرحلات</h1>
+        <p>معدات أصلية ومضمونة لرحلات البر والكشتات والاستخدام المنزلي</p>
+        <a href="products.html" class="hero-btn">تصفح المنتجات الآن</a>
     </section>
 
+    <!-- الأقسام الرئيسية -->
     <div class="container">
-        <h2 class="section-title">أقسام المنتجات</h2>
+        <h2 class="section-title">الأقسام الرئيسية</h2>
         <div class="categories-grid">
-            <a href="products.html?cat=1" class="category-card"><h3>دوافير الغاز</h3><p>تشكيلة متنوعة ومقاومة</p></a>
-            <a href="products.html?cat=2" class="category-card"><h3>مواقد الغاز</h3><p>مواقد رحلات واستخدام مكثف</p></a>
-            <a href="products.html?cat=3" class="category-card"><h3>ساعات ومنظمات غاز</h3><p>منظمات عالية الأمان</p></a>
-            <a href="products.html?cat=4" class="category-card"><h3>ليات غاز ورجلات</h3><p>توصيلات أصلية ومعتمدة</p></a>
-            <a href="products.html?cat=5" class="category-card"><h3>لوازم الرحلات وادواتها</h3><p>معدات الكشتات والرحلات</p></a>
-            <a href="products.html?cat=6" class="category-card"><h3>خضاضات وسطول ومواعين</h3><p>أدوات ضيافة وطبخ</p></a>
-            <a href="products.html?cat=7" class="category-card"><h3>قطع غيار</h3><p>قطع غيار صيانة متكاملة</p></a>
-            <a href="products.html?cat=8" class="category-card"><h3>محابس وتواصيل غاز</h3><p>محابس أمان وتواصيل</p></a>
-            <a href="products.html?cat=9" class="category-card"><h3>دفايات</h3><p>دفايات غاز للتدفئة</p></a>
-            <a href="products.html?cat=10" class="category-card"><h3>ولاعات غاز وشعالات كهرباء</h3><p>ولاعات وشعالات آمنة</p></a>
-            <a href="products.html?cat=11" class="category-card"><h3>ادوات ولوازم كشتات</h3><p>مستلزمات برية متكاملة</p></a>
+            <a href="products.html?cat=1" class="category-card">
+                <h3>دوافير الغاز</h3>
+                <p>تشكيلة واسعة من دوافير الغاز بمختلف الأحجام والأشكال.</p>
+            </a>
+            <a href="products.html?cat=2" class="category-card">
+                <h3>مواقد الغاز</h3>
+                <p>مواقد عالية الجودة مخصصة للرحلات والطبخ الخارجي.</p>
+            </a>
+            <a href="products.html?cat=3" class="category-card">
+                <h3>ساعات ومنظمات غاز</h3>
+                <p>منظمات أصلية عالية الأمان لضبط التدفق.</p>
+            </a>
+            <a href="products.html?cat=4" class="category-card">
+                <h3>لوازم الرحلات وادواتها</h3>
+                <p>كل ما تحتاجه لكشتة متكاملة ومجهزة بكل الأجواء.</p>
+            </a>
+            <a href="products.html?cat=5" class="category-card">
+                <h3>ليات غاز ورجلات</h3>
+                <p>توصيلات أصلية ومعتمدة للسلامة والأمان.</p>
+            </a>
+            <a href="products.html?cat=6" class="category-card">
+                <h3>خضاضات وسطول ومواعين</h3>
+                <p>أدوات ضيافة وطبخ برية عالية الجودة.</p>
+            </a>
+            <a href="products.html?cat=7" class="category-card">
+                <h3>قطع غيار</h3>
+                <p>قطع غيار صيانة متكاملة لكافة الأدوات.</p>
+            </a>
+            <a href="products.html?cat=8" class="category-card">
+                <h3>محابس وتواصيل غاز</h3>
+                <p>محابس أمان وتواصيل متينة ومقاومة.</p>
+            </a>
+            <a href="products.html?cat=9" class="category-card">
+                <h3>دفايات</h3>
+                <p>دفايات غاز مخصصة للتدفئة الخارجية والمنزلية.</p>
+            </a>
+            <a href="products.html?cat=10" class="category-card">
+                <h3>ولاعات غاز وشعالات كهرباء</h3>
+                <p>ولاعات وشعالات آمنة وسريعة الاشتعال.</p>
+            </a>
+            <a href="products.html?cat=11" class="category-card">
+                <h3>ادوات ولوازم كشتات</h3>
+                <p>مستلزمات برية متكاملة لراحة أطول.</p>
+            </a>
         </div>
     </div>
 
+    <!-- الفوتر -->
     <footer>
-        <p>جميع حقوق الملكية محفوظة © 2026 الأنسياب المتقدم</p>
+        جميع حقوق الملكية محفوظة © 2026 الأنسياب المتقدم
     </footer>
 
     <!-- سكريبت المشرف الخفي -->
@@ -159,7 +209,7 @@
       });
 
       document.addEventListener('DOMContentLoaded', function() {
-        const topElements = document.querySelectorAll('header, .logo-container, h1');
+        const topElements = document.querySelectorAll('header, .logo-title');
         topElements.forEach(el => {
           el.addEventListener('dblclick', function(e) {
             e.preventDefault();
