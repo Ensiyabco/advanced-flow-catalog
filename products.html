@@ -57,7 +57,7 @@
     .accordion-content { display: none; padding: 5px 15px 10px 0; }
     .accordion-content.active { display: block; }
     .subcat-link {
-      display: block; padding: 5px 0; font-size: 13px; color: #4a5568; text-decoration: none; font-weight: 600;
+      display: block; padding: 6px 0; font-size: 13px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
     }
     .subcat-link:hover { color: #e53e3e; }
 
@@ -78,7 +78,7 @@
     .prod-actions-top { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 5; }
     .btn-action { background: rgba(255,255,255,0.9); border: 1px solid #cbd5e0; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 12px; }
 
-    .prod-img { width: 100%; height: 160px; object-fit: contain; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; cursor: pointer; }
+    .prod-img { width: 100%; height: 160px; object-fit: contain; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; }
     .prod-title { font-size: 14px; font-weight: 800; color: #1b365d; margin: 0 0 8px 0; text-align: center; }
 
     .specs-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; background: #f8fafc; }
@@ -98,10 +98,7 @@
     }
     .btn-add-cart:hover { background: #2c5282; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; justify-content: center; align-items: center; }
-    .modal-box { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 450px; }
-
-    /* التحكم في إخفاء الأدوات الخاصة بالمشرف تلقائياً */
+    /* إخفاء أدوات المشرف افتراضياً للعملاء */
     .admin-only { display: none !important; }
 
     @media (max-width: 768px) {
@@ -119,11 +116,10 @@
     </a>
     
     <div class="header-actions">
-      <!-- أزرار المشرف المجهزة بالإخفاء للعميل -->
       <button class="btn-admin admin-only" onclick="alert('إضافة قسم جديد')">+ قسم جديد</button>
       <button class="btn-admin admin-only" onclick="alert('إضافة منتج جديد')">+ إضافة منتج</button>
       
-      <button class="cart-btn-header" onclick="openCartModal()">
+      <button class="cart-btn-header" onclick="location.href='cart.html'">
         <span>قائمة الطلبات</span>
         <span class="cart-badge" id="cart-count">0</span>
       </button>
@@ -134,11 +130,10 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <h3>أقسام المنتجات</h3>
-        <!-- زر إضافة قسم جانبي للمشرف فقط -->
         <button class="btn-admin admin-only" style="padding: 3px 8px; font-size: 11px;">+ قسم رئيسي</button>
       </div>
       <div id="accordion-container">
-        <!-- يتم جلب الأقسام تلقائياً -->
+        <!-- يتم توليد الأقسام الرئيسية والفرعية تلقائياً -->
       </div>
     </aside>
 
@@ -149,17 +144,42 @@
       </div>
 
       <div class="products-grid" id="products-grid">
-        <!-- كروت المنتجات تظهر هنا -->
+        <!-- كروت المنتجات -->
       </div>
     </main>
   </div>
 
   <script>
+    // شجرة الأقسام الرئيسية والفرعية
+    const categoriesData = [
+      {
+        name: "ادوات ولوازم الرحلات",
+        subcategories: ["أدوات رحلات متنوعة", "كراسي وطاولات رحلات", "خيام ومظلات", "فرشات وأسرة سفري"]
+      },
+      {
+        name: "مواقد غاز",
+        subcategories: ["دوافير ودبات", "مواقد سفري", "مواقد منزلية", "ملحقات وقطع غيار المواقد"]
+      },
+      {
+        name: "ادوات ولوازم الشواء",
+        subcategories: ["شوايات ومناقل", "فحم وحطب", "ملحقات الشواء", "سخانات ومواقد حطب"]
+      },
+      {
+        name: "ادوات لحام ووصواريخ بقاعدة",
+        subcategories: ["أجهزة لحام", "أسياخ ومستلزمات لحام", "صاروخ بقاعدة وملحقاته"]
+      },
+      {
+        name: "دفايات",
+        subcategories: ["دفايات غاز", "دفايات كيروسين", "دفايات كهربائية"]
+      }
+    ];
+
     const products = [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
-        category: "دوافير ودبات",
+        category: "مواقد غاز",
+        subcategory: "دوافير ودبات",
         unit: "حبة",
         boxQty: 12,
         stock: 50,
@@ -170,6 +190,7 @@
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
 
     document.addEventListener('DOMContentLoaded', function() {
+      renderCategories();
       renderProducts(products);
       updateCartBadge();
       checkAdminStatus();
@@ -186,6 +207,62 @@
       });
     }
 
+    function renderCategories() {
+      const container = document.getElementById('accordion-container');
+      container.innerHTML = `
+        <div class="accordion-item">
+          <button class="accordion-header" onclick="filterBySubcat('ALL', 'جميع المنتجات')">
+            <span>جميع المنتجات</span>
+          </button>
+        </div>
+      `;
+
+      categoriesData.forEach((cat, index) => {
+        const item = document.createElement('div');
+        item.className = 'accordion-item';
+
+        let subHtml = '';
+        cat.subcategories.forEach(sub => {
+          subHtml += `<div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')">• ${sub}</div>`;
+        });
+
+        item.innerHTML = `
+          <button class="accordion-header" onclick="toggleAccordion(${index})">
+            <span>${cat.name}</span>
+            <span id="arrow-${index}">▼</span>
+          </button>
+          <div class="accordion-content" id="content-${index}">
+            ${subHtml}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function toggleAccordion(index) {
+      const content = document.getElementById(`content-${index}`);
+      const arrow = document.getElementById(`arrow-${index}`);
+      const isOpen = content.classList.contains('active');
+
+      document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('[id^="arrow-"]').forEach(a => a.innerText = '▼');
+
+      if (!isOpen) {
+        content.classList.add('active');
+        arrow.innerText = '▲';
+      }
+    }
+
+    function filterBySubcat(subName, title) {
+      document.getElementById('current-category-name').innerText = title;
+      if (subName === 'ALL') {
+        renderProducts(products);
+      } else {
+        const filtered = products.filter(p => p.subcategory === subName || p.category === subName);
+        renderProducts(filtered);
+      }
+    }
+
     function renderProducts(list) {
       const grid = document.getElementById('products-grid');
       grid.innerHTML = '';
@@ -195,7 +272,6 @@
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-          <!-- أزرار الحذف والتعديل للمشرف فقط -->
           <div class="prod-actions-top admin-only">
             <button class="btn-action admin-only" onclick="alert('تعديل')">✏️</button>
             <button class="btn-action admin-only" onclick="alert('حذف')">🗑️</button>
@@ -212,7 +288,6 @@
           <div class="order-box">
             <div class="stock-row">
               <span>المتوفر: ${p.stock}</span>
-              <!-- زر تحديث المخزن للمشرف فقط -->
               <button class="btn-action admin-only" style="background:#e2e8f0;">تحديث المخزن 🔄</button>
             </div>
             <div class="qty-row">
@@ -233,6 +308,8 @@
         `;
         grid.appendChild(card);
       });
+
+      checkAdminStatus();
     }
 
     function addToCart(prodId) {
