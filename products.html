@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</title>
   
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after {
       box-sizing: border-box !important;
@@ -15,7 +19,7 @@
       max-width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Cairo', sans-serif !important;
       background-color: #f4f7f9;
       color: #2d3748;
       line-height: 1.6;
@@ -48,10 +52,10 @@
     }
 
     .logo-text {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 800;
       color: #1b365d;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
 
     .nav-links {
@@ -64,7 +68,7 @@
       color: #4a5568;
       text-decoration: none;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       padding: 8px 16px;
       border-radius: 6px;
       transition: all 0.3s ease;
@@ -73,6 +77,35 @@
     .nav-links a.active, .nav-links a:hover {
       color: #ffffff;
       background-color: #1b365d;
+    }
+
+    .cart-btn-header {
+      background-color: #2b6cb0;
+      color: #white;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Cairo', sans-serif;
+      transition: background 0.2s;
+    }
+
+    .cart-btn-header:hover {
+      background-color: #2c5282;
+    }
+
+    .cart-badge {
+      background-color: #e53e3e;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 7px;
+      font-size: 11px;
     }
 
     #home-page {
@@ -98,6 +131,7 @@
       font-size: 16px;
       opacity: 0.9;
       margin-bottom: 30px;
+      font-weight: 600;
     }
 
     .search-box-container {
@@ -111,6 +145,8 @@
       border-radius: 35px;
       border: none;
       font-size: 14px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 600;
       text-align: right;
       outline: none;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -133,7 +169,7 @@
       font-size: 20px;
       color: #1b365d;
       margin: 0;
-      font-weight: 700;
+      font-weight: 800;
       border-right: 4px solid #e53e3e;
       padding-right: 10px;
     }
@@ -223,8 +259,8 @@
     }
 
     .sidebar-title {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
       margin-bottom: 15px;
       text-align: center;
       color: #1b365d;
@@ -239,11 +275,12 @@
       border: none;
       padding: 12px;
       border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
       font-weight: 700;
       font-size: 13px;
       cursor: pointer;
       margin-bottom: 15px;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s;
     }
 
     .btn-all-products:hover {
@@ -259,11 +296,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 10px;
+      padding: 10px;
       cursor: pointer;
       font-size: 13px;
       color: #4a5568;
-      font-weight: 600;
+      font-weight: 700;
       border-radius: 6px;
       transition: background 0.2s;
     }
@@ -291,6 +328,7 @@
       padding: 8px 12px;
       font-size: 12px;
       color: #718096;
+      font-weight: 600;
       cursor: pointer;
       text-align: right;
       border-radius: 4px;
@@ -299,7 +337,7 @@
 
     .subcategory-item:hover, .subcategory-item.active-sub {
       color: #e53e3e;
-      font-weight: 700;
+      font-weight: 800;
       background-color: #fff5f5;
     }
 
@@ -320,13 +358,14 @@
       margin: 0 0 5px 0;
       font-size: 20px;
       color: #1b365d;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .section-header p {
       margin: 0;
       font-size: 13px;
       color: #718096;
+      font-weight: 600;
     }
 
     .products-grid {
@@ -406,30 +445,64 @@
     .spec-label {
       color: #718096;
       font-size: 11px;
+      font-weight: 600;
     }
 
     .spec-value {
-      font-weight: 700;
+      font-weight: 800;
       color: #1b365d;
       font-size: 13px;
     }
 
-    .btn-whatsapp {
-      background-color: #25d366;
+    .customer-qty-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .customer-qty-box label {
+      font-weight: 700;
+      color: #4a5568;
+      font-size: 12px;
+    }
+
+    .customer-qty-box input {
+      width: 65px;
+      padding: 5px;
+      text-align: center;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      outline: none;
+      color: #1b365d;
+    }
+
+    .btn-add-to-cart {
+      background-color: #2b6cb0;
       color: white;
       border: none;
       width: 100%;
       padding: 10px;
       border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       margin-top: auto;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s;
     }
 
-    .btn-whatsapp:hover {
-      background-color: #20ba5a;
+    .btn-add-to-cart:hover {
+      background-color: #2c5282;
     }
 
     .admin-controls {
@@ -446,13 +519,76 @@
       padding: 8px 16px;
       border-radius: 6px;
       cursor: pointer;
+      font-family: 'Cairo', sans-serif;
       font-size: 13px;
-      font-weight: 600;
-      transition: background 0.2s;
+      font-weight: 700;
     }
 
-    .admin-btn:hover {
-      background-color: #2c5282;
+    /* تصميم نافذة سلة المشتريات (القائمة) */
+    #cart-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cart-modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .cart-items-list {
+      overflow-y: auto;
+      max-height: 350px;
+      margin: 15px 0;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 0;
+    }
+
+    .cart-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 5px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+    }
+
+    .cart-item-info {
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .cart-item-qty {
+      color: #718096;
+      font-weight: 600;
+      font-size: 12px;
+      background: #edf2f7;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .btn-remove-item {
+      background: none;
+      border: none;
+      color: #e53e3e;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
     }
 
     footer {
@@ -461,8 +597,8 @@
       text-align: center;
       padding: 25px;
       font-size: 14px;
+      font-weight: 600;
       margin-top: 60px;
-      box-shadow: inset 0 5px 10px rgba(0,0,0,0.1);
     }
 
     @media (max-width: 992px) {
@@ -484,12 +620,6 @@
       header {
         padding: 12px 20px;
       }
-      .hero-banner {
-        padding: 40px 15px 50px 15px;
-      }
-      .hero-banner h1 {
-        font-size: 24px;
-      }
     }
   </style>
 </head>
@@ -500,12 +630,16 @@
       <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
     </div>
-    <nav class="nav-links">
-      <a href="#" id="nav-home" class="active" onclick="showPage('home')">الرئيسية</a>
-      <a href="#" id="nav-products" onclick="showPage('products')">المنتجات</a>
-      <a href="#">من نحن</a>
-      <a href="#">التواصل</a>
-    </nav>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <button class="cart-btn-header" onclick="openCartModal()">
+        <span>قائمة الطلب</span>
+        <span class="cart-badge" id="cart-count">0</span>
+      </button>
+      <nav class="nav-links">
+        <a href="#" id="nav-home" class="active" onclick="showPage('home')">الرئيسية</a>
+        <a href="#" id="nav-products" onclick="showPage('products')">المنتجات</a>
+      </nav>
+    </div>
   </header>
 
   <div id="home-page">
@@ -549,39 +683,53 @@
     </div>
   </div>
 
-  <!-- نافذة تسجيل دخول الأدمن المخصصة -->
+  <!-- نافذة قائمة الطلب (السلة) -->
+  <div id="cart-modal">
+    <div class="cart-modal-content">
+      <h3 style="margin-top:0; color:#1b365d; font-weight:800; text-align:center;">قائمة الطلبات الخاصة بك</h3>
+      <div class="cart-items-list" id="cart-items-container">
+        <!-- سيتم تعبئة العناصر هنا ديناميكياً -->
+      </div>
+      <div style="display:flex; gap:12px; margin-top:auto;">
+        <button onclick="sendCartToWhatsApp()" style="flex:1; background:#25d366; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إرسال الطلب عبر الواتساب</button>
+        <button type="button" onclick="closeCartModal()" style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تسجيل دخول الأدمن -->
   <div id="login-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:30px; border-radius:12px; width:90%; max-width:380px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-      <h3 style="margin-top:0; color:#1b365d; font-size:18px; text-align:center; margin-bottom:15px; font-weight:700;">تسجيل دخول لوحة التحكم</h3>
+      <h3 style="margin-top:0; color:#1b365d; font-size:18px; text-align:center; margin-bottom:15px; font-weight:800;">تسجيل دخول لوحة التحكم</h3>
       <form id="login-form">
         <label style="display:block; margin-bottom:8px; font-size:13px; font-weight:700; color:#4a5568;">كلمة مرور الأدمن:</label>
-        <input type="password" id="admin-password" placeholder="أدخل كلمة المرور..." required style="width:100%; padding:12px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; outline:none; text-align:right;">
+        <input type="password" id="admin-password" placeholder="أدخل كلمة المرور..." required style="width:100%; padding:12px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none; text-align:right;">
         
         <div style="display:flex; gap:12px; margin-top:20px;">
-          <button type="submit" style="flex:1; background:#2b6cb0; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:14px; transition:background 0.2s;">دخول</button>
-          <button type="button" onclick="closeLoginModal()" style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:14px; transition:background 0.2s;">إلغاء</button>
+          <button type="submit" style="flex:1; background:#2b6cb0; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">دخول</button>
+          <button type="button" onclick="closeLoginModal()" style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:14px;">إلغاء</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- نافذة إضافة / تعديل منتج -->
+  <!-- نافذة إضافة / تعديل منتج للأدمن -->
   <div id="admin-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:25px; border-radius:12px; width:90%; max-width:450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-      <h3 id="modal-title" style="margin-top:0; color:#1b365d; font-weight:700;">إضافة منتج جديد</h3>
+      <h3 id="modal-title" style="margin-top:0; color:#1b365d; font-weight:800;">إضافة منتج جديد</h3>
       <form id="product-form">
         <input type="hidden" id="prod-id">
         
         <label style="display:block; margin-top:10px; font-size:13px; font-weight:700; color:#4a5568;">القسم الفرعي المستهدف:</label>
-        <input type="text" id="prod-category" readonly style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; background:#edf2f7; color:#4a5568; font-weight:700;">
+        <input type="text" id="prod-category" readonly style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; background:#edf2f7; color:#4a5568; font-family:'Cairo', sans-serif; font-weight:700;">
 
         <label style="display:block; margin-top:12px; font-size:13px; font-weight:700; color:#4a5568;">اسم المنتج:</label>
-        <input type="text" id="prod-name" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; outline:none;">
+        <input type="text" id="prod-name" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none;">
         
         <div style="display:flex; gap:12px; margin-top:12px;">
           <div style="flex:1;">
             <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">الوحدة:</label>
-            <select id="prod-unit" style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; outline:none; background:#fff;">
+            <select id="prod-unit" style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none; background:#fff;">
               <option value="حبة">حبة</option>
               <option value="شد">شد</option>
               <option value="كرتون">كرتون</option>
@@ -589,14 +737,14 @@
             </select>
           </div>
           <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">شد الكرتون (الكمية):</label>
-            <input type="number" id="prod-pack" value="1" min="1" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; outline:none;">
+            <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">شد الكرتون:</label>
+            <input type="number" id="prod-pack" value="1" min="1" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none;">
           </div>
         </div>
 
         <div style="display:flex; gap:12px; margin-top:20px;">
-          <button type="submit" style="flex:1; background:#27ae60; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; transition:background 0.2s;">حفظ المنتج</button>
-          <button type="button" onclick="closeAdminModal()" style="flex:1; background:#e53e3e; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:700; transition:background 0.2s;">إلغاء</button>
+          <button type="submit" style="flex:1; background:#27ae60; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700;">حفظ المنتج</button>
+          <button type="button" onclick="closeAdminModal()" style="flex:1; background:#e53e3e; color:#fff; border:none; padding:12px; border-radius:8px; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700;">إلغاء</button>
         </div>
       </form>
     </div>
@@ -630,6 +778,7 @@
       { id: 2, name: "موقد غاز منزلي عالي الأداء", category: "مواقد غاز منزلية", unit: "كرتون", pack: 12 }
     ];
 
+    let cart = []; // مصفوفة لتخزين محتويات قائمة الطلب
     let currentSelectedCategory = "مسدسات لحام ايطالي";
     let isAdmin = false;
 
@@ -814,7 +963,12 @@
               </div>
             </div>
 
-            <button class="btn-whatsapp" onclick="window.open('https://wa.me/?text=أرغب في طلب المنتج: ${encodeURIComponent(prod.name)} - الكمية/الشد: ${prod.pack} ${prod.unit}')">اطلب عبر الواتساب</button>
+            <div class="customer-qty-box">
+              <label>الكمية المطلوبة:</label>
+              <input type="number" id="qty-${prod.id}" value="1" min="1">
+            </div>
+
+            <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}', '${prod.unit}')">إضافة إلى قائمة الطلب</button>
           `;
           container.appendChild(card);
         });
@@ -858,7 +1012,12 @@
             </div>
           </div>
 
-          <button class="btn-whatsapp" onclick="window.open('https://wa.me/?text=أرغب في طلب المنتج: ${encodeURIComponent(prod.name)} - الكمية/الشد: ${prod.pack} ${prod.unit}')">اطلب عبر الواتساب</button>
+          <div class="customer-qty-box">
+            <label>الكمية المطلوبة:</label>
+            <input type="number" id="qty-${prod.id}" value="1" min="1">
+          </div>
+
+          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}', '${prod.unit}')">إضافة إلى قائمة الطلب</button>
           
           ${isAdmin ? `
             <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
@@ -869,6 +1028,82 @@
         `;
         container.appendChild(card);
       });
+    }
+
+    // وظيفة إضافة المنتج إلى قائمة الطلبات
+    function addToCart(prodId, prodName, prodUnit) {
+      const qtyInput = document.getElementById(`qty-${prodId}`);
+      const quantity = parseInt(qtyInput ? qtyInput.value : 1);
+
+      const existingIndex = cart.findIndex(item => item.id === prodId);
+      if (existingIndex > -1) {
+        cart[existingIndex].quantity += quantity;
+      } else {
+        cart.push({
+          id: prodId,
+          name: prodName,
+          unit: prodUnit,
+          quantity: quantity
+        });
+      }
+
+      updateCartBadge();
+      alert(`تم إضافة "${prodName}" إلى قائمة الطلب بنجاح!`);
+    }
+
+    function updateCartBadge() {
+      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-count').innerText = totalCount;
+    }
+
+    function openCartModal() {
+      const container = document.getElementById('cart-items-container');
+      container.innerHTML = '';
+
+      if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#a0aec0; padding:20px;">قائمة الطلب فارغة حالياً.</p>';
+      } else {
+        cart.forEach((item, index) => {
+          const row = document.createElement('div');
+          row.className = 'cart-item-row';
+          row.innerHTML = `
+            <div class="cart-item-info">${index + 1}. ${item.name}</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="cart-item-qty">${item.quantity} ${item.unit}</span>
+              <button class="btn-remove-item" onclick="removeFromCart(${item.id})">✕</button>
+            </div>
+          `;
+          container.appendChild(row);
+        });
+      }
+
+      document.getElementById('cart-modal').style.display = 'flex';
+    }
+
+    function closeCartModal() {
+      document.getElementById('cart-modal').style.display = 'none';
+    }
+
+    function removeFromCart(prodId) {
+      cart = cart.filter(item => item.id !== prodId);
+      updateCartBadge();
+      openCartModal(); // تحديث عرض القائمة داخل النافذة
+    }
+
+    // إرسال تفاصيل القائمة كاملة إلى الواتساب
+    function sendCartToWhatsApp() {
+      if (cart.length === 0) {
+        alert('قائمة الطلب فارغة!');
+        return;
+      }
+
+      let message = "السلام عليكم، أرغب في طلب المنتجات التالية:\n\n";
+      cart.forEach((item, index) => {
+        message += `${index + 1}- ${item.name} | الكمية: ${item.quantity} ${item.unit}\n`;
+      });
+      message += "\nشكراً لكم.";
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
     }
 
     function openAddModal() {
