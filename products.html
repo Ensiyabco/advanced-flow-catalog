@@ -118,7 +118,6 @@
       font-size: 11px;
     }
 
-    /* شريط المشرف العلوي */
     #admin-toolbar {
       display: none;
       background: #1b365d;
@@ -213,7 +212,6 @@
       text-align: center;
     }
 
-    /* الأقسام الرئيسية والفرعية */
     .main-cat-item {
       margin-bottom: 8px;
       border: 1px solid #f1f5f9;
@@ -302,7 +300,6 @@
       font-weight: 800;
     }
 
-    /* عرض المنتجات */
     .current-category-header {
       display: flex;
       justify-content: space-between;
@@ -446,7 +443,6 @@
       cursor: pointer;
     }
 
-    /* النوافذ المنبثقة (Modals) */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -552,7 +548,6 @@
 </head>
 <body>
 
-  <!-- شريط التحكم الخاص بالمشرف -->
   <div id="admin-toolbar">
     <span>⚙️ أنت في وضع إدارة الموقع</span>
     <div>
@@ -572,7 +567,6 @@
         <a href="index.html">الرئيسية</a>
         <a href="products.html" class="active">المنتجات</a>
       </nav>
-      <!-- زر دخول المشرف المباشر -->
       <button class="admin-login-btn-header" onclick="triggerAdminLogin()" id="header-admin-btn">
         🔑 دخول المشرف
       </button>
@@ -593,27 +587,20 @@
         📁 تصفح أقسام المتجر (اضغط للعرض)
       </button>
 
-      <!-- القائمة الجانبية للأقسام -->
       <div class="sidebar-categories" id="sidebar-container">
         <button class="cat-btn-all" onclick="filterCategory('all', 'جميع المنتجات')">عرض كل المنتجات</button>
-        <div id="sidebar-cat-accordion">
-          <!-- تُبنى الأقسام ديناميكياً هنا -->
-        </div>
+        <div id="sidebar-cat-accordion"></div>
       </div>
     </div>
 
-    <!-- منطقة عرض المنتجات -->
     <div>
       <div class="current-category-header">
         <div class="current-category-title" id="current-cat-title">جميع المنتجات</div>
       </div>
-      <div class="products-grid" id="products-grid-container">
-        <!-- تُعرض المنتجات ديناميكياً هنا -->
-      </div>
+      <div class="products-grid" id="products-grid-container"></div>
     </div>
   </div>
 
-  <!-- نافذة إضافة/تعديل قسم رئيسي -->
   <div class="modal-overlay" id="main-cat-modal">
     <div class="modal-card">
       <h3 id="main-cat-modal-title">إضافة قسم رئيسي جديد</h3>
@@ -633,7 +620,6 @@
     </div>
   </div>
 
-  <!-- نافذة إضافة قسم فرعي -->
   <div class="modal-overlay" id="sub-cat-modal">
     <div class="modal-card">
       <h3>إضافة قسم فرعي</h3>
@@ -649,7 +635,6 @@
     </div>
   </div>
 
-  <!-- نافذة إضافة/تعديل منتج -->
   <div class="modal-overlay" id="product-modal">
     <div class="modal-card">
       <h3 id="product-modal-title">إضافة منتج جديد</h3>
@@ -687,7 +672,6 @@
     </div>
   </div>
 
-  <!-- نافذة السلة -->
   <div class="modal-overlay" id="cart-modal">
     <div class="modal-card">
       <h3>قائمة الطلبات الخاصة بك</h3>
@@ -708,7 +692,6 @@
   </footer>
 
   <script>
-    // البيانات الافتراضية للأقسام والمنتجات
     const defaultCategories = [
       { name: "ادوات لحام ووصواريخ بقاعدة", image: "https://i.imgur.com/7A26w6i.png", subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
       { name: "مواقد غاز", image: "https://i.imgur.com/7A26w6i.png", subCats: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد رحلات", "مسطحات تماتيك"] },
@@ -729,11 +712,24 @@
     document.addEventListener('DOMContentLoaded', function() {
       applyAdminState();
       buildCategoryAccordion();
-      renderProducts(products);
+
+      // قراءة اسم القسم القادم من الصفحة الرئيسية
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedCat = urlParams.get('cat');
+
+      if (selectedCat) {
+        filterCategory(selectedCat, selectedCat);
+        const catIndex = categories.findIndex(c => c.name === selectedCat);
+        if (catIndex > -1) {
+          toggleAccordion(catIndex);
+        }
+      } else {
+        renderProducts(products);
+      }
+
       updateCartBadge();
     });
 
-    // ---------------- إدارة المشرف وتسجيل الدخول ----------------
     function triggerAdminLogin() {
       if (isAdmin) {
         if (confirm("أنت مسجل الدخول كـ مشرف. هل تريد تسجيل الخروج؟")) logoutAdmin();
@@ -784,7 +780,6 @@
       }
     });
 
-    // ---------------- إدارة الأقسام الرئيسية والفرعية ----------------
     function buildCategoryAccordion() {
       const container = document.getElementById('sidebar-cat-accordion');
       container.innerHTML = '';
@@ -833,9 +828,11 @@
 
     function toggleAccordion(index) {
       const element = document.getElementById(`main-cat-${index}`);
-      const isOpen = element.classList.contains('open');
-      document.querySelectorAll('.main-cat-item').forEach(el => el.classList.remove('open'));
-      if (!isOpen) element.classList.add('open');
+      if (element) {
+        const isOpen = element.classList.contains('open');
+        document.querySelectorAll('.main-cat-item').forEach(el => el.classList.remove('open'));
+        if (!isOpen) element.classList.add('open');
+      }
     }
 
     function openMainCatModal() {
@@ -919,7 +916,6 @@
       localStorage.setItem('ansiyab_categories_v2', JSON.stringify(categories));
     }
 
-    // ---------------- إدارة المنتجات ----------------
     function renderProducts(productsToRender) {
       const container = document.getElementById('products-grid-container');
       container.innerHTML = '';
@@ -1065,7 +1061,6 @@
       localStorage.setItem('ansiyab_products_v2', JSON.stringify(products));
     }
 
-    // ---------------- الفلترة والتصفح ----------------
     function selectSubCategory(subCat, mainCat) {
       filterCategory(subCat, `${mainCat} > ${subCat}`);
       if (window.innerWidth <= 768) {
@@ -1091,7 +1086,6 @@
       document.getElementById(modalId).style.display = 'none';
     }
 
-    // ---------------- إدارة الطلبات للسلة والواتساب ----------------
     function addToCart(id, name) {
       const qty = parseInt(document.getElementById(`qty-${id}`).value) || 1;
       const unit = document.getElementById(`unit-${id}`).value;
