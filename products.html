@@ -149,7 +149,7 @@
 
     .cat-img-box {
       width: 100%;
-      height: 130px;
+      height: 110px;
       background: #f7fafc;
       border-radius: 6px;
       display: flex;
@@ -159,7 +159,7 @@
       border: 1px solid #edf2f7;
       color: #1b365d;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 15px;
     }
 
     .main-cat-card h3 {
@@ -600,9 +600,26 @@
       window.scrollTo(0, 0);
     }
 
+    // الدالة المسؤولة عن فتح القسم المحدد وتوسيع قائمته الفرعية في السايدبار
     function openCategoryProducts(catName) {
       showPage('products');
       document.getElementById('current-cat-title').innerText = catName;
+      
+      // فتح القائمة الفرعية الخاصة بالقسم الرئيسي المختار تلقائياً
+      const items = document.querySelectorAll('.category-item');
+      items.forEach(item => {
+        const header = item.querySelector('.category-header');
+        const subList = item.querySelector('.subcategory-list');
+        const mainCatText = header.querySelector('span:first-child').innerText;
+        
+        if (mainCatText === catName) {
+          subList.classList.add('open');
+          header.classList.add('active');
+        } else {
+          subList.classList.remove('open');
+          header.classList.remove('active');
+        }
+      });
     }
 
     let isAdmin = false;
@@ -681,6 +698,8 @@
 
     function filterCategory(catName) {
       document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
+      document.querySelectorAll('.subcategory-list').forEach(l => l.classList.remove('open'));
+      document.querySelectorAll('.category-header').forEach(h => h.classList.remove('active'));
     }
 
     function openAddModal() {
