@@ -61,7 +61,6 @@
     }
     .subcat-link:hover { color: #e53e3e; }
 
-    /* تنسيق صورة القسم التوضيحية */
     .cat-icon { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0; }
 
     .products-container { flex: 1; }
@@ -101,8 +100,20 @@
     }
     .btn-add-cart:hover { background: #2c5282; }
 
-    /* إخفاء أدوات المشرف تلقائياً للزوار */
     .admin-only { display: none !important; }
+
+    .modal-backdrop {
+      display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 450px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: 'Cairo', sans-serif;
+    }
+    .modal-content h4 { margin: 0 0 15px 0; color: #1b365d; text-align: center; }
+    .form-group { margin-bottom: 12px; text-align: right; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .form-group input { width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-family: 'Cairo'; }
 
     @media (max-width: 768px) {
       .main-layout { flex-direction: column; }
@@ -112,6 +123,9 @@
 </head>
 <body>
 
+  <!-- عنصر مخفي موحد لرفع صور الأقسام لتجاوز مشاكل المتصفح -->
+  <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;" onchange="handleCatFileUpload(event)">
+
   <header>
     <a href="index.html" class="logo-container">
       <img src="assets/images/logo.png" alt="شعار المؤسسة" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
@@ -120,7 +134,7 @@
     
     <div class="header-actions">
       <button class="btn-admin admin-only" onclick="addMainCategory()">+ قسم جديد</button>
-      <button class="btn-admin admin-only" onclick="addNewProduct()">+ إضافة منتج</button>
+      <button class="btn-admin admin-only" onclick="openAddModal()">+ إضافة منتج</button>
       
       <button class="cart-btn-header" onclick="location.href='cart.html'">
         <span>قائمة الطلبات</span>
@@ -135,9 +149,7 @@
         <h3>أقسام المنتجات</h3>
         <button class="btn-admin admin-only" onclick="addMainCategory()" style="padding: 3px 8px; font-size: 11px;">+ قسم رئيسي</button>
       </div>
-      <div id="accordion-container">
-        <!-- يتم جلب جميع الأقسام والكتالوج هنا تلقائياً -->
-      </div>
+      <div id="accordion-container"></div>
     </aside>
 
     <main class="products-container">
@@ -146,14 +158,44 @@
         <span id="products-count" style="font-size: 12px; color: #718096; background: #edf2f7; padding: 3px 8px; border-radius: 12px; font-weight: 700;">0 منتج</span>
       </div>
 
-      <div class="products-grid" id="products-grid">
-        <!-- كروت المنتجات -->
-      </div>
+      <div class="products-grid" id="products-grid"></div>
     </main>
   </div>
 
+  <!-- النافذة المنبثقة لإضافة وتعديل المنتجات -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-content">
+      <h4 id="modalTitle">إدارة المنتج</h4>
+      <input type="hidden" id="edit-prod-id">
+      
+      <div class="form-group">
+        <label>اسم المنتج:</label>
+        <input type="text" id="edit-prod-name">
+      </div>
+      
+      <div class="form-group">
+        <label>المخزن (الكمية المتوفرة):</label>
+        <input type="number" id="edit-prod-stock">
+      </div>
+      
+      <div class="form-group">
+        <label>شد الكرتون:</label>
+        <input type="number" id="edit-prod-box">
+      </div>
+
+      <div class="form-group">
+        <label>اختر صورة جديدة من الجهاز:</label>
+        <input type="file" id="edit-prod-file" accept="image/*">
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 15px;">
+        <button class="btn-admin" style="background: #718096;" onclick="closeModal()">إلغاء</button>
+        <button class="btn-admin" onclick="saveModalProduct()">حفظ التغييرات</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // جميع الأقسام الرئيسية والفرعية مع معرف فريد id لكل قسم
     const defaultCategories = [
       { id: 1, name: "ادوات لحام ووصواريخ بقاعدة", subcategories: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
       { id: 2, name: "مواقد غاز", subcategories: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"] },
@@ -175,6 +217,7 @@
 
     let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
     let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
+    let activeCategoryForImage = null; // الاحتفاظ بمعرف القسم الحالي قيد التعديل
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products')) || [
       {
@@ -222,11 +265,7 @@
     function addMainCategory() {
       const name = prompt("أدخل اسم القسم الرئيسي الجديد:");
       if (name && name.trim()) {
-        const newCat = {
-          id: Date.now(),
-          name: name.trim(),
-          subcategories: []
-        };
+        const newCat = { id: Date.now(), name: name.trim(), subcategories: [] };
         categoriesData.push(newCat);
         saveCategories();
       }
@@ -260,10 +299,7 @@
         let subHtml = '';
         if (cat.subcategories && cat.subcategories.length > 0) {
           cat.subcategories.forEach(sub => {
-            subHtml += `
-              <div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')">
-                <span>• ${sub}</span>
-              </div>`;
+            subHtml += `<div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')"><span>• ${sub}</span></div>`;
           });
         } else {
           subHtml = `<div class="subcat-link" onclick="filterBySubcat('${cat.name}', '${cat.name}')"><span>• عرض الكل</span></div>`;
@@ -278,7 +314,7 @@
             <div style="display: flex; align-items: center; gap: 8px;">
               <img src="${imgSrc}" class="cat-icon" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
               <span>${cat.name}</span>
-              <span class="admin-only" onclick="event.stopPropagation(); changeCategoryImage(${cat.id})" title="تغيير صورة القسم" style="font-size: 11px; cursor: pointer; background: #e2e8f0; padding: 2px 5px; border-radius: 4px;">📷</span>
+              <span class="admin-only" onclick="event.stopPropagation(); triggerCategoryFile(${cat.id})" title="تغيير صورة القسم" style="font-size: 11px; cursor: pointer; background: #e2e8f0; padding: 2px 5px; border-radius: 4px;">📷</span>
             </div>
             <span id="arrow-${index}">▼</span>
           </button>
@@ -292,13 +328,26 @@
       checkAdminStatus();
     }
 
-    function changeCategoryImage(catId) {
-      const newImg = prompt("أدخل رابط الصورة الجديدة للقسم (URL):");
-      if (newImg && newImg.trim() !== "") {
-        categoryImages[catId] = newImg.trim();
-        localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
-        renderCategories();
-        alert("تم تحديث صورة القسم بنجاح!");
+    // تفعيل حقل ملفات الصور الموحد للأقسام
+    function triggerCategoryFile(catId) {
+      activeCategoryForImage = catId;
+      const fileInput = document.getElementById('global-cat-file-input');
+      fileInput.value = ""; // مسح القيمة القديمة لضمان عمل الحدث عند اختيار نفس الصورة
+      fileInput.click();
+    }
+
+    // معالجة رفع وتخزين صورة القسم بصيغة Base64
+    function handleCatFileUpload(event) {
+      const file = event.target.files[0];
+      if (file && activeCategoryForImage !== null) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          categoryImages[activeCategoryForImage] = e.target.result;
+          localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
+          renderCategories();
+          activeCategoryForImage = null;
+        };
+        reader.readAsDataURL(file);
       }
     }
 
@@ -375,41 +424,72 @@
       checkAdminStatus();
     }
 
-    function addNewProduct() {
-      const name = prompt("أدخل اسم المنتج الجديد:");
-      if (!name) return;
-      const category = prompt("أدخل اسم القسم الرئيسي:");
-      const subcategory = prompt("أدخل اسم القسم الفرعي:");
-      const unit = prompt("أدخل الوحدة الأساسية (مثال: حبة، كرتون):") || "حبة";
-      const boxQty = parseInt(prompt("أدخل عدد الشد داخل الكرتون:")) || 1;
-      const stock = parseInt(prompt("أدخل الكمية المتوفرة بالمخزن:")) || 0;
-      const img = prompt("أدخل رابط صورة المنتج:") || "assets/images/logo.png";
-
-      const newProd = {
-        id: Date.now(),
-        name, category, subcategory, unit, boxQty, stock, img
-      };
-
-      products.push(newProd);
-      saveProducts();
+    function openAddModal() {
+      document.getElementById('modalTitle').innerText = "إضافة منتج جديد";
+      document.getElementById('edit-prod-id').value = "";
+      document.getElementById('edit-prod-name').value = "";
+      document.getElementById('edit-prod-stock').value = "0";
+      document.getElementById('edit-prod-box').value = "1";
+      document.getElementById('edit-prod-file').value = "";
+      document.getElementById('productModal').style.display = 'flex';
     }
 
     function editProduct(id) {
       const p = products.find(prod => prod.id === id);
       if (!p) return;
 
-      const newName = prompt("تعديل اسم المنتج:", p.name);
-      if (newName === null) return;
-      const newStock = prompt("تعديل الكمية في المخزن:", p.stock);
-      const newBoxQty = prompt("تعديل شد الكرتون:", p.boxQty);
-      const newImg = prompt("تعديل رابط الصورة:", p.img);
+      document.getElementById('modalTitle').innerText = "تعديل بيانات المنتج والصورة";
+      document.getElementById('edit-prod-id').value = p.id;
+      document.getElementById('edit-prod-name').value = p.name;
+      document.getElementById('edit-prod-stock').value = p.stock;
+      document.getElementById('edit-prod-box').value = p.boxQty;
+      document.getElementById('edit-prod-file').value = "";
+      document.getElementById('productModal').style.display = 'flex';
+    }
 
-      p.name = newName || p.name;
-      p.stock = newStock !== null ? parseInt(newStock) : p.stock;
-      p.boxQty = newBoxQty !== null ? parseInt(newBoxQty) : p.boxQty;
-      p.img = newImg || p.img;
+    function closeModal() {
+      document.getElementById('productModal').style.display = 'none';
+    }
 
-      saveProducts();
+    function saveModalProduct() {
+      const id = document.getElementById('edit-prod-id').value;
+      const name = document.getElementById('edit-prod-name').value;
+      const stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
+      const boxQty = parseInt(document.getElementById('edit-prod-box').value) || 1;
+      const fileInput = document.getElementById('edit-prod-file');
+
+      const applySave = (imgUrl) => {
+        if (id) {
+          const p = products.find(prod => prod.id == id);
+          if (p) {
+            p.name = name;
+            p.stock = stock;
+            p.boxQty = boxQty;
+            if (imgUrl) p.img = imgUrl;
+          }
+        } else {
+          products.push({
+            id: Date.now(),
+            name: name || "منتج جديد",
+            category: "عام",
+            subcategory: "عام",
+            unit: "حبة",
+            boxQty: boxQty,
+            stock: stock,
+            img: imgUrl || "assets/images/logo.png"
+          });
+        }
+        saveProducts();
+        closeModal();
+      };
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => applySave(e.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        applySave(null);
+      }
     }
 
     function deleteProduct(id) {
