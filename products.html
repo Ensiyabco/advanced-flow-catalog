@@ -42,9 +42,45 @@
       z-index: 100;
     }
 
-    .logo {
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-link {
       font-size: 20px;
       font-weight: bold;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: opacity 0.2s;
+    }
+
+    .logo-link:hover {
+      opacity: 0.85;
+      color: #e2e8f0;
+    }
+
+    .home-link {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .home-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
     }
 
     .nav-tools {
@@ -81,20 +117,22 @@
       padding: 8px 12px;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    /* Layout */
+    /* Main Container Structure */
     .main-container {
       display: flex;
-      max-width: 1300px;
+      max-width: 1350px;
       margin: 20px auto;
       gap: 20px;
       padding: 0 15px;
     }
 
-    /* Sidebar / Accordion */
+    /* Sidebar Right */
     .sidebar {
       width: 300px;
+      min-width: 300px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -129,6 +167,10 @@
       font-size: 13px;
     }
 
+    .accordion-header:hover {
+      background: #e2e8f0;
+    }
+
     .accordion-body {
       display: none;
       background: #fff;
@@ -154,15 +196,17 @@
       font-weight: bold;
     }
 
-    /* Products Grid */
+    /* Products Grid Left */
     .products-content {
       flex: 1;
+      width: 100%;
     }
 
     .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 20px;
+      width: 100%;
     }
 
     .product-card {
@@ -395,7 +439,15 @@
 
   <!-- Header -->
   <header>
-    <div class="logo">الأنسياب المتقدم | أدوات الغاز والرحلات</div>
+    <div class="brand-section">
+      <a href="index.html" class="logo-link">
+        الأنسياب المتقدم | أدوات الغاز والرحلات
+      </a>
+      <a href="index.html" class="home-link">
+        🏠 الرئيسية
+      </a>
+    </div>
+
     <div class="nav-tools">
       <button class="admin-btn" onclick="openProductModal()">+ إضافة منتج</button>
       <button class="cart-btn-trigger" onclick="openCartModal()">
@@ -406,13 +458,13 @@
 
   <!-- Main Container -->
   <div class="main-container">
-    <!-- Sidebar / Categories Accordion -->
+    <!-- Sidebar / Categories Accordion (Right) -->
     <aside class="sidebar">
       <h3>أقسام المنتجات</h3>
       <div id="category-accordion"></div>
     </aside>
 
-    <!-- Products Content -->
+    <!-- Products Content (Left Grid) -->
     <main class="products-content">
       <div id="products-grid-container" class="products-grid"></div>
     </main>
@@ -437,11 +489,18 @@
         <select id="prod-sub-cat-select"></select>
       </div>
       <div class="form-group">
-        <label>الوحدة (مثل: حبة، طقم)</label>
-        <input type="text" id="prod-unit-input" value="حبة">
+        <label>الوحدة الافتراضية للمنتج</label>
+        <select id="prod-unit-input">
+          <option value="حبة">حبة</option>
+          <option value="كرتون">كرتون</option>
+          <option value="علبة">علبة</option>
+          <option value="درزن">درزن</option>
+          <option value="ربطة">ربطة</option>
+          <option value="لفة">لفة</option>
+        </select>
       </div>
       <div class="form-group">
-        <label>شد الكرتون (الكمية داخل الكرتون)</label>
+        <label>شد الكرتون / التعبئة (الكمية داخل الكرتون أو العلبة)</label>
         <input type="number" id="prod-box-input" value="1" min="1">
       </div>
       <div class="form-group">
@@ -480,81 +539,31 @@
     <button onclick="closeLightbox()" style="margin-top: 20px; padding: 8px 20px; background: white; border: none; border-radius: 4px; cursor: pointer;">إغلاق</button>
   </div>
 
-  <!-- All JavaScript Code -->
+  <!-- JavaScript Code -->
   <script>
-    // القائمة الكاملة الشاملة لجميع الأقسام الرئيسية والفرعية
+    const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23edf2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23a0aec0' font-size='16'>صورة المنتج</text></svg>";
+
     const fullCategoriesList = [
-      {
-        name: "ادوات لحام ووصواريخ بقاعدة",
-        subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"]
-      },
-      {
-        name: "مواقد غاز",
-        subCats: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"]
-      },
-      {
-        name: "ادوات ولوازم الرحلات",
-        subCats: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"]
-      },
-      {
-        name: "ادوات ولوازم الشواء",
-        subCats: ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
-      },
-      {
-        name: "دفايات",
-        subCats: ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"]
-      },
-      {
-        name: "محابس وتواصيل",
-        subCats: ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"]
-      },
-      {
-        name: "ساعات ومنظمات غاز",
-        subCats: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"]
-      },
-      {
-        name: "ليات غاز",
-        subCats: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"]
-      },
-      {
-        name: "ولاعات وشعالات",
-        subCats: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"]
-      },
-      {
-        name: "قطع غيار",
-        subCats: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"]
-      },
-      {
-        name: "قدور",
-        subCats: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"]
-      },
-      {
-        name: "خضاضات وسطول",
-        subCats: ["خضاضات لبن", "سطول لبن", "مواعين سمن"]
-      },
-      {
-        name: "دوافير ودبات",
-        subCats: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"]
-      },
-      {
-        name: "طباخات وفوانيس",
-        subCats: ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"]
-      },
-      {
-        name: "منزليات",
-        subCats: ["عام"]
-      },
-      {
-        name: "اكسسوارات عامة",
-        subCats: ["عام"]
-      }
+      { name: "ادوات لحام ووصواريخ بقاعدة", subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
+      { name: "مواقد غاز", subCats: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"] },
+      { name: "ادوات ولوازم الرحلات", subCats: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"] },
+      { name: "ادوات ولوازم الشواء", subCats: ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"] },
+      { name: "دفايات", subCats: ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"] },
+      { name: "محابس وتواصيل", subCats: ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"] },
+      { name: "ساعات ومنظمات غاز", subCats: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"] },
+      { name: "ليات غاز", subCats: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"] },
+      { name: "ولاعات وشعالات", subCats: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"] },
+      { name: "قطع غيار", subCats: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"] },
+      { name: "قدور", subCats: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"] },
+      { name: "خضاضات وسطول", subCats: ["خضاضات لبن", "سطول لبن", "مواعين سمن"] },
+      { name: "دوافير ودبات", subCats: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"] },
+      { name: "طباخات وفوانيس", subCats: ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"] },
+      { name: "منزليات", subCats: ["عام"] },
+      { name: "اكسسوارات عامة", subCats: ["عام"] }
     ];
 
-    // حفظ القائمة الكاملة تلقائياً في التخزين
-    localStorage.setItem('ansiyab_categories_v5', JSON.stringify(fullCategoriesList));
-    let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v5'));
-
-    let products = JSON.parse(localStorage.getItem('ansiyab_products_v5')) || [
+    let categories = fullCategoriesList;
+    let products = JSON.parse(localStorage.getItem('ansiyab_products_v6')) || [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
@@ -562,7 +571,7 @@
         subCat: "دبات غاز سفري",
         unit: "حبة",
         boxQty: 12,
-        images: ["https://i.imgur.com/7A26w6i.png"]
+        images: [placeholderImg]
       }
     ];
 
@@ -572,7 +581,6 @@
     let currentLightboxIndex = 0;
     let currentLightboxTitle = "";
 
-    // 1. Render Function
     function renderProducts(list) {
       const grid = document.getElementById('products-grid-container');
       if (!grid) return;
@@ -583,7 +591,7 @@
       }
       
       list.forEach(p => {
-        const mainImg = (p.images && p.images.length > 0) ? p.images[0] : 'https://i.imgur.com/7A26w6i.png';
+        const mainImg = (p.images && p.images.length > 0) ? p.images[0] : placeholderImg;
         let thumbsHtml = '';
         if (p.images && p.images.length > 1) {
           p.images.forEach((imgSrc, imgIdx) => {
@@ -591,6 +599,8 @@
           });
         }
         
+        const defaultUnit = p.unit || 'حبة';
+
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
@@ -606,7 +616,7 @@
           <div class="product-info-table">
             <div class="info-item">
               <label>الوحدة</label>
-              <span>${p.unit || 'حبة'}</span>
+              <span>${defaultUnit}</span>
             </div>
             <div class="info-item">
               <label>شد الكرتون</label>
@@ -617,8 +627,12 @@
             <span style="font-size:12px; font-weight:700;">الكمية:</span>
             <input type="number" id="qty-${p.id}" value="1" min="1">
             <select id="unit-type-${p.id}">
-              <option value="${p.unit || 'حبة'}">${p.unit || 'حبة'}</option>
-              <option value="كرتون">كرتون (${p.boxQty || 1} ${p.unit || 'حبة'})</option>
+              <option value="حبة" ${defaultUnit === 'حبة' ? 'selected' : ''}>حبة</option>
+              <option value="كرتون" ${defaultUnit === 'كرتون' ? 'selected' : ''}>كرتون (${p.boxQty || 1} حبة)</option>
+              <option value="علبة" ${defaultUnit === 'علبة' ? 'selected' : ''}>علبة</option>
+              <option value="درزن" ${defaultUnit === 'درزن' ? 'selected' : ''}>درزن</option>
+              <option value="ربطة" ${defaultUnit === 'ربطة' ? 'selected' : ''}>ربطة</option>
+              <option value="لفة" ${defaultUnit === 'لفة' ? 'selected' : ''}>لفة</option>
             </select>
           </div>
           <button class="add-to-cart-btn" onclick="addToCart(${p.id})">إضافة لقائمة الطلب 🛒</button>
@@ -627,7 +641,6 @@
       });
     }
 
-    // 2. Build Accordion
     function buildCategoryAccordion() {
       const container = document.getElementById('category-accordion');
       if (!container) return;
@@ -648,9 +661,8 @@
         if (cat.subCats) {
           cat.subCats.forEach((sub, sIdx) => {
             subHtml += `
-              <div class="sub-cat-item">
-                <span onclick="filterProductsBySub('${cat.name}', '${sub}')">${sub}</span>
-                <button style="border:none; background:none; color:#e53e3e; cursor:pointer;" onclick="deleteSubCategory(${cIdx}, ${sIdx})">✕</button>
+              <div class="sub-cat-item" onclick="filterProductsBySub('${cat.name}', '${sub}')">
+                <span>${sub}</span>
               </div>
             `;
           });
@@ -684,15 +696,7 @@
     }
 
     function saveProductsData() {
-      localStorage.setItem('ansiyab_products_v5', JSON.stringify(products));
-    }
-
-    function deleteSubCategory(mainIndex, subIndex) {
-      if (confirm(`هل أنت متأكد من حذف هذا القسم الفرعي؟`)) {
-        categories[mainIndex].subCats.splice(subIndex, 1);
-        localStorage.setItem('ansiyab_categories_v5', JSON.stringify(categories));
-        buildCategoryAccordion();
-      }
+      localStorage.setItem('ansiyab_products_v6', JSON.stringify(products));
     }
 
     function openProductModal() {
@@ -799,11 +803,11 @@
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
       const subCat = document.getElementById('prod-sub-cat-select').value;
-      const unit = document.getElementById('prod-unit-input').value.trim() || 'حبة';
+      const unit = document.getElementById('prod-unit-input').value || 'حبة';
       const boxQty = parseInt(document.getElementById('prod-box-input').value) || 1;
       
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
-      if (modalImagesBase64.length === 0) modalImagesBase64 = ["https://i.imgur.com/7A26w6i.png"];
+      if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
 
       if (editId === -1) {
         const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
@@ -964,7 +968,6 @@
       document.getElementById(modalId).style.display = 'none';
     }
 
-    // 3. Execution Event Listener
     document.addEventListener("DOMContentLoaded", function() {
       buildCategoryAccordion();
       renderProducts(products);
