@@ -3,49 +3,261 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>المنتجات | الأنسياب المتقدم</title>
+  <title>المنتجات والأقسام | الأنسياب المتقدم</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
+
   <style>
-    .page-layout {
+    /* شريط المشرف العلوي - مخفي افتراضياً ولا يظهر إلا باختصار Ctrl+Alt+A */
+    .admin-bar {
+      display: none;
+      background: #1b365d;
+      color: white;
+      padding: 10px 20px;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      border-bottom: 2px solid #2b6cb0;
+    }
+
+    body.admin-mode .admin-bar {
+      display: flex;
+    }
+
+    .admin-bar-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .admin-action-btn {
+      background: #d69e2e;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .admin-action-btn:hover {
+      opacity: 0.9;
+    }
+
+    .shop-layout {
       display: flex;
       gap: 20px;
-      max-width: 1400px;
-      margin: 30px auto;
-      padding: 0 15px;
+      margin-top: 20px;
     }
-    .main-content-area { flex: 3; }
-    .sidebar-area { flex: 1; min-width: 260px; }
+
+    /* الشريط الجانبي للأقسام */
+    .sidebar-categories {
+      width: 300px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      height: fit-content;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-btn-all {
+      background: #e53e3e;
+      color: white;
+      width: 100%;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .main-cat-item {
+      border-bottom: 1px solid #edf2f7;
+      margin-bottom: 5px;
+    }
+
+    .main-cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #1b365d;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .main-cat-header:hover {
+      background: #edf2f7;
+    }
+
+    .sub-cat-list {
+      display: none;
+      padding: 6px 10px 6px 5px;
+      background: #fff;
+    }
+
+    .sub-cat-list.active {
+      display: block;
+    }
+
+    .sub-cat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      border-bottom: 1px dashed #f1f5f9;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .sub-cat-row:hover {
+      background: #f8fafc;
+    }
+
+    .sub-cat-item {
+      font-size: 13px;
+      color: #4a5568;
+      cursor: pointer;
+      flex-grow: 1;
+      font-weight: 600;
+    }
+
+    .sub-cat-item:hover, .sub-cat-item.active {
+      color: #3182ce;
+      font-weight: 800;
+    }
+
+    /* 🛡️ حماية صارمة: أدوات وإدارة المخزون مخفية تماماً عن الزوار ولا تظهر إلا بوجود class اسمها admin-mode في الجسم */
+    .admin-sub-tools, 
+    .admin-main-tools, 
+    .admin-product-controls,
+    .admin-stock-control-panel,
+    #add-subcat-section {
+      display: none !important;
+    }
+
+    body.admin-mode .admin-sub-tools,
+    body.admin-mode .admin-main-tools,
+    body.admin-mode .admin-product-controls,
+    body.admin-mode .admin-stock-control-panel,
+    body.admin-mode #add-subcat-section {
+      display: flex !important;
+    }
+
+    body.admin-mode div#add-subcat-section {
+      display: block !important;
+    }
+
+    body.admin-mode div.admin-main-tools {
+      display: flex !important;
+    }
+
+    body.admin-mode div.admin-stock-control-panel {
+      display: block !important;
+    }
+
+    /* منطقة المنتجات */
+    .products-content-area {
+      flex: 1;
+    }
+
     .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      width: 100%;
-      box-sizing: border-box;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 15px;
     }
+
     .product-card {
-      background: #fff;
+      background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 15px;
+      border-radius: 8px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-sizing: border-box;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     }
+
+    .product-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      background: #f8fafc;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .product-card h3 {
+      font-size: 15px;
+      color: #1b365d;
+      margin: 0 0 5px 0;
+      font-weight: 800;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      border-top: 1px solid #edf2f7;
+      padding-top: 8px;
+    }
+
+    .details-btn {
+      background: #2b6cb0;
+      color: white;
+      text-decoration: none;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     @media (max-width: 768px) {
-      .page-layout { flex-direction: column; }
+      .shop-layout {
+        flex-direction: column;
+      }
+      .sidebar-categories {
+        width: 100%;
+        max-height: none;
+      }
     }
   </style>
 </head>
-<body>
+<body id="page-body">
+
+  <!-- شريط المشرف العلوي -->
+  <div class="admin-bar" id="admin-bar-container">
+    <span>⚠️ وضع إدارة الموقع مفعّل (اضغط Ctrl+Alt+A للإخفاء)</span>
+    <div class="admin-bar-btns">
+      <button class="admin-action-btn" onclick="addNewMainCategory()">+ إضافة قسم رئيسي</button>
+      <button class="admin-action-btn" onclick="addNewProductPage()">+ إضافة منتج جديد</button>
+      <button class="admin-action-btn" style="background:#e53e3e;" onclick="toggleAdminModeShortcut()">خروج من الإدارة</button>
+    </div>
+  </div>
 
   <header>
     <a href="index.html" class="logo-container">
-      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'100%\' height=\'100%\' fill=\'%23edf2f7\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'10\' fill=\'%23a0aec0\' text-anchor=\'middle\' dominant-baseline=\'middle\'>شعار</text></svg>'">
+      <img src="assets/images/logo.png" alt="شعار المؤسسة" id="logo-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100%\' height=\'100%\' fill=\'%23edf2f7\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%23a0aec0\' text-anchor=\'middle\' dominant-baseline=\'middle\'>لا توجد صورة</text></svg>'">
       <div class="brand-title">
         <h1>الأنسياب المتقدم</h1>
         <p>أدوات ولوازم الغاز والرحلات</p>
@@ -61,48 +273,46 @@
     </nav>
   </header>
 
-  <div class="page-layout">
-    <!-- منطقة المنتجات -->
-    <div class="main-content-area">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="color:#1b365d; margin:0; font-weight:900;">كل المنتجات</h2>
-        <button onclick="openAddSubCategoryModal()" style="background:#2b6cb0; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif;">+ إضافة قسم فرعي جديد</button>
-      </div>
-      <div class="products-grid" id="products-container"></div>
-    </div>
+  <div class="main-container">
+    <div class="shop-layout">
+      
+      <!-- الشريط الجانبي للأقسام -->
+      <aside class="sidebar-categories">
+        <button class="sidebar-btn-all" onclick="filterCategory('all', 'all', this)">عرض كل المنتجات</button>
+        
+        <div id="sidebar-categories-list"></div>
 
-    <!-- الشريط الجانبي للأقسام -->
-    <div class="sidebar-area">
-      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:15px; box-shadow:0 4px 6px rgba(0,0,0,0.02);">
-        <h3 style="color:#1b365d; margin-top:0; font-size:16px; border-bottom:2px solid #edf2f7; padding-bottom:8px;">الأقسام والتصنيفات</h3>
-        <div id="sidebar-categories-container"></div>
-      </div>
+        <div id="add-subcat-section" style="margin-top:12px;">
+          <button class="admin-action-btn" style="background:#3182ce; width:100%; justify-content:center;" onclick="openAddSubCategoryModal()">+ إضافة قسم فرعي</button>
+        </div>
+      </aside>
+
+      <!-- محتوى المنتجات -->
+      <main class="products-content-area">
+        <h3 id="current-category-title" style="color:#1b365d; font-weight:800; margin-top:0; margin-bottom:15px;">كل المنتجات</h3>
+        <div class="products-grid" id="products-grid"></div>
+      </main>
+
     </div>
   </div>
 
-  <!-- مودال إضافة قسم فرعي غير موجود -->
-  <div class="modal-overlay" id="subcat-modal">
-    <div class="modal-card">
-      <h3>إضافة قسم فرعي غير موجود</h3>
+  <!-- مودال إضافة قسم فرعي جديد -->
+  <div class="modal-overlay" id="subcat-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-card" style="background:#fff; padding:20px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+      <h3 style="color:#1b365d; margin-top:0;">إضافة قسم فرعي جديد</h3>
       <div style="margin-bottom:15px;">
-        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">اختر القسم الرئيسي:</label>
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">القسم الرئيسي المستهدف:</label>
         <select id="modal-main-cat" style="width:100%; padding:8px; border:1px solid #cbd5e0; border-radius:6px; font-family:'Cairo';">
-          <option value="ادوات لحام ووصواريخ بقاعدة">ادوات لحام ووصواريخ بقاعدة</option>
-          <option value="مواقد غاز">مواقد غاز</option>
-          <option value="ساعات ومنظمات غاز">ساعات ومنظمات غاز</option>
-          <option value="ليات غاز ورجلات">ليات غاز ورجلات</option>
-          <option value="لوازم الرحلات وادواتها">لوازم الرحلات وادواتها</option>
-          <option value="دفايات">دفايات</option>
-          <option value="محابس وتواصيل غاز">محابس وتواصيل غاز</option>
+          <!-- يتم تعبئتها ديناميكياً -->
         </select>
       </div>
       <div style="margin-bottom:15px;">
-        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">اسم القسم الفرعي الجديد:</label>
-        <input type="text" id="modal-new-subcat" placeholder="أدخل اسم القسم الفرعي..." style="width:100%; padding:8px; border:1px solid #cbd5e0; border-radius:6px; font-family:'Cairo'; box-sizing:border-box;">
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">اسم القسم الفرعي:</label>
+        <input type="text" id="modal-new-subcat" placeholder="أدخل اسم القسم الفرعي غير الموجود..." style="width:100%; padding:8px; border:1px solid #cbd5e0; border-radius:6px; font-family:'Cairo'; box-sizing:border-box;">
       </div>
-      <div class="modal-actions">
-        <button style="background:#27ae60; color:#fff;" onclick="saveNewSubCategory()">حفظ القسم</button>
-        <button style="background:#e2e8f0; color:#4a5568;" onclick="closeModal('subcat-modal')">إلغاء</button>
+      <div class="modal-actions" style="display:flex; gap:10px;">
+        <button style="flex:1; background:#27ae60; color:#fff; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="saveNewSubCategory()">حفظ</button>
+        <button style="flex:1; background:#e2e8f0; color:#4a5568; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="closeModal('subcat-modal')">إلغاء</button>
       </div>
     </div>
   </div>
@@ -110,11 +320,11 @@
   <!-- مودال السلة -->
   <div class="modal-overlay" id="cart-modal">
     <div class="modal-card">
-      <h3>قائمة الطلبات</h3>
-      <div id="cart-items-container" style="max-height:250px; overflow-y:auto; margin:15px 0;"></div>
+      <h3>قائمة الطلبات الخاصة بك</h3>
+      <div id="cart-items-container" style="max-height:300px; overflow-y:auto; margin:15px 0;"></div>
       <div class="modal-actions">
-        <button style="background:#25d366; color:#fff;" onclick="sendCartToWhatsApp()">إرسال للواتساب</button>
-        <button style="background:#e2e8f0; color:#4a5568;" onclick="closeModal('cart-modal')">إغلاق</button>
+        <button style="background:#25d366; color:#fff;" onclick="sendCartToWhatsApp()">إرسال عبر الواتساب</button>
+        <button style="background:#e2e8f0; color:#4a5568;" onclick="closeModal('cart-modal')">إلغاء</button>
       </div>
     </div>
   </div>
@@ -125,93 +335,399 @@
 
   <script>
     const defaultProducts = [
-      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", stock: 8, images: [] },
-      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", stock: 3, images: [] }
+      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 50, images: [] },
+      { id: 2, name: "مسدس لحام صيني", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام صيني", unit: "حبة", boxQty: 6, stock: 20, images: [] },
+      { id: 3, name: "صاروخ بقاعدة متين", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "صواريخ بقاعدة", unit: "حبة", boxQty: 4, stock: 15, images: [] },
+      { id: 4, name: "مسدس لحام سفري", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام سفري", unit: "حبة", boxQty: 10, stock: 30, images: [] },
+      
+      { id: 5, name: "موقد غاز منزلي عالي الأداء", mainCat: "مواقد غاز", subCat: "مواقد غاز منزلية", unit: "حبة", boxQty: 5, stock: 12, images: [] },
+      { id: 6, name: "موقد غاز مطاعم ثقيل", mainCat: "مواقد غاز", subCat: "مواقد غاز مطاعم", unit: "حبة", boxQty: 2, stock: 8, images: [] },
+      { id: 7, name: "موقد غاز مطابخ", mainCat: "مواقد غاز", subCat: "مواقد غاز مطابخ", unit: "حبة", boxQty: 4, stock: 10, images: [] },
+      { id: 8, name: "موقد رحلات سفري", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 25, images: [] },
+      { id: 9, name: "موقد كويتي أصلي", mainCat: "مواقد غاز", subCat: "مواقد كويتي", unit: "حبة", boxQty: 6, stock: 14, images: [] },
+      { id: 10, name: "موقد كنافة خاص", mainCat: "مواقد غاز", subCat: "مواقد كنافة", unit: "حبة", boxQty: 3, stock: 5, images: [] },
+      { id: 11, name: "مسطح تماتيك غاز", mainCat: "مواقد غاز", subCat: "مسطحات تماتيك", unit: "حبة", boxQty: 4, stock: 9, images: [] },
+      { id: 12, name: "موقد كهرباء عملي", mainCat: "مواقد غاز", subCat: "مواقد كهرباء", unit: "حبة", boxQty: 8, stock: 20, images: [] },
+
+      { id: 13, name: "جالون مياه أو سوائل", mainCat: "ادوات ولوازم الرحلات", subCat: "جوالين وسطول", unit: "حبة", boxQty: 6, stock: 30, images: [] },
+      { id: 14, name: "شنطة تجهيزات رحلات متكاملة", mainCat: "ادوات ولوازم الرحلات", subCat: "شنط وتجهيزات", unit: "حبة", boxQty: 2, stock: 10, images: [] },
+      { id: 15, name: "جلسة خارجية مريحة", mainCat: "ادوات ولوازم الرحلات", subCat: "جلسات خارجيه", unit: "طقم", boxQty: 1, stock: 4, images: [] },
+      { id: 16, name: "زمزمية حافظة للحرارة", mainCat: "ادوات ولوازم الرحلات", subCat: "زمزميات وقوارير", unit: "حبة", boxQty: 12, stock: 40, images: [] },
+      { id: 17, name: "كشاف إضاءة وإنارة للرحلات", mainCat: "ادوات ولوازم الرحلات", subCat: "اضاءة وانارة", unit: "حبة", boxQty: 10, stock: 22, images: [] },
+
+      { id: 18, name: "ذراية هواء وسواتر للموقد", mainCat: "ادوات ولوازم الشواء", subCat: "ذرايات وسواتر", unit: "حبة", boxQty: 10, stock: 15, images: [] },
+      { id: 19, name: "شبك شوي متين", mainCat: "ادوات ولوازم الشواء", subCat: "شبوك شوي", unit: "حبة", boxQty: 15, stock: 25, images: [] },
+      { id: 20, name: "منقل شوي تراثي وثقيل", mainCat: "ادوات ولوازم الشواء", subCat: "مناقل شوي", unit: "حبة", boxQty: 2, stock: 10, images: [] },
+      { id: 21, name: "أسياخ شوي ستانلس ستيل", mainCat: "ادوات ولوازم الشواء", subCat: "اسياخ شوي", unit: "درزن", boxQty: 20, stock: 50, images: [] },
+      { id: 22, name: "شنطة رحلات وشواء", mainCat: "ادوات ولوازم الشواء", subCat: "شنط رحلات", unit: "حبة", boxQty: 5, stock: 12, images: [] },
+
+      { id: 23, name: "دفاية قاز تقليدية", mainCat: "دفايات", subCat: "دفايات قاز", unit: "حبة", boxQty: 2, stock: 7, images: [] },
+      { id: 24, name: "دفاية غاز آمنة", mainCat: "دفايات", subCat: "دفايات غاز", unit: "حبة", boxQty: 2, stock: 10, images: [] },
+      { id: 25, name: "دفاية كهربائية سريعة", mainCat: "دفايات", subCat: "دفايات كهرباء", unit: "حبة", boxQty: 4, stock: 18, images: [] },
+      { id: 26, name: "دفاية زيت 9 ريشة", mainCat: "دفايات", subCat: "دفايات زيت", unit: "حبة", boxQty: 1, stock: 6, images: [] },
+      { id: 27, name: "دفاية رحلات سفري", mainCat: "دفايات", subCat: "دفايات رحلات", unit: "حبة", boxQty: 6, stock: 14, images: [] },
+      { id: 28, name: "قطع غيار دفايات متنوعة", mainCat: "دفايات", subCat: "قطع غيار دفايات", unit: "قطعة", boxQty: 25, stock: 60, images: [] },
+
+      { id: 29, name: "محبس غاز رئيسي", mainCat: "محابس وتواصيل", subCat: "محابس غاز", unit: "حبة", boxQty: 30, stock: 80, images: [] },
+      { id: 30, name: "وصلة غاز أصلية", mainCat: "محابس وتواصيل", subCat: "تواصيل غاز", unit: "حبة", boxQty: 25, stock: 70, images: [] },
+      { id: 31, name: "قسام وموصل غاز ثنائي", mainCat: "محابس وتواصيل", subCat: "قسامات وموصلات غاز", unit: "حبة", boxQty: 20, stock: 45, images: [] },
+      { id: 32, name: "وصلة ومحول غاز سفري", mainCat: "محابس وتواصيل", subCat: "تواصيل ومحولات سفري", unit: "حبة", boxQty: 15, stock: 35, images: [] },
+      { id: 33, name: "قفزان ليات متينة", mainCat: "محابس وتواصيل", subCat: "قفزان ليات", unit: "درزن", boxQty: 50, stock: 150, images: [] },
+
+      { id: 34, name: "منظم غاز منزلي إيطالي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, stock: 40, images: [] },
+      { id: 35, name: "منظم غاز مطاعم ضغط عالي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز مطاعم", unit: "حبة", boxQty: 10, stock: 15, images: [] },
+      { id: 36, name: "منظم غاز سفري", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز سفري", unit: "حبة", boxQty: 15, stock: 25, images: [] },
+      { id: 37, name: "ساعة غاز شبكات", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز شبكات", unit: "حبة", boxQty: 5, stock: 10, images: [] },
+      { id: 38, name: "تحويلة غاز مطورة", mainCat: "ساعات ومنظمات غاز", subCat: "تحويلات غاز", unit: "حبة", boxQty: 20, stock: 55, images: [] },
+
+      { id: 39, name: "لي غاز منزلي مطاطي", mainCat: "ليات غاز", subCat: "ليات غاز منزليه", unit: "لفة", boxQty: 10, stock: 30, images: [] },
+      { id: 40, name: "لي غاز مطاعم ضغط عالي", mainCat: "ليات غاز", subCat: "ليات غاز مطاعم", unit: "لفة", boxQty: 5, stock: 18, images: [] },
+      { id: 41, name: "لي مواقد رحلات", mainCat: "ليات غاز", subCat: "ليات مواقد رحلات", unit: "حبة", boxQty: 15, stock: 40, images: [] },
+
+      { id: 42, name: "ولاعة غاز إلكترونية", mainCat: "ولاعات وشعالات", subCat: "ولاعات غاز", unit: "حبة", boxQty: 25, stock: 90, images: [] },
+      { id: 43, name: "ولاعة بخور فاخرة", mainCat: "ولاعات وشعالات", subCat: "ولاعات بخور", unit: "حبة", boxQty: 20, stock: 45, images: [] },
+      { id: 44, name: "ولاعة سفري قوية", mainCat: "ولاعات وشعالات", subCat: "ولاعات سفري", unit: "حبة", boxQty: 30, stock: 65, images: [] },
+      { id: 45, name: "شعلات فحم سريعة", mainCat: "ولاعات وشعالات", subCat: "شعالات فحم", unit: "كرتون", boxQty: 12, stock: 35, images: [] },
+      { id: 46, name: "قوالب إشعال آمنة", mainCat: "ولاعات وشعالات", subCat: "قوالب اشعال", unit: "باكيت", boxQty: 20, stock: 50, images: [] },
+      { id: 47, name: "سائل إشعال فحم", mainCat: "ولاعات وشعالات", subCat: "سوائل اشعال", unit: "حبة", boxQty: 15, stock: 25, images: [] },
+
+      { id: 48, name: "قطع غيار مواقد أصلية", mainCat: "قطع غيار", subCat: "قطع غيار مواقد", unit: "قطعة", boxQty: 20, stock: 40, images: [] },
+      { id: 49, name: "قطع غيار دبات غاز", mainCat: "قطع غيار", subCat: "قطع غيار دبات", unit: "قطعة", boxQty: 20, stock: 35, images: [] },
+      { id: 50, name: "قطع غيار دوافير", mainCat: "قطع غيار", subCat: "قطع غيار دوافير", unit: "قطعة", boxQty: 15, stock: 25, images: [] },
+      { id: 51, name: "قطع غيار عامة", mainCat: "قطع غيار", subCat: "قطغ غيار عامه", unit: "قطعة", boxQty: 30, stock: 80, images: [] },
+
+      { id: 52, name: "قدر طهي منزلي", mainCat: "قدور", subCat: "قدور منزليه", unit: "حبة", boxQty: 4, stock: 15, images: [] },
+      { id: 53, name: "قدر مطاعم كبير", mainCat: "قدور", subCat: "قدور مطاعم", unit: "حبة", boxQty: 2, stock: 6, images: [] },
+      { id: 54, name: "قدر عسل تراثي", mainCat: "قدور", subCat: "قدور عسل", unit: "حبة", boxQty: 4, stock: 10, images: [] },
+      { id: 55, name: "صينية تقديم وطهي", mainCat: "قدور", subCat: "صواني", unit: "حبة", boxQty: 10, stock: 30, images: [] },
+
+      { id: 56, name: "خضاضة لبن كهربائية", mainCat: "خضاضات وسطول", subCat: "خضاضات لبن", unit: "حبة", boxQty: 2, stock: 8, images: [] },
+      { id: 57, name: "سطل لبن متين", mainCat: "خضاضات وسطول", subCat: "سطول لبن", unit: "حبة", boxQty: 6, stock: 20, images: [] },
+      { id: 58, name: "مواعين سمن وتراثيات", mainCat: "خضاضات وسطول", subCat: "مواعين سمن", unit: "حبة", boxQty: 10, stock: 25, images: [] },
+
+      { id: 59, name: "دبة غاز رحلات", mainCat: "دوافير ودبات", subCat: "دبات غاز", unit: "حبة", boxQty: 6, stock: 30, images: [] },
+      { id: 60, name: "رأس دافور قوي", mainCat: "دوافير ودبات", subCat: "روس دوافير", unit: "حبة", boxQty: 10, stock: 22, images: [] },
+      { id: 61, name: "رأس دافور بلي", mainCat: "دوافير ودبات", subCat: "روس دوافير بلي", unit: "حبة", boxQty: 10, stock: 18, images: [] },
+      { id: 62, name: "دبة غاز سفري صغيرة", mainCat: "دوافير ودبات", subCat: "دبات غاز سفري", unit: "حبة", boxQty: 12, stock: 40, images: [] },
+      { id: 63, name: "اكسسوارات دوافير متنوعة", mainCat: "دوافير ودبات", subCat: "اكسسوارات دوافير", unit: "قطعة", boxQty: 20, stock: 50, images: [] },
+
+      { id: 64, name: "طباخة قاز سائل", mainCat: "طباخات وفوانيس", subCat: "طباخات بالقاز السائل", unit: "حبة", boxQty: 3, stock: 7, images: [] },
+      { id: 65, name: "فانوس قاز سائل إضاءة", mainCat: "طباخات وفوانيس", subCat: "فوانيس بالقاز السائل", unit: "حبة", boxQty: 6, stock: 12, images: [] },
+      { id: 66, name: "فانوس إضاءة بالبطاريات", mainCat: "طباخات وفوانيس", subCat: "فوانيس بالبطاريات", unit: "حبة", boxQty: 10, stock: 25, images: [] },
+      { id: 67, name: "دافور قاز تقليدي", mainCat: "طباخات وفوانيس", subCat: "دوافير قاز", unit: "حبة", boxQty: 4, stock: 10, images: [] },
+      { id: 68, name: "اتاريك قاز تراثي", mainCat: "طباخات وفوانيس", subCat: "اتاريك قاز", unit: "حبة", boxQty: 5, stock: 9, images: [] },
+      { id: 69, name: "اتاريك غاز", mainCat: "طباخات وفوانيس", subCat: "اتاريك غاز", unit: "حبة", boxQty: 5, stock: 11, images: [] },
+      { id: 70, name: "فتايل أتاريك ودوافير قاز", mainCat: "طباخات وفوانيس", subCat: "فتايل", unit: "درزن", boxQty: 30, stock: 100, images: [] },
+
+      { id: 71, name: "أدوات ومستلزمات منزلية عامة", mainCat: "منزليات", subCat: "عام", unit: "حبة", boxQty: 10, stock: 30, images: [] },
+      { id: 72, name: "اكسسوارات عامة ومتنوعة", mainCat: "اكسسوارات عامة", subCat: "عام", unit: "قطعة", boxQty: 15, stock: 40, images: [] }
     ];
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
-    let customSubCategories = JSON.parse(localStorage.getItem('ansiyab_custom_subcats')) || {};
+    let isAdmin = localStorage.getItem('ansiyab_admin_mode') === 'true';
+    let selectedMainCatForSub = '';
+    const defaultProductImage = "assets/images/logo.png";
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderProducts(products);
+    document.addEventListener('DOMContentLoaded', function() {
+      updateAdminModeUI();
+      renderSidebarCategories();
+      displayProducts(products);
       updateCartBadge();
+
+      window.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش')) {
+          e.preventDefault();
+          toggleAdminModeShortcut();
+        }
+      });
     });
 
-    function renderProducts(prods) {
-      const container = document.getElementById('products-container');
-      container.innerHTML = '';
-      prods.forEach(prod => {
-        let stockHtml = prod.stock > 0 ? `<span style="color:#0288d1; font-weight:700; font-size:12px;">متوفر (${prod.stock})</span>` : `<span style="color:#c62828; font-weight:700; font-size:12px;">نفذت الكمية</span>`;
-        container.innerHTML += `
+    function toggleAdminModeShortcut() {
+      isAdmin = !isAdmin;
+      localStorage.setItem('ansiyab_admin_mode', isAdmin);
+      updateAdminModeUI();
+      renderSidebarCategories();
+      displayProducts(products);
+    }
+
+    function updateAdminModeUI() {
+      const body = document.getElementById('page-body');
+      if (isAdmin) {
+        body.classList.add('admin-mode');
+      } else {
+        body.classList.remove('admin-mode');
+      }
+    }
+
+    function renderSidebarCategories() {
+      const container = document.getElementById('sidebar-categories-list');
+      const mainCats = [...new Set(products.map(p => p.mainCat))];
+      
+      let html = '';
+      mainCats.forEach((mainCat, index) => {
+        const subs = [...new Set(products.filter(p => p.mainCat === mainCat).map(p => p.subCat).filter(Boolean))];
+        
+        html += `
+          <div class="main-cat-item">
+            <div class="main-cat-header" onclick="toggleSubMenu(this, '${mainCat}')">
+              <span>${mainCat}</span>
+              <div style="display:flex; align-items:center; gap:5px;">
+                <span class="admin-main-tools" onclick="event.stopPropagation(); editMainCat('${mainCat}')" title="تعديل اسم القسم">✏️</span>
+                <span>▼</span>
+              </div>
+            </div>
+            <div class="sub-cat-list" id="sub-list-${index}">
+              <div class="sub-cat-row">
+                <div class="sub-cat-item" onclick="filterCategory('${mainCat}', 'all', this)">عرض الكل في ${mainCat}</div>
+              </div>
+        `;
+        
+        subs.forEach(sub => {
+          html += `
+            <div class="sub-cat-row">
+              <div class="sub-cat-item" onclick="filterCategory('${mainCat}', '${sub}', this)">${sub}</div>
+              <div class="admin-sub-tools">
+                <button onclick="deleteSubCat('${mainCat}', '${sub}')" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-size:12px;" title="حذف القسم الفرعي">❌</button>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    function toggleSubMenu(headerElement, mainCat) {
+      selectedMainCatForSub = mainCat;
+      const subList = headerElement.nextElementSibling;
+      const isOpen = subList.classList.contains('active');
+      
+      document.querySelectorAll('.sub-cat-list').forEach(el => el.classList.remove('active'));
+      if (!isOpen) {
+        subList.classList.add('active');
+      }
+
+      filterCategory(mainCat, 'all', headerElement);
+    }
+
+    function filterCategory(mainCat, subCat, element) {
+      document.querySelectorAll('.sub-cat-item, .main-cat-header').forEach(el => el.classList.remove('active'));
+      if(element) element.classList.add('active');
+
+      let filtered = products;
+      let title = "كل المنتجات";
+
+      if (mainCat !== 'all') {
+        filtered = filtered.filter(p => p.mainCat === mainCat);
+        title = mainCat;
+        selectedMainCatForSub = mainCat;
+      }
+
+      if (subCat !== 'all') {
+        filtered = filtered.filter(p => p.subCat === subCat);
+        title = `${mainCat} / ${subCat}`;
+      }
+
+      document.getElementById('current-category-title').innerText = title;
+      displayProducts(filtered);
+    }
+
+    function displayProducts(prodsToDisplay) {
+      const grid = document.getElementById('products-grid');
+      grid.innerHTML = '';
+
+      if (prodsToDisplay.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:30px;">لا توجد منتجات مطابقة حالياً.</p>';
+        return;
+      }
+
+      prodsToDisplay.forEach(prod => {
+        let stockQty = prod.stock !== undefined ? prod.stock : 10;
+        let badgeHtml = '';
+
+        if (stockQty > 5) {
+          badgeHtml = `<span style="font-size:11px; color:#0288d1; font-weight:700;">متوفر</span>`;
+        } else if (stockQty > 0 && stockQty <= 5) {
+          badgeHtml = `<span style="font-size:11px; color:#f57c00; font-weight:700;">كمية محدودة</span>`;
+        } else {
+          badgeHtml = `<span style="font-size:11px; color:#c62828; font-weight:700;">نفذت الكمية / مجمد</span>`;
+        }
+
+        let mainImg = (prod.images && prod.images.length > 0 && prod.images[0].trim() !== '') ? prod.images[0] : defaultProductImage;
+
+        let adminProductTools = `
+          <div class="admin-product-controls" style="margin-top:8px; display:flex; gap:5px; flex-wrap:wrap; border-top:1px dashed #cbd5e0; padding-top:6px;">
+            <a href="edit-product.html?id=${prod.id}" style="background:#d69e2e; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; text-decoration:none;">تعديل الصنف</a>
+            <button onclick="toggleFreezeProduct(${prod.id})" style="background:${stockQty > 0 ? '#dd6b20' : '#3182ce'}; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;">${stockQty > 0 ? 'تجميد' : 'إلغاء التجميد'}</button>
+            <button onclick="deleteProduct(${prod.id})" style="background:#e53e3e; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;">حذف</button>
+          </div>
+        `;
+
+        grid.innerHTML += `
           <div class="product-card">
             <div>
-              <div style="background:#f8fafc; border-radius:8px; padding:10px; text-align:center; margin-bottom:10px; height:130px; display:flex; align-items:center; justify-content:center;">
-                <span style="color:#a0aec0; font-size:12px;">صورة المنتج</span>
-              </div>
-              <div style="font-size:11px; color:#718096; margin-bottom:4px;">${prod.mainCat} / ${prod.subCat || 'عام'}</div>
-              <h3 style="font-size:15px; color:#1b365d; margin:0 0 10px 0; font-weight:800;">${prod.name}</h3>
-              <div style="margin-bottom:10px;">${stockHtml}</div>
+              <img src="${mainImg}" alt="${prod.name}" onerror="this.src='${defaultProductImage}'">
+              <div style="font-size:11px; color:#718096; margin-bottom:3px;">${prod.mainCat} / ${prod.subCat || 'عام'}</div>
+              <h3>${prod.name}</h3>
             </div>
-            <a href="product.html?id=${prod.id}" style="display:block; text-align:center; background:#1b365d; color:#fff; padding:8px; border-radius:6px; text-decoration:none; font-weight:700; font-size:13px;">التفاصيل والطلب</a>
+            <div>
+              <div class="card-footer">
+                ${badgeHtml}
+                <a href="product.html?id=${prod.id}" class="details-btn">التفاصيل والطلب</a>
+              </div>
+              ${adminProductTools}
+            </div>
           </div>
         `;
       });
     }
 
-    function openAddSubCategoryModal() {
-      document.getElementById('subcat-modal').style.display = 'flex';
+    function addNewMainCategory() {
+      let name = prompt("أدخل اسم القسم الرئيسي الجديد:");
+      if (name && name.trim() !== "") {
+        products.push({ id: Date.now(), name: "صنف جديد في القسم", mainCat: name.trim(), subCat: "عام", unit: "حبة", boxQty: 1, stock: 10, images: [] });
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        displayProducts(products);
+        alert("تم إضافة القسم الرئيسي بنجاح!");
+      }
     }
 
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
+    function openAddSubCategoryModal() {
+      const select = document.getElementById('modal-main-cat');
+      select.innerHTML = '';
+      const mainCats = [...new Set(products.map(p => p.mainCat))];
+      mainCats.forEach(cat => {
+        select.innerHTML += `<option value="${cat}" ${cat === selectedMainCatForSub ? 'selected' : ''}>${cat}</option>`;
+      });
+      document.getElementById('subcat-modal').style.display = 'flex';
     }
 
     function saveNewSubCategory() {
       let mainCat = document.getElementById('modal-main-cat').value;
-      let subCatName = document.getElementById('modal-new-subcat').value.trim();
-      if (!subCatName) {
+      let subName = document.getElementById('modal-new-subcat').value.trim();
+      
+      if (!subName) {
         alert("الرجاء إدخال اسم القسم الفرعي.");
         return;
       }
-      if (!customSubCategories[mainCat]) {
-        customSubCategories[mainCat] = [];
-      }
-      if (customSubCategories[mainCat].includes(subCatName)) {
-        alert("هذا القسم الفرعي موجود مسبقاً!");
+      
+      let exists = products.some(p => p.mainCat === mainCat && p.subCat === subName);
+      if (exists) {
+        alert("هذا القسم الفرعي موجود مسبقاً تحت هذا القسم الرئيسي!");
         return;
       }
-      customSubCategories[mainCat].push(subCatName);
-      localStorage.setItem('ansiyab_custom_subcats', JSON.stringify(customSubCategories));
-      alert(`تم إضافة القسم الفرعي "${subCatName}" بنجاح تحت (${mainCat})!`);
+
+      products.push({ id: Date.now(), name: `صنف افتراضي في ${subName}`, mainCat: mainCat, subCat: subName, unit: "حبة", boxQty: 1, stock: 10, images: [] });
+      localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+      renderSidebarCategories();
+      displayProducts(products);
+      
       document.getElementById('modal-new-subcat').value = '';
       closeModal('subcat-modal');
+      alert(`تم إضافة القسم الفرعي "${subName}" بنجاح!`);
+    }
+
+    function editMainCat(oldName) {
+      let newName = prompt(`تعديل اسم القسم الرئيسي (${oldName}):`, oldName);
+      if (newName && newName.trim() !== "" && newName !== oldName) {
+        products.forEach(p => {
+          if (p.mainCat === oldName) p.mainCat = newName.trim();
+        });
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        displayProducts(products);
+        alert("تم تعديل اسم القسم بنجاح!");
+      }
+    }
+
+    function addNewProductPage() {
+      window.location.href = "add-product.html";
+    }
+
+    function toggleFreezeProduct(id) {
+      const prod = products.find(p => p.id === id);
+      if (prod) {
+        if (prod.stock > 0) {
+          prod.stock = 0; 
+          alert(`تم تجميد الصنف (${prod.name}) عن الطلب بنجاح.`);
+        } else {
+          prod.stock = 10; 
+          alert(`تم إلغاء تجميد الصنف (${prod.name}) وعودته للطلب.`);
+        }
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        displayProducts(products);
+      }
+    }
+
+    function deleteProduct(id) {
+      if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        displayProducts(products);
+      }
+    }
+
+    function deleteSubCat(mainCat, subCat) {
+      if (confirm(`هل أنت متأكد من حذف القسم الفرعي (${subCat})؟`)) {
+        products = products.filter(p => !(p.mainCat === mainCat && p.subCat === subCat));
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        renderSidebarCategories();
+        displayProducts(products);
+      }
+    }
+
+    function updateCartBadge() {
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById('cart-count').innerText = totalCount;
     }
 
     function openCartModal() {
       const container = document.getElementById('cart-items-container');
-      container.innerHTML = cart.length === 0 ? '<p style="text-align:center; color:#a0aec0;">قائمة الطلب فارغة</p>' : '';
-      cart.forEach((item, i) => {
-        container.innerHTML += `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #edf2f7;"><span>${item.name}</span><button onclick="removeFromCart(${i})" style="background:none; border:none; color:red; cursor:pointer;">حذف</button></div>`;
-      });
+      container.innerHTML = '';
+      if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#a0aec0;">قائمة الطلب فارغة حالياً</p>';
+      } else {
+        cart.forEach((item, index) => {
+          container.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #edf2f7;">
+              <div>
+                <strong>${item.name}</strong><br>
+                <small style="color:#718096;">الكمية: ${item.qty} ${item.unit}</small>
+              </div>
+              <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-weight:bold;">🗑️</button>
+            </div>
+          `;
+        });
+      }
       document.getElementById('cart-modal').style.display = 'flex';
     }
 
-    function removeFromCart(i) {
-      cart.splice(i, 1);
+    function removeFromCart(index) {
+      cart.splice(index, 1);
       localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       openCartModal();
     }
 
-    function updateCartBadge() {
-      document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+    function sendCartToWhatsApp() {
+      if (cart.length === 0) return alert("قائمة الطلب فارغة!");
+      let text = "مرحباً، أود طلب المنتجات التالية:\n\n";
+      cart.forEach((item, i) => {
+        text += `${i+1}- ${item.name} (الكمية: ${item.qty} ${item.unit})\n`;
+      });
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
-    function sendCartToWhatsApp() {
-      if (cart.length === 0) return alert("السلة فارغة");
-      let msg = "طلب جديد:\n" + cart.map(i => `- ${i.name}`).join('\n');
-      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
     }
   </script>
 </body>
