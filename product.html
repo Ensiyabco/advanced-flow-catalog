@@ -3,18 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تفاصيل المنتج | الأنسياب المتقدم</title>
+  <title>تفاصيل المنتج وإدارة المخزون | الأنسياب المتقدم</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
+
+  <style>
+    .inventory-panel {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .inventory-panel h4 {
+      margin-top: 0;
+      color: #1b365d;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .inv-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .inv-row label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4a5568;
+      width: 110px;
+    }
+    .inv-row input, .inv-row select {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+      font-family: 'Cairo', sans-serif;
+    }
+    .save-inv-btn {
+      background: #2f855a;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      width: 100%;
+    }
+    .save-inv-btn:hover {
+      background: #276749;
+    }
+  </style>
 </head>
 <body>
 
   <header>
     <a href="index.html" class="logo-container">
-      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100%\' height=\'100%\' fill=\'%23edf2f7\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%23a0aec0\' text-anchor=\'middle\' dominant-baseline=\'middle\'>لا توجد صورة</text></svg>'">
       <div class="brand-title">
         <h1>الأنسياب المتقدم</h1>
         <p>أدوات ولوازم الغاز والرحلات</p>
@@ -31,9 +80,7 @@
   </header>
 
   <div class="main-container">
-    <div id="product-details-container">
-      <!-- يتم حقن تفاصيل المنتج هنا ديناميكياً -->
-    </div>
+    <div id="product-details-container"></div>
   </div>
 
   <!-- مودال السلة -->
@@ -48,13 +95,11 @@
     </div>
   </div>
 
-  <!-- نافذة تكبير الصور (Lightbox) -->
+  <!-- نافذة تكبير الصور -->
   <div class="image-lightbox-overlay" id="image-lightbox" onclick="closeLightbox()">
     <div class="image-lightbox-content" onclick="event.stopPropagation()">
       <button class="lightbox-close-btn" onclick="closeLightbox()">✕</button>
-      <button class="lightbox-nav-btn lightbox-prev" onclick="changeLightboxImage(-1)">&#10095;</button>
       <img id="lightbox-img-src" src="" alt="صورة مكبرة">
-      <button class="lightbox-nav-btn lightbox-next" onclick="changeLightboxImage(1)">&#10094;</button>
       <p id="lightbox-title" style="margin-top:10px; font-weight:800; color:#1b365d; text-align:center;"></p>
     </div>
   </div>
@@ -65,17 +110,15 @@
 
   <script>
     const defaultProducts = [
-      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 8, images: ["https://i.imgur.com/7A26w6i.png"] },
-      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 3, images: ["https://i.imgur.com/7A26w6i.png"] },
-      { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, stock: 0, images: ["https://i.imgur.com/7A26w6i.png"] }
+      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 8, images: [] },
+      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 3, images: [] },
+      { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, stock: 0, images: [] },
+      { id: 4, name: "جالون 10 لتر", mainCat: "ادوات ولوازم الرحلات", subCat: "دواوين وسطول", unit: "حبة", boxQty: 6, stock: 12, images: [] }
     ];
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
-
-    let currentLightboxImages = [];
-    let currentLightboxIndex = 0;
-    let currentLightboxTitle = "";
+    const placeholderSvg = "data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'><rect width=\'100%\' height=\'100%\' fill=\'%23f1f5f9\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>الأنسياب المتقدم</text></svg>";
 
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -88,55 +131,46 @@
     function renderProductDetails(prod) {
       const container = document.getElementById('product-details-container');
       
-      let images = prod.images && prod.images.length > 0 ? prod.images : ['https://i.imgur.com/7A26w6i.png'];
+      let images = prod.images && prod.images.length > 0 && prod.images[0].trim() !== '' ? prod.images : [placeholderSvg];
       const mainImg = images[0];
-
-      let thumbsHtml = '';
-      if (images.length > 1) {
-        thumbsHtml = `<div class="product-thumbnails">`;
-        images.forEach((img, idx) => {
-          thumbsHtml += `<img src="${img}" class="thumb-img ${idx === 0 ? 'active-thumb' : ''}" onclick="changeMainImage('${img}', this)">`;
-        });
-        thumbsHtml += `</div>`;
-      }
 
       let stockQty = prod.stock !== undefined ? prod.stock : 10;
       let stockHtml = '';
       let isOutOfStock = false;
 
       if (stockQty > 5) {
-        stockHtml = `<div class="stock-badge badge-available">متوفر بالمخزن (${stockQty} قطع متاحة)</div>`;
+        stockHtml = `<div class="stock-badge badge-available" style="color:#0288d1; font-weight:700; margin-bottom:10px;">متوفر بالمخزن (${stockQty} قطع متاحة)</div>`;
       } else if (stockQty > 0 && stockQty <= 5) {
-        stockHtml = `<div class="stock-badge badge-low-stock">باقي عدد محدود (${stockQty} قطع فقط)</div>`;
+        stockHtml = `<div class="stock-badge badge-low-stock" style="color:#f57c00; font-weight:700; margin-bottom:10px;">باقي عدد محدود (${stockQty} قطع فقط)</div>`;
       } else {
-        stockHtml = `<div class="stock-badge badge-out-of-stock">نفذت الكمية</div>`;
+        stockHtml = `<div class="stock-badge badge-out-of-stock" style="color:#c62828; font-weight:700; margin-bottom:10px;">نفذت الكمية</div>`;
         isOutOfStock = true;
       }
 
       container.innerHTML = `
-        <div class="product-details-card">
-          <div class="product-gallery-section">
-            <div class="main-img-container" onclick="openLightbox(${prod.id})" title="اضغط لتكبير الصور">
-              <img id="active-product-img" src="${mainImg}" alt="${prod.name}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+        <div class="product-details-card" style="display:flex; gap:30px; background:#fff; padding:20px; border-radius:10px; border:1px solid #e2e8f0; flex-wrap:wrap;">
+          <div class="product-gallery-section" style="flex:1; min-width:280px;">
+            <div class="main-img-container" onclick="openLightbox('${mainImg}', '${prod.name}')" style="cursor:pointer; background:#f8fafc; border-radius:8px; padding:10px; text-align:center;">
+              <img id="active-product-img" src="${mainImg}" alt="${prod.name}" style="max-height:300px; width:100%; object-fit:contain;" onerror="this.src='${placeholderSvg}'">
             </div>
-            ${thumbsHtml}
+            <p style="text-align:center; font-size:12px; color:#a0aec0; margin-top:5px;">اضغط على الصورة لتكبيرها</p>
           </div>
 
-          <div class="product-info-section">
-            <div class="product-category-path">${prod.mainCat} ${prod.subCat ? ' / ' + prod.subCat : ''}</div>
-            <div class="product-title">${prod.name}</div>
+          <div class="product-info-section" style="flex:1; min-width:280px;">
+            <div class="product-category-path" style="color:#718096; font-size:13px; margin-bottom:5px;">${prod.mainCat} ${prod.subCat ? ' / ' + prod.subCat : ''}</div>
+            <h2 class="product-title" style="color:#1b365d; font-size:22px; font-weight:900; margin-top:0;">${prod.name}</h2>
             
             ${stockHtml}
 
-            <div class="product-specs-table">
-              <div class="spec-item"><label>وحدة القياس</label><span>${prod.unit || 'حبة'}</span></div>
-              <div class="spec-item"><label>شد الكرتون</label><span>${prod.boxQty || 1}</span></div>
+            <div class="product-specs-table" style="background:#f8fafc; padding:10px; border-radius:6px; margin-bottom:15px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span style="color:#718096;">وحدة القياس:</span><strong>${prod.unit || 'حبة'}</strong></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:#718096;">شد الكرتون:</span><strong>${prod.boxQty || 1}</strong></div>
             </div>
 
-            <div class="quantity-control">
-              <label>الكمية:</label>
-              <input type="number" id="product-qty" value="1" min="1" ${isOutOfStock ? 'disabled' : ''}>
-              <select id="product-unit" ${isOutOfStock ? 'disabled' : ''}>
+            <div class="quantity-control" style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+              <label style="font-weight:700;">الكمية للطلب:</label>
+              <input type="number" id="product-qty" value="1" min="1" style="width:70px; padding:6px; border:1px solid #cbd5e0; border-radius:4px;" ${isOutOfStock ? 'disabled' : ''}>
+              <select id="product-unit" style="padding:6px; border:1px solid #cbd5e0; border-radius:4px;" ${isOutOfStock ? 'disabled' : ''}>
                 <option value="حبة" ${prod.unit === 'حبة' ? 'selected' : ''}>حبة</option>
                 <option value="علبة" ${prod.unit === 'علبة' ? 'selected' : ''}>علبة</option>
                 <option value="كرتون" ${prod.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
@@ -148,49 +182,62 @@
               </select>
             </div>
 
-            <button class="add-to-cart-btn" id="add-to-cart-btn" onclick="addCurrentProductToCart(${prod.id}, '${prod.name}')" ${isOutOfStock ? 'disabled' : ''}>
-              ${isOutOfStock ? 'المنتج غير متوفر حالياً (نفذت الكمية)' : 'إضافة إلى قائمة الطلب'}
+            <button class="add-to-cart-btn" onclick="addCurrentProductToCart(${prod.id}, '${prod.name}')" style="background:#1b365d; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:700; width:100%; cursor:pointer;" ${isOutOfStock ? 'disabled' : ''}>
+              ${isOutOfStock ? 'المنتج غير متوفر حالياً' : 'إضافة إلى قائمة الطلب'}
             </button>
+
+            <!-- لوحة إدارة وتحكم المخزون المباشر -->
+            <div class="inventory-panel">
+              <h4>⚙️ لوحة التحكم السريع بالمخزون</h4>
+              <div class="inv-row">
+                <label>الكمية بالمخزن:</label>
+                <input type="number" id="edit-stock" value="${stockQty}">
+              </div>
+              <div class="inv-row">
+                <label>شد الكرتون:</label>
+                <input type="number" id="edit-boxqty" value="${prod.boxQty || 1}">
+              </div>
+              <div class="inv-row">
+                <label>الوحدة الافتراضية:</label>
+                <select id="edit-unit">
+                  <option value="حبة" ${prod.unit === 'حبة' ? 'selected' : ''}>حبة</option>
+                  <option value="علبة" ${prod.unit === 'علبة' ? 'selected' : ''}>علبة</option>
+                  <option value="كرتون" ${prod.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
+                  <option value="درزن" ${prod.unit === 'درزن' ? 'selected' : ''}>درزن</option>
+                  <option value="لفة" ${prod.unit === 'لفة' ? 'selected' : ''}>لفة</option>
+                  <option value="متر" ${prod.unit === 'متر' ? 'selected' : ''}>متر</option>
+                  <option value="ربطة" ${prod.unit === 'ربطة' ? 'selected' : ''}>ربطة</option>
+                  <option value="بالة" ${prod.unit === 'بالة' ? 'selected' : ''}>بالة</option>
+                </select>
+              </div>
+              <button class="save-inv-btn" onclick="saveInventoryChanges(${prod.id})">حفظ التغييرات وتحديث المخزون</button>
+            </div>
+
           </div>
         </div>
       `;
     }
 
-    function changeMainImage(imgSrc, thumbElement) {
-      document.getElementById('active-product-img').src = imgSrc;
-      document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active-thumb'));
-      thumbElement.classList.add('active-thumb');
-    }
+    function saveInventoryChanges(prodId) {
+      const newStock = parseInt(document.getElementById('edit-stock').value) || 0;
+      const newBoxQty = parseInt(document.getElementById('edit-boxqty').value) || 1;
+      const newUnit = document.getElementById('edit-unit').value;
 
-    function openLightbox(prodId) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const prodIdParam = parseInt(urlParams.get('id')) || prodId;
-      const prod = products.find(p => p.id === prodIdParam) || products[0];
-
-      currentLightboxImages = prod.images && prod.images.length > 0 ? prod.images : ['https://i.imgur.com/7A26w6i.png'];
-      currentLightboxTitle = prod.name;
-
-      const activeSrc = document.getElementById('active-product-img').src;
-      currentLightboxIndex = currentLightboxImages.indexOf(activeSrc);
-      if (currentLightboxIndex === -1) currentLightboxIndex = 0;
-
-      updateLightboxDisplay();
-      document.getElementById('image-lightbox').style.display = 'flex';
-    }
-
-    function updateLightboxDisplay() {
-      document.getElementById('lightbox-img-src').src = currentLightboxImages[currentLightboxIndex];
-      document.getElementById('lightbox-title').innerText = `${currentLightboxTitle} (${currentLightboxIndex + 1} من ${currentLightboxImages.length})`;
-    }
-
-    function changeLightboxImage(direction) {
-      currentLightboxIndex += direction;
-      if (currentLightboxIndex >= currentLightboxImages.length) {
-        currentLightboxIndex = 0;
-      } else if (currentLightboxIndex < 0) {
-        currentLightboxIndex = currentLightboxImages.length - 1;
+      const prod = products.find(p => p.id === prodId);
+      if (prod) {
+        prod.stock = newStock;
+        prod.boxQty = newBoxQty;
+        prod.unit = newUnit;
+        localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
+        alert("تم تحديث المخزون والبيانات بنجاح!");
+        renderProductDetails(prod);
       }
-      updateLightboxDisplay();
+    }
+
+    function openLightbox(imgSrc, title) {
+      document.getElementById('lightbox-img-src').src = imgSrc;
+      document.getElementById('lightbox-title').innerText = title;
+      document.getElementById('image-lightbox').style.display = 'flex';
     }
 
     function closeLightbox() {
@@ -207,7 +254,7 @@
       } else {
         cart.push({ id, name, qty, unit });
       }
-      saveCartData();
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       alert("تمت إضافة المنتج إلى قائمة الطلب بنجاح!");
     }
@@ -215,10 +262,6 @@
     function updateCartBadge() {
       const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
       document.getElementById('cart-count').innerText = totalCount;
-    }
-
-    function saveCartData() {
-      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
     }
 
     function openCartModal() {
@@ -244,7 +287,7 @@
 
     function removeFromCart(index) {
       cart.splice(index, 1);
-      saveCartData();
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       openCartModal();
     }
@@ -255,8 +298,7 @@
       cart.forEach((item, i) => {
         text += `${i+1}- ${item.name} (الكمية: ${item.qty} ${item.unit})\n`;
       });
-      const encoded = encodeURIComponent(text);
-      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     function closeModal(modalId) {
