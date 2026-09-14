@@ -151,19 +151,26 @@
       border-color: #2b6cb0;
     }
 
+    /* خلفية مربعات الأقسام بشعار المؤسسة بشكل مائي / شفاف */
     .cat-img-box {
       width: 100%;
       height: 110px;
-      background: #f7fafc;
+      background-color: #f8fafc;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://via.placeholder.com/120x35?text=Logo');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 75px auto;
       border-radius: 6px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
+      padding-bottom: 8px;
       margin-bottom: 12px;
       border: 1px solid #edf2f7;
       color: #1b365d;
       font-weight: bold;
-      font-size: 15px;
+      font-size: 11px;
+      opacity: 0.95;
     }
 
     .main-cat-card h3 {
@@ -301,17 +308,23 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
 
+    /* خلفية صور المنتجات بشعار المؤسسة بشكل مائي / شفاف */
     .product-img-box {
       width: 100%;
       height: 130px;
-      background: #f7fafc;
+      background-color: #f8fafc;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://via.placeholder.com/120x35?text=Logo');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 85px auto;
       border-radius: 6px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
+      padding-bottom: 8px;
       margin-bottom: 10px;
-      font-size: 12px;
-      color: #a0aec0;
+      font-size: 11px;
+      color: #718096;
       border: 1px solid #edf2f7;
     }
 
@@ -416,7 +429,6 @@
 <body>
 
   <header>
-    <!-- ضغطة واحدة تفتح الرئيسية، وضغطتان (دبل كليك) لتفعيل الأدمن -->
     <div class="logo-container" id="site-logo" onclick="showPage('home')" ondblclick="toggleAdmin()" title="ضغطة واحدة للرئيسية | ضغطتان لتفعيل الأدمن">
       <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
@@ -584,7 +596,6 @@
       renderProducts();
     }
 
-    // تفعيل الأدمن بضغطتين متتاليتين مع كلمة مرور (admin123)
     function toggleAdmin() {
       if (!isAdmin) {
         let password = prompt("الرجاء إدخال كلمة مرور الأدمن:");
@@ -620,7 +631,7 @@
         card.className = 'main-cat-card';
         card.onclick = () => openCategoryProducts(cat);
         card.innerHTML = `
-          <div class="cat-img-box"><span>الأنسياب</span></div>
+          <div class="cat-img-box">الأنسياب المتقدم</div>
           <h3>${cat}</h3>
         `;
         grid.appendChild(card);
