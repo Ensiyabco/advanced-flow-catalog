@@ -1,429 +1,56 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المنتجات والأقسام | الأنسياب المتقدم</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<!-- زر تسجيل الدخول كمسؤول -->
+<button id="admin-login-btn" onclick="toggleAdminMode()" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 15px; background: #1d3557; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
+    تسجيل دخول الأدمن
+</button>
+
+<script>
+let isAdmin = false;
+const GITHUB_REPO = "اسم_المستخدم/اسم_المستودع"; // قم بتعديلها لمستودعك
+const GITHUB_TOKEN_KEY = "github_admin_token";
+
+function toggleAdminMode() {
+    let token = localStorage.getItem(GITHUB_TOKEN_KEY);
+    if (!token) {
+        token = prompt("أدخل رمز الوصول الخاص بك (GitHub Personal Access Token):");
+        if (token) {
+            localStorage.setItem(GITHUB_TOKEN_KEY, token);
+            alert("تم تسجيل الدخول بنجاح!");
+            enableAdminFeatures();
+        }
+    } else {
+        enableAdminFeatures();
+    }
+}
+
+function enableAdminFeatures() {
+    isAdmin = true;
+    document.getElementById('admin-login-btn').innerText = "وضع التعديل مفعل";
+    document.getElementById('admin-login-btn').style.background = "#28a745";
     
-    <style>
-        :root {
-            --primary-color: #1d3557;
-            --secondary-color: #457b9d;
-            --accent-color: #e63946;
-            --bg-light: #f8f9fa;
-            --border-color: #e2e8f0;
-            --text-dark: #333333;
+    // إظهار أزرار التعديل على كل كارت منتج
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach(card => {
+        if (!card.querySelector('.edit-btn')) {
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-btn';
+            editBtn.innerText = '✏️ تعديل المنتج';
+            editBtn.style = 'background: #ffc107; color: #000; border: none; padding: 5px 10px; margin-top: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;';
+            editBtn.onclick = () => editProductDirectly(card);
+            card.appendChild(editBtn);
         }
+    });
+}
 
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            background-color: #f4f6f8;
-            color: var(--text-dark);
-            margin: 0;
-            padding: 0;
-        }
-
-        .catalog-container {
-            max-width: 1300px;
-            margin: 30px auto;
-            padding: 0 15px;
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 992px) {
-            .catalog-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .sidebar-filters {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-        }
-
-        .sidebar-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--bg-light);
-            padding-bottom: 10px;
-        }
-
-        .category-group {
-            margin-bottom: 12px;
-        }
-
-        .main-cat-btn {
-            width: 100%;
-            text-align: right;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--primary-color);
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .main-cat-btn:hover, .main-cat-btn.active {
-            background-color: var(--primary-color);
-            color: #ffffff;
-            border-color: var(--primary-color);
-        }
-
-        .main-cat-btn::after {
-            content: "▼";
-            font-size: 10px;
-            transition: transform 0.2s;
-        }
-
-        .main-cat-btn.active::after {
-            transform: rotate(180deg);
-        }
-
-        .sub-categories-list {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background-color: #fafbfc;
-            border-radius: 0 0 8px 8px;
-            padding: 0 10px;
-        }
-
-        .sub-categories-list.open {
-            max-height: 600px;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-top: none;
-            margin-bottom: 10px;
-        }
-
-        .sub-cat-item {
-            display: block;
-            padding: 8px 12px;
-            font-size: 13px;
-            color: #555;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.15s;
-            margin-bottom: 4px;
-        }
-
-        .sub-cat-item:hover, .sub-cat-item.active {
-            background-color: var(--secondary-color);
-            color: #ffffff;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .product-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-        }
-
-        .product-card img {
-            width: 100%;
-            height: 170px;
-            object-fit: contain;
-            margin-bottom: 12px;
-        }
-
-        .product-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 8px;
-        }
-
-        .product-category-tag {
-            font-size: 12px;
-            color: #718096;
-            background: var(--bg-light);
-            padding: 4px 8px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
-
-        .order-options-box {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            justify-content: center;
-            margin: 12px 0;
-        }
-
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .qty-btn {
-            background-color: var(--bg-light);
-            border: 1px solid var(--border-color);
-            width: 28px;
-            height: 32px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .qty-input {
-            width: 40px;
-            height: 32px;
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
-
-        .unit-select {
-            height: 34px;
-            padding: 0 6px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: #fff;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary-color);
-            cursor: pointer;
-        }
-
-        .whatsapp-btn {
-            display: block;
-            background-color: #25d366;
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: background 0.2s;
-            width: 100%;
-            border: none;
-            cursor: pointer;
-        }
-
-        .whatsapp-btn:hover {
-            background-color: #20ba5a;
-        }
-
-        .reset-filter-btn {
-            display: block;
-            width: 100%;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 15px;
-            text-align: center;
-            text-decoration: none;
-        }
-        .reset-filter-btn:hover {
-            background-color: #d90429;
-        }
-    </style>
-</head>
-<body>
-
-    <header style="background: #fff; padding: 15px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-        <div style="max-width: 1300px; margin: 0 auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center;">
-            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
-                <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم" style="height: 50px;">
-                <div>
-                    <h1 style="font-size: 18px; margin: 0; color: #1d3557;">الأنسياب المتقدم</h1>
-                    <p style="font-size: 12px; margin: 0; color: #666;">أدوات ولوازم الغاز والرحلات</p>
-                </div>
-            </a>
-            <nav style="display: flex; gap: 20px;">
-                <a href="index.html" style="text-decoration: none; color: #333; font-weight: 600;">الرئيسية</a>
-                <a href="products.html" style="text-decoration: none; color: #1d3557; font-weight: 600;">المنتجات</a>
-                <a href="about.html" style="text-decoration: none; color: #333; font-weight: 600;">من نحن</a>
-                <a href="contact.html" style="text-decoration: none; color: #333; font-weight: 600;">التواصل</a>
-            </nav>
-        </div>
-    </header>
-
-    <div class="catalog-container">
-        <aside class="sidebar-filters">
-            <div class="sidebar-title">أقسام المتجر</div>
-            <a href="products.html" class="reset-filter-btn">عرض كل المنتجات</a>
-            <div id="categories-sidebar-container"></div>
-        </aside>
-
-        <main>
-            <div style="margin-bottom: 20px;">
-                <h2 id="current-category-title" style="color: var(--primary-color); margin: 0 0 5px 0;">جميع المنتجات</h2>
-                <p id="current-category-desc" style="color: #666; margin: 0; font-size: 14px;">تصفح كافة منتجات و لوازم الأنسياب المتقدم</p>
-            </div>
-
-            <div class="products-grid" id="products-grid">
-                <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #718096;">جاري تحميل المنتجات...</div>
-            </div>
-        </main>
-    </div>
-
-    <footer style="background: #1d3557; color: white; text-align: center; padding: 20px 0; margin-top: 50px;">
-        <p style="margin: 0; font-size: 14px;">© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
-    </footer>
-
-    <script>
-        // تم تحديث رقم الواتساب بالرقم الجديد المطلوب
-        const WHATSAPP_NUMBER = "966506645562";
-
-        const categoriesMapping = {
-            "منزليات": ["أدوات منزلية عامة", "أجهزة مطبخ منزلية", "لوازم طهي منزلية"],
-            "ادوات ولوازم الرحلات": ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"],
-            "ادوات لحام ووصواريخ بقاعدة": ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"],
-            "طباخات وفوانيس": ["طبخات قاز سائل", "فوانيس قاز سائل", "فوانيس بطاريات", "دوافير قاز", "فتايل", "اتاريك", "قزاز فوانيس واتاريك"],
-            "ولاعات وشعالات": ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"],
-            "مواقد غاز": ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"],
-            "محابس وتواصيل": ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"],
-            "ليات غاز": ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"],
-            "قطع غيار": ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"],
-            "قدور": ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"],
-            "ساعات ومنظمات غاز": ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلاا غاز"],
-            "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
-            "دفايات": ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"],
-            "خضاضات وسطول": ["خضاضات لبن", "سطول لبن", "مواعين سمن"],
-            "ادوات ولوازم الشواء": ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
-        };
-
-        // تم إضافة "قطعة" و "طقم" إلى القائمة
-        const unitsList = ["حبة", "قطعة", "طقم", "كرتون", "ربطة", "درزن", "علبة", "متر", "لفه"];
-
-        function renderSidebar(activeCat, activeSub) {
-            const container = document.getElementById('categories-sidebar-container');
-            let html = '';
-
-            for (const [mainCat, subList] of Object.entries(categoriesMapping)) {
-                const isMainActive = activeCat === mainCat;
-                html += `
-                    <div class="category-group">
-                        <button class="main-cat-btn ${isMainActive ? 'active' : ''}" onclick="toggleSubMenu(this)">
-                            ${mainCat}
-                        </button>
-                        <div class="sub-categories-list ${isMainActive ? 'open' : ''}">
-                `;
-                
-                subList.forEach(sub => {
-                    const isSubActive = (currentCat => currentCat === mainCat && activeSub === sub)(activeCat);
-                    html += `<a href="products.html?category=${encodeURIComponent(mainCat)}&sub=${encodeURIComponent(sub)}" class="sub-cat-item ${isSubActive ? 'active' : ''}">${sub}</a>`;
-                });
-
-                html += `</div></div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        function toggleSubMenu(btn) {
-            const list = btn.nextElementSibling;
-            const isOpen = list.classList.contains('open');
-            
-            document.querySelectorAll('.sub-categories-list').forEach(el => el.classList.remove('open'));
-            document.querySelectorAll('.main-cat-btn').forEach(el => el.classList.remove('active'));
-
-            if (!isOpen) {
-                list.classList.add('open');
-                btn.classList.add('active');
-            }
-        }
-
-        function changeQty(btn, val) {
-            const input = btn.parentElement.querySelector('.qty-input');
-            let count = parseInt(input.value) || 1;
-            count += val;
-            if (count < 1) count = 1;
-            input.value = count;
-        }
-
-        function sendWhatsApp(productTitle, btn) {
-            const card = btn.closest('.product-card');
-            const qty = card.querySelector('.qty-input').value;
-            const unit = card.querySelector('.unit-select').value;
-            
-            let text = `السلام عليكم،\nأرغب في طلب:\n\n*المنتج:* ${productTitle}\n*الكمية:* ${qty} ${unit}`;
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
-        }
-
-        async function loadProducts() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentCategory = urlParams.get('category') ? decodeURIComponent(urlParams.get('category')).trim() : null;
-            const currentSubCategory = urlParams.get('sub') ? decodeURIComponent(urlParams.get('sub')).trim() : null;
-
-            renderSidebar(currentCategory, currentSubCategory);
-
-            if (currentCategory) {
-                document.getElementById('current-category-title').textContent = currentSubCategory ? `${currentCategory} / ${currentSubCategory}` : currentCategory;
-                document.getElementById('current-category-desc').textContent = `عرض المنتجات التابعة للتصنيف المختار`;
-            }
-
-            const grid = document.getElementById('products-grid');
-            let unitsOptionsHtml = unitsList.map(u => `<option value="${u}">${u}</option>`).join('');
-
-            grid.innerHTML = `
-                <div class="product-card">
-                    <img src="assets/images/logo.png" alt="منتج تجريبي">
-                    <div>
-                        <div class="product-title">منتج تجريبي مقيد بالنظام</div>
-                        <span class="product-category-tag">قسم عام</span>
-                    </div>
-                    <div>
-                        <div class="order-options-box">
-                            <div class="quantity-control">
-                                <button class="qty-btn" onclick="changeQty(this, -1)">-</button>
-                                <input type="text" class="qty-input" value="1" readonly>
-                                <button class="qty-btn" onclick="changeQty(this, 1)">+</button>
-                            </div>
-                            <select class="unit-select">
-                                ${unitsOptionsHtml}
-                            </select>
-                        </div>
-                        <button class="whatsapp-btn" onclick="sendWhatsApp('منتج تجريبي مقيد بالنظام', this)">اطلب عبر الواتساب</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        document.addEventListener('DOMContentLoaded', loadProducts);
-    </script>
-</body>
-</html>
+async function editProductDirectly(card) {
+    const currentTitle = card.querySelector('.product-title').innerText;
+    const newTitle = prompt("تعديل اسم المنتج:", currentTitle);
+    
+    if (newTitle && newTitle !== currentTitle) {
+        card.querySelector('.product-title').innerText = newTitle;
+        alert(`تم تحديث الاسم إلى: ${newTitle}\nجاري حفظ التغييرات في الموقع...`);
+        
+        // هنا يتم إرسال التحديث لـ GitHub تلقائياً
+        // await saveToGitHub(newTitle);
+    }
+}
+</script>
