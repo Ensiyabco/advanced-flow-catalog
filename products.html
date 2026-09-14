@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</title>
+  <title>الأنسياب المتقدم | المنتجات والكتالوج</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +49,7 @@
       align-items: center;
       gap: 12px;
       cursor: pointer;
+      text-decoration: none;
       user-select: none;
     }
 
@@ -111,137 +112,6 @@
       border-radius: 50%;
       padding: 2px 7px;
       font-size: 11px;
-    }
-
-    #home-page {
-      display: block;
-    }
-
-    .hero-banner {
-      background: linear-gradient(135deg, #1b365d, #2c5282);
-      color: white;
-      text-align: center;
-      padding: 60px 20px 70px 20px;
-      margin-bottom: 35px;
-      box-shadow: inset 0 -10px 20px rgba(0,0,0,0.05);
-    }
-
-    .hero-banner h1 {
-      font-size: 32px;
-      margin-bottom: 12px;
-      font-weight: 800;
-    }
-
-    .hero-banner p {
-      font-size: 16px;
-      opacity: 0.9;
-      margin-bottom: 30px;
-      font-weight: 600;
-    }
-
-    .search-box-container {
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .search-box-container input {
-      width: 100%;
-      padding: 14px 24px;
-      border-radius: 35px;
-      border: none;
-      font-size: 14px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 600;
-      text-align: right;
-      outline: none;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      transition: transform 0.2s;
-    }
-
-    .search-box-container input:focus {
-      transform: scale(1.02);
-    }
-
-    .section-title-container {
-      max-width: 1240px;
-      margin: 0 auto 20px auto;
-      padding: 0 20px;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .section-title-container h2 {
-      font-size: 20px;
-      color: #1b365d;
-      margin: 0;
-      font-weight: 800;
-      border-right: 4px solid #e53e3e;
-      padding-right: 10px;
-    }
-
-    .main-categories-grid {
-      max-width: 1240px;
-      margin: 0 auto 50px auto;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 22px;
-    }
-
-    .main-cat-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 20px 15px;
-      text-align: center;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .main-cat-card:hover {
-      transform: translateY(-6px);
-      border-color: #2b6cb0;
-      box-shadow: 0 10px 20px rgba(43, 108, 176, 0.1);
-    }
-
-    .cat-img-box {
-      width: 100%;
-      height: 120px;
-      background-color: #f8fafc;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 14px;
-      border: 1px solid #edf2f7;
-      padding: 10px;
-    }
-
-    .cat-img-box img {
-      max-width: 85%;
-      max-height: 90px;
-      object-fit: contain;
-      opacity: 0.9;
-      transition: transform 0.3s;
-    }
-
-    .main-cat-card:hover .cat-img-box img {
-      transform: scale(1.05);
-    }
-
-    .main-cat-card h3 {
-      font-size: 15px;
-      margin: 0;
-      color: #2d3748;
-      font-weight: 700;
-    }
-
-    #products-page {
-      display: none;
     }
 
     .products-wrapper {
@@ -414,7 +284,6 @@
       max-width: 85%;
       max-height: 105px;
       object-fit: contain;
-      opacity: 0.9;
     }
 
     .product-title {
@@ -617,16 +486,7 @@
       margin-top: 60px;
     }
 
-    @media (max-width: 992px) {
-      .main-categories-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
     @media (max-width: 768px) {
-      .main-categories-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
       .products-wrapper {
         flex-direction: column;
       }
@@ -642,61 +502,43 @@
 <body>
 
   <header>
-    <div class="logo-container" id="site-logo" onclick="showPage('home')" ondblclick="toggleAdmin()" title="ضغطة واحدة للرئيسية | ضغطتان لتفعيل الأدمن">
-      <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
+    <a href="index.html" class="logo-container" ondblclick="toggleAdmin()" title="ضغطتان لتفعيل وضع الأدمن">
+      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
-    </div>
+    </a>
     <div style="display: flex; align-items: center; gap: 15px;">
       <button class="cart-btn-header" onclick="openCartModal()">
         <span>قائمة الطلب</span>
         <span class="cart-badge" id="cart-count">0</span>
       </button>
       <nav class="nav-links">
-        <a href="#" id="nav-home" class="active" onclick="showPage('home')">الرئيسية</a>
-        <a href="#" id="nav-products" onclick="showPage('products')">المنتجات</a>
+        <a href="index.html">الرئيسية</a>
+        <a href="products.html" class="active">المنتجات</a>
       </nav>
     </div>
   </header>
 
-  <div id="home-page">
-    <div class="hero-banner">
-      <h1>أفضل أدوات الغاز والرحلات... جودة تعتمد عليها</h1>
-      <p>نوفر كل ما تحتاجه للغاز، الرحلات، الشواء، ولوازم الكشتات بأفضل المواصفات</p>
-      <div class="search-box-container">
-        <input type="text" placeholder="ابحث عن منتج أو قسم في الكتالوج..." id="search-input" oninput="handleSearch(this.value)">
+  <div class="products-wrapper">
+    
+    <aside class="sidebar">
+      <div class="sidebar-title">أقسام المتجر</div>
+      <button class="btn-all-products" onclick="selectCategory('الكل')">عرض كل المنتجات</button>
+      <div id="categories-tree"></div>
+    </aside>
+
+    <main class="content-area">
+      <div class="section-header">
+        <h2 id="current-cat-title">مواقد غاز</h2>
+        <p>استعرض المنتجات والمستلزمات التابعة للتصنيف المختار بكل سهولة</p>
       </div>
-    </div>
 
-    <div class="section-title-container">
-      <h2>تصفح الأقسام الرئيسية</h2>
-    </div>
+      <div class="admin-controls">
+        <button class="admin-btn btn-add" onclick="openAddModal()">+ إضافة منتج جديد</button>
+      </div>
 
-    <div class="main-categories-grid" id="home-categories-grid"></div>
-  </div>
+      <div class="products-grid" id="products-container"></div>
+    </main>
 
-  <div id="products-page">
-    <div class="products-wrapper">
-      
-      <aside class="sidebar">
-        <div class="sidebar-title">أقسام المتجر</div>
-        <button class="btn-all-products" onclick="selectCategory('الكل')">عرض كل المنتجات</button>
-        <div id="categories-tree"></div>
-      </aside>
-
-      <main class="content-area">
-        <div class="section-header">
-          <h2 id="current-cat-title">مواقد غاز</h2>
-          <p>استعرض المنتجات والمستلزمات التابعة للتصنيف المختار بكل سهولة</p>
-        </div>
-
-        <div class="admin-controls">
-          <button class="admin-btn btn-add" onclick="openAddModal()">+ إضافة منتج جديد</button>
-        </div>
-
-        <div class="products-grid" id="products-container"></div>
-      </main>
-
-    </div>
   </div>
 
   <!-- نافذة قائمة الطلب (السلة) -->
@@ -792,107 +634,47 @@
       { id: 2, name: "موقد غاز منزلي عالي الأداء", category: "مواقد غاز منزلية", unit: "كرتون", pack: 12 }
     ];
 
-    let cart = []; 
+    let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
     let currentSelectedCategory = "مسدسات لحام ايطالي";
     let isAdmin = false;
 
-    function showPage(pageId) {
-      document.getElementById('home-page').style.display = pageId === 'home' ? 'block' : 'none';
-      document.getElementById('products-page').style.display = pageId === 'products' ? 'block' : 'none';
-      document.getElementById('nav-home').classList.toggle('active', pageId === 'home');
-      document.getElementById('nav-products').classList.toggle('active', pageId === 'products');
-      window.scrollTo(0, 0);
+    function getStoreLogoSrc() {
+      const logoImg = document.getElementById('logo-img');
+      return logoImg ? logoImg.src : 'assets/images/logo.png';
     }
-
-    function openCategoryProducts(catName) {
-      showPage('products');
-      if (storeCategories[catName] && storeCategories[catName].length > 0) {
-        selectCategory(storeCategories[catName][0]);
-      } else {
-        selectCategory(catName);
-      }
-      
-      const items = document.querySelectorAll('.category-item');
-      items.forEach(item => {
-        const header = item.querySelector('.category-header');
-        const subList = item.querySelector('.subcategory-list');
-        const mainCatText = header.querySelector('span:first-child').innerText;
-        
-        if (mainCatText === catName) {
-          subList.classList.add('open');
-          header.classList.add('active');
-        } else {
-          subList.classList.remove('open');
-          header.classList.remove('active');
-        }
-      });
-    }
-
-    function selectCategory(catName) {
-      currentSelectedCategory = catName;
-      document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
-      
-      document.querySelectorAll('.subcategory-item').forEach(el => {
-        if (el.innerText === catName) {
-          el.classList.add('active-sub');
-        } else {
-          el.classList.remove('active-sub');
-        }
-      });
-      renderProducts();
-    }
-
-    function toggleAdmin() {
-      if (!isAdmin) {
-        document.getElementById('admin-password').value = '';
-        document.getElementById('login-modal').style.display = 'flex';
-        document.getElementById('admin-password').focus();
-      } else {
-        isAdmin = false;
-        alert("تم الخروج من وضع الأدمن");
-        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = 'none');
-        renderProducts();
-      }
-    }
-
-    function closeLoginModal() {
-      document.getElementById('login-modal').style.display = 'none';
-    }
-
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const pass = document.getElementById('admin-password').value;
-      if (pass === "admin123") {
-        isAdmin = true;
-        closeLoginModal();
-        alert("تم تفعيل وضع الأدمن بنجاح");
-        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = 'block');
-        renderProducts();
-      } else {
-        alert("كلمة المرور غير صحيحة!");
-      }
-    });
 
     document.addEventListener('DOMContentLoaded', function() {
-      buildHomeCategories();
       buildSidebarCategories();
-      selectCategory("مسدسات لحام ايطالي");
+      updateCartBadge();
+
+      // التحقق من وجود معاملات في الرابط (مثل الضغط على قسم أو بحث من الرئيسية)
+      const urlParams = new URLSearchParams(window.location.search);
+      const catParam = urlParams.get('category');
+      const searchParam = urlParams.get('search');
+
+      if (searchParam) {
+        handleUrlSearch(searchParam);
+      } else if (catParam) {
+        selectCategory(catParam);
+        expandParentCategory(catParam);
+      } else {
+        selectCategory("مسدسات لحام ايطالي");
+      }
     });
 
-    function buildHomeCategories() {
-      const grid = document.getElementById('home-categories-grid');
-      grid.innerHTML = '';
-      Object.keys(storeCategories).forEach(cat => {
-        const card = document.createElement('div');
-        card.className = 'main-cat-card';
-        card.onclick = () => openCategoryProducts(cat);
-        card.innerHTML = `
-          <div class="cat-img-box">
-            <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المؤسسة">
-          </div>
-          <h3>${cat}</h3>
-        `;
-        grid.appendChild(card);
+    function expandParentCategory(subCatName) {
+      Object.keys(storeCategories).forEach(mainCat => {
+        if (storeCategories[mainCat].includes(subCatName)) {
+          const items = document.querySelectorAll('.category-item');
+          items.forEach(item => {
+            const header = item.querySelector('.category-header');
+            const subList = item.querySelector('.subcategory-list');
+            if (header.querySelector('span:first-child').innerText === mainCat) {
+              subList.classList.add('open');
+              header.classList.add('active');
+            }
+          });
+        }
       });
     }
 
@@ -940,58 +722,68 @@
       });
     }
 
-    function handleSearch(query) {
-      if (query.trim() !== '') {
-        showPage('products');
-        currentSelectedCategory = 'الكل';
-        document.getElementById('current-cat-title').innerText = `نتائج البحث عن: "${query}"`;
-        
-        const container = document.getElementById('products-container');
-        container.innerHTML = '';
-
-        const filtered = productsData.filter(p => p.name.includes(query) || p.category.includes(query));
-
-        if (filtered.length === 0) {
-          container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#a0aec0; padding:30px;">لا توجد منتجات مطابقة لبحثك.</p>';
-          return;
+    function selectCategory(catName) {
+      currentSelectedCategory = catName;
+      document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
+      
+      document.querySelectorAll('.subcategory-item').forEach(el => {
+        if (el.innerText === catName) {
+          el.classList.add('active-sub');
+        } else {
+          el.classList.remove('active-sub');
         }
+      });
+      renderProducts();
+    }
 
-        filtered.forEach(prod => {
-          const card = document.createElement('div');
-          card.className = 'product-card';
-          card.innerHTML = `
-            <div class="product-img-box">
-              <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المؤسسة">
-            </div>
-            <div class="product-title">${prod.name}</div>
-            
-            <div class="product-specs-box">
-              <div class="spec-item">
-                <span class="spec-label">الوحدة</span>
-                <span class="spec-value">${prod.unit}</span>
-              </div>
-              <div style="height:20px; width:1px; background:#e2e8f0;"></div>
-              <div class="spec-item">
-                <span class="spec-label">شد الكرتون</span>
-                <span class="spec-value">${prod.pack}</span>
-              </div>
-            </div>
+    function handleUrlSearch(query) {
+      currentSelectedCategory = 'الكل';
+      document.getElementById('current-cat-title').innerText = `نتائج البحث عن: "${query}"`;
+      
+      const container = document.getElementById('products-container');
+      container.innerHTML = '';
 
-            <div class="customer-qty-box">
-              <label>الكمية المطلوبة:</label>
-              <div class="qty-input-wrapper">
-                <input type="number" id="qty-${prod.id}" value="1" min="1">
-                <span class="qty-unit-text">${prod.unit}</span>
-              </div>
-            </div>
+      const filtered = productsData.filter(p => p.name.includes(query) || p.category.includes(query));
+      const logoSrc = getStoreLogoSrc();
 
-            <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}', '${prod.unit}')">إضافة إلى قائمة الطلب</button>
-          `;
-          container.appendChild(card);
-        });
-      } else {
-        selectCategory('مسدسات لحام ايطالي');
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#a0aec0; padding:30px;">لا توجد منتجات مطابقة لبحثك.</p>';
+        return;
       }
+
+      filtered.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="product-img-box">
+            <img src="${logoSrc}" alt="شعار المؤسسة" onerror="this.style.display='none'">
+          </div>
+          <div class="product-title">${prod.name}</div>
+          
+          <div class="product-specs-box">
+            <div class="spec-item">
+              <span class="spec-label">الوحدة</span>
+              <span class="spec-value">${prod.unit}</span>
+            </div>
+            <div style="height:20px; width:1px; background:#e2e8f0;"></div>
+            <div class="spec-item">
+              <span class="spec-label">شد الكرتون</span>
+              <span class="spec-value">${prod.pack}</span>
+            </div>
+          </div>
+
+          <div class="customer-qty-box">
+            <label>الكمية المطلوبة:</label>
+            <div class="qty-input-wrapper">
+              <input type="number" id="qty-${prod.id}" value="1" min="1">
+              <span class="qty-unit-text">${prod.unit}</span>
+            </div>
+          </div>
+
+          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}', '${prod.unit}')">إضافة إلى قائمة الطلب</button>
+        `;
+        container.appendChild(card);
+      });
     }
 
     function renderProducts() {
@@ -1008,12 +800,14 @@
         return;
       }
 
+      const logoSrc = getStoreLogoSrc();
+
       filtered.forEach(prod => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
           <div class="product-img-box">
-            <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المؤسسة">
+            <img src="${logoSrc}" alt="شعار المؤسسة" onerror="this.style.display='none'">
           </div>
           <div class="product-title">${prod.name}</div>
           
@@ -1050,6 +844,37 @@
       });
     }
 
+    function toggleAdmin() {
+      if (!isAdmin) {
+        document.getElementById('admin-password').value = '';
+        document.getElementById('login-modal').style.display = 'flex';
+        document.getElementById('admin-password').focus();
+      } else {
+        isAdmin = false;
+        alert("تم الخروج من وضع الأدمن");
+        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = 'none');
+        renderProducts();
+      }
+    }
+
+    function closeLoginModal() {
+      document.getElementById('login-modal').style.display = 'none';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pass = document.getElementById('admin-password').value;
+      if (pass === "admin123") {
+        isAdmin = true;
+        closeLoginModal();
+        alert("تم تفعيل وضع الأدمن بنجاح");
+        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = 'block');
+        renderProducts();
+      } else {
+        alert("كلمة المرور غير صحيحة!");
+      }
+    });
+
     function addToCart(prodId, prodName, prodUnit) {
       const qtyInput = document.getElementById(`qty-${prodId}`);
       const quantity = parseInt(qtyInput ? qtyInput.value : 1);
@@ -1066,6 +891,7 @@
         });
       }
 
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       alert(`تم إضافة "${prodName}" إلى قائمة الطلب بنجاح!`);
     }
@@ -1105,6 +931,7 @@
 
     function removeFromCart(prodId) {
       cart = cart.filter(item => item.id !== prodId);
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       openCartModal();
     }
