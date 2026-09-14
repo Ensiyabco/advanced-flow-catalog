@@ -78,6 +78,23 @@
       background-color: #1b365d;
     }
 
+    .admin-login-btn-header {
+      background: #edf2f7;
+      color: #1b365d;
+      border: 1px solid #cbd5e0;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.2s ease;
+    }
+
+    .admin-login-btn-header:hover {
+      background: #e2e8f0;
+    }
+
     .cart-btn-header {
       background-color: #2b6cb0;
       color: #fff;
@@ -504,6 +521,8 @@
       font-size: 13px;
       font-weight: 600;
       margin-top: 40px;
+      position: relative;
+      z-index: 100;
     }
 
     @media (max-width: 768px) {
@@ -548,11 +567,15 @@
       <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
       <div class="logo-text">الأنسياب المتقدم</div>
     </a>
-    <div style="display:flex; align-items:center; gap:15px;">
+    <div style="display:flex; align-items:center; gap:10px;">
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="products.html" class="active">المنتجات</a>
       </nav>
+      <!-- زر دخول المشرف المباشر -->
+      <button class="admin-login-btn-header" onclick="triggerAdminLogin()" id="header-admin-btn">
+        🔑 دخول المشرف
+      </button>
       <button class="cart-btn-header" onclick="openCartModal()">
         <span>قائمة الطلب</span>
         <span class="cart-badge" id="cart-count">0</span>
@@ -677,7 +700,11 @@
   </div>
 
   <footer>
-    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة | <span onclick="triggerAdminLogin()" style="cursor:pointer; opacity:0.8;" id="admin-login-link">تسجيل دخول المشرفين</span></p>
+    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة | 
+      <a href="javascript:void(0)" onclick="triggerAdminLogin()" id="admin-login-link" style="color: #63b3ed; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; padding: 2px 6px;">
+        تسجيل دخول المشرفين
+      </a>
+    </p>
   </footer>
 
   <script>
@@ -694,7 +721,6 @@
       { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, image: "" }
     ];
 
-    // تحميل البيانات من localStorage أو الاعتماد على البيانات الافتراضية
     let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v2')) || defaultCategories;
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v2')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
@@ -718,6 +744,8 @@
         localStorage.setItem("isAdmin", "true");
         isAdmin = true;
         applyAdminState();
+        buildCategoryAccordion();
+        renderProducts(products);
         alert("تم دخول المشرف بنجاح!");
       } else if (pass !== null) {
         alert("كلمة المرور غير صحيحة!");
@@ -733,13 +761,19 @@
     function applyAdminState() {
       const toolbar = document.getElementById('admin-toolbar');
       const layout = document.getElementById('main-layout-container');
+      const headerBtn = document.getElementById('header-admin-btn');
+      const footerLink = document.getElementById('admin-login-link');
+
       if (isAdmin) {
         toolbar.style.display = 'flex';
         layout.classList.add('admin-active');
-        document.getElementById('admin-login-link').innerText = "وضع المشرف (خروج)";
+        if (headerBtn) headerBtn.innerText = "🔑 خروج المشرف";
+        if (footerLink) footerLink.innerText = "وضع المشرف (تسجيل الخروج)";
       } else {
         toolbar.style.display = 'none';
         layout.classList.remove('admin-active');
+        if (headerBtn) headerBtn.innerText = "🔑 دخول المشرف";
+        if (footerLink) footerLink.innerText = "تسجيل دخول المشرفين";
       }
     }
 
@@ -834,7 +868,6 @@
         const oldName = categories[editIndex].name;
         categories[editIndex].name = name;
         categories[editIndex].image = img;
-        // تحديث المنتجات التابعة للقسم المعدل
         products.forEach(p => { if (p.mainCat === oldName) p.mainCat = name; });
         saveProductsData();
       }
