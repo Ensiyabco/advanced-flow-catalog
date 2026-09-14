@@ -113,20 +113,15 @@
     .product-specs-table {
       background: #f8fafc;
       border-radius: 8px;
-      padding: 15px;
+      padding: 12px 15px;
       margin-bottom: 20px;
     }
 
     .spec-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px dashed #e2e8f0;
+      padding: 6px 0;
       font-size: 14px;
-    }
-
-    .spec-item:last-child {
-      border-bottom: none;
     }
 
     .spec-item label {
@@ -144,17 +139,27 @@
       align-items: center;
       gap: 15px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
-    .quantity-control input {
-      width: 80px;
+    .quantity-control input, .quantity-control select {
       padding: 8px;
       border: 1px solid #cbd5e0;
       border-radius: 6px;
       font-family: 'Cairo';
-      text-align: center;
       font-weight: 700;
       font-size: 15px;
+    }
+
+    .quantity-control input {
+      width: 70px;
+      text-align: center;
+    }
+
+    .quantity-control select {
+      min-width: 110px;
+      background: #fff;
+      color: #1b365d;
     }
 
     .add-to-cart-btn {
@@ -244,12 +249,7 @@
   <script>
     const defaultProducts = [
       { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 50, images: [] },
-      { id: 2, name: "مسدس لحام صيني", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام صيني", unit: "حبة", boxQty: 6, stock: 20, images: [] },
-      { id: 3, name: "صاروخ بقاعدة متين", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "صواريخ بقاعدة", unit: "حبة", boxQty: 4, stock: 15, images: [] },
-      { id: 4, name: "مسدس لحام سفري", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام سفري", unit: "حبة", boxQty: 10, stock: 30, images: [] },
-      { id: 5, name: "موقد غاز منزلي عالي الأداء", mainCat: "مواقد غاز", subCat: "مواقد غاز منزلية", unit: "حبة", boxQty: 5, stock: 12, images: [] },
-      { id: 6, name: "موقد غاز مطاعم ثقيل", mainCat: "مواقد غاز", subCat: "مواقد غاز مطاعم", unit: "حبة", boxQty: 2, stock: 8, images: [] },
-      { id: 7, name: "موقد رحلات سفري", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 25, images: [] }
+      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "كرتون", boxQty: 12, stock: 3, images: [] }
     ];
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
@@ -266,7 +266,6 @@
       renderProductDetails();
       updateCartBadge();
 
-      // ربط زر التعديل السريع في شريط المشرف برابط تعديل هذا الصنف
       document.getElementById('admin-edit-link').href = `edit-product.html?id=${currentProduct.id}`;
 
       window.addEventListener('keydown', function(e) {
@@ -311,6 +310,12 @@
       }
 
       let mainImg = (currentProduct.images && currentProduct.images.length > 0 && currentProduct.images[0].trim() !== '') ? currentProduct.images[0] : defaultProductImage;
+      let productUnit = currentProduct.unit || 'حبة';
+      let boxQty = currentProduct.boxQty || 1;
+
+      // الخيارات المتاحة للوحدة
+      const availableUnits = ["حبة", "كرتون", "علبة", "ربطة", "لفة", "درزن"];
+      let unitOptionsHTML = availableUnits.map(u => `<option value="${u}" ${u === productUnit ? 'selected' : ''}>${u}</option>`).join('');
 
       container.innerHTML = `
         <div class="product-gallery-section">
@@ -322,15 +327,17 @@
           <div class="product-category-path">${currentProduct.mainCat} / ${currentProduct.subCat || 'عام'}</div>
           <h1 class="product-title">${currentProduct.name}</h1>
           <div class="stock-badge ${stockBadgeClass}">${stockText}</div>
-          
+
           <div class="product-specs-table">
-            <div class="spec-item"><label>وحدة البيع</label><span>${currentProduct.unit || 'حبة'}</span></div>
-            <div class="spec-item"><label>شد الكرتون</label><span>${currentProduct.boxQty || 1}</span></div>
+            <div class="spec-item"><label>شد الكرتون</label><span>${boxQty}</span></div>
           </div>
 
           <div class="quantity-control">
-            <label style="font-weight:700; color:#1b365d;">الكمية المطلوبة:</label>
+            <label style="font-weight:700; color:#1b365d;">الكمية والوحدة:</label>
             <input type="number" id="qty-input" value="1" min="1" max="${stockQty > 0 ? stockQty : 1}">
+            <select id="unit-select">
+              ${unitOptionsHTML}
+            </select>
           </div>
 
           <button class="add-to-cart-btn" onclick="addToCart()" ${stockQty === 0 ? 'disabled' : ''}>${stockQty === 0 ? 'عذراً، المنتج غير متوفر حالياً' : 'إضافة إلى قائمة الطلب'}</button>
@@ -340,7 +347,10 @@
 
     function addToCart() {
       let qty = parseInt(document.getElementById('qty-input').value) || 1;
-      let existingItem = cart.find(item => item.id === currentProduct.id);
+      let selectedUnit = document.getElementById('unit-select').value;
+      
+      // نتحقق إذا كان المنتج بنفس الـ ID وبنفس الوحدة موجود مسبقاً في السلة
+      let existingItem = cart.find(item => item.id === currentProduct.id && item.unit === selectedUnit);
       
       if (existingItem) {
         existingItem.qty += qty;
@@ -348,8 +358,8 @@
         cart.push({ 
           id: currentProduct.id, 
           name: currentProduct.name, 
-          qty: qty, 
-          unit: currentProduct.unit || 'حبة' 
+          qty: qty,
+          unit: selectedUnit
         });
       }
       
@@ -374,7 +384,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #edf2f7;">
               <div>
                 <strong>${item.name}</strong><br>
-                <small style="color:#718096;">الكمية: ${item.qty} ${item.unit}</small>
+                <small style="color:#718096;">الكمية: ${item.qty} (${item.unit})</small>
               </div>
               <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-weight:bold;">🗑️</button>
             </div>
@@ -395,7 +405,7 @@
       if (cart.length === 0) return alert("قائمة الطلب فارغة!");
       let text = "مرحباً، أود طلب المنتجات التالية:\n\n";
       cart.forEach((item, i) => {
-        text += `${i+1}- ${item.name} (الكمية: ${item.qty} ${item.unit})\n`;
+        text += `${i+1}- ${item.name} - الكمية: ${item.qty} (${item.unit})\n`;
       });
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
