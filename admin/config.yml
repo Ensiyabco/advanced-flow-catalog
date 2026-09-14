@@ -1,45 +1,16 @@
 backend:
-  name: github
-  repo: Ensiyabco/advanced-flow-catalog
+  name: git-gateway
   branch: main
 
 media_folder: "assets/images"
-public_folder: "assets/images"
+public_folder: "/assets/images"
 
 collections:
-  - name: "products"
-    label: "المنتجات"
-    folder: "content/products"
+  - name: "categories"
+    label: "الأقسام والمنتجات"
+    folder: "content/categories"
     create: true
     fields:
-      - {label: "اسم المنتج", name: "title", widget: "string"}
-      - label: "القسم الرئيسي"
-        name: "mainCat"
-        widget: "select"
-        options:
-          - "ادوات لحام ووصواريخ بقاعدة"
-          - "مواقد غاز"
-          - "ادوات ولوازم الرحلات"
-          - "ادوات ولوازم الشواء"
-          - "دفايات"
-          - "محابس وتواصيل"
-          - "ساعات ومنظمات غاز"
-          - "ليات غاز"
-          - "ولاعات وشعالات"
-          - "قطع غيار"
-          - "قدور"
-          - "خضاضات وسطول"
-          - "دوافير ودبات"
-          - "طباخات وفوانيس"
-          - "منزليات"
-          - "اكسسوارات عامة"
-      - {label: "القسم الفرعي", name: "subCat", widget: "string", required: false}
-      - label: "وحدة القياس"
-        name: "unit"
-        widget: "select"
-        options: ["حبة", "علبة", "كرتون", "درزن", "لفة", "متر", "ربطة", "بالة"]
-        default: "حبة"
-      - {label: "شد الكرتون", name: "boxQty", widget: "number", value_type: "int", default: 1}
-      - {label: "الكمية بالمخزن", name: "stock", widget: "number", value_type: "int", default: 10, hint: "أدخل عدد القطع المتوفرة لتظهر حالة التوفر تلقائياً"}
-      - {label: "صورة المنتج الرئيسية", name: "image", widget: "image"}
-      - {label: "صور إضافية (من عدة زوايا)", name: "images", widget: "list", required: false, field: {label: "صورة", name: "img", widget: "image"}}
+      - {label: "عنوان القسم أو المنتج", name: "title", widget: "string"}
+      - {label: "الوصف", name: "body", widget: "markdown"}
+      
