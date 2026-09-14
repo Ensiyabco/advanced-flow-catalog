@@ -756,6 +756,28 @@
       localStorage.setItem('ansiyab_categories_v1', JSON.stringify(categories));
     }
 
+    function saveProductsData() {
+      localStorage.setItem('ansiyab_products_v7', JSON.stringify(products));
+    }
+
+    function saveCartData() {
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
+      updateCartBadge();
+    }
+
+    function updateCartBadge() {
+      const countEl = document.getElementById('cart-count');
+      if (countEl) {
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        countEl.innerText = totalItems;
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.style.display = 'none';
+    }
+
     function openAddCategoryModal() {
       document.getElementById('new-main-cat-name').value = '';
       document.getElementById('category-modal').style.display = 'flex';
@@ -774,7 +796,7 @@
     }
 
     function openAddSubCategoryModal(mainCatName, event) {
-      if (event) event.stopPropagation(); // منع فتح/إغلاق الأكورديون عند الضغط على زر إضافة قسم فرعي
+      if (event) event.stopPropagation();
       document.getElementById('target-main-cat-name').value = mainCatName;
       document.getElementById('display-main-cat-name').value = mainCatName;
       document.getElementById('new-sub-cat-name').value = '';
@@ -876,12 +898,22 @@
       });
     }
 
+    function changeMainImage(prodId, imgSrc, thumbEl) {
+      const mainImg = document.getElementById(`main-product-img-${prodId}`);
+      if (mainImg) mainImg.src = imgSrc;
+      
+      const parent = thumbEl.parentElement;
+      if (parent) {
+        parent.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active-thumb'));
+        thumbEl.classList.add('active-thumb');
+      }
+    }
+
     function buildCategoryAccordion() {
       const container = document.getElementById('category-accordion');
       if (!container) return;
       container.innerHTML = '';
       
-      // زر عرض الجميع
       const allItem = document.createElement('div');
       allItem.className = 'accordion-header active-header';
       allItem.id = 'header-all';
@@ -946,16 +978,14 @@
         if (!isOpen) bodyEl.classList.add('active');
       }
 
-      // تصفية وعرض جميع منتجات هذا القسم الرئيسي بمختلف أقسامه الفرعية
       const filtered = products.filter(p => p.mainCat === mainCatName);
       renderProducts(filtered, `قسم: ${mainCatName}`);
     }
 
     function filterProductsBySub(mainCat, subCat, event) {
-      if (event) event.stopPropagation(); // منع تداخل الحدث
+      if (event) event.stopPropagation();
       clearCategoryActiveStates();
 
-      // إبقاء الأكورديون الخاص بالقسم الرئيسي مفتوحاً
       const catIdx = categories.findIndex(c => c.name === mainCat);
       if (catIdx !== -1) {
         const bodyEl = document.getElementById(`acc-body-${catIdx}`);
@@ -982,10 +1012,6 @@
       }
     }
 
-    function saveProductsData() {
-      localStorage.setItem('ansiyab_products_v7', JSON.stringify(products));
-    }
-
     function openProductModal() {
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "-1";
@@ -1005,86 +1031,59 @@
         opt.innerText = c.name;
         mainSelect.appendChild(opt);
       });
+      
       updateSubCatDropdown();
       document.getElementById('product-modal').style.display = 'flex';
     }
 
     function updateSubCatDropdown() {
-      const mainCatName = document.getElementById('prod-main-cat-select').value;
+      const mainCat = document.getElementById('prod-main-cat-select').value;
       const subSelect = document.getElementById('prod-sub-cat-select');
       subSelect.innerHTML = '';
-      const catObj = categories.find(c => c.name === mainCatName);
+      
+      const catObj = categories.find(c => c.name === mainCat);
       if (catObj && catObj.subCats) {
-        catObj.subCats.forEach(sub => {
+        catObj.subCats.forEach(s => {
           const opt = document.createElement('option');
-          opt.value = sub;
-          opt.innerText = sub;
+          opt.value = s;
+          opt.innerText = s;
           subSelect.appendChild(opt);
         });
       }
     }
 
-    function encodeMultipleImages(input) {
-      modalImagesBase64 = [];
-      const previewContainer = document.getElementById('modal-images-preview');
-      previewContainer.innerHTML = '';
-      if (input.files) {
-        Array.from(input.files).forEach(file => {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            modalImagesBase64.push(e.target.result);
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.width = '40px';
-            img.style.height = '40px';
-            img.style.objectFit = 'contain';
-            img.style.border = '1px solid #cbd5e0';
-            img.style.borderRadius = '4px';
-            previewContainer.appendChild(img);
-          };
-          reader.readAsDataURL(file);
-        });
-      }
+    function encodeMultipleImages(fileInput) {
+      const files = fileInput.files;
+      if (!files || files.length === 0) return;
+      
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          modalImagesBase64.push(base64);
+          renderModalImagePreviews();
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
-    function editProduct(id) {
-      const prod = products.find(p => p.id === id);
-      if (!prod) return;
-      document.getElementById('product-modal-title').innerText = "تعديل المنتج";
-      document.getElementById('edit-prod-id').value = prod.id;
-      document.getElementById('prod-name-input').value = prod.name;
-      
-      const mainSelect = document.getElementById('prod-main-cat-select');
-      mainSelect.innerHTML = '';
-      categories.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.name;
-        opt.innerText = c.name;
-        if (c.name === prod.mainCat) opt.selected = true;
-        mainSelect.appendChild(opt);
+    function renderModalImagePreviews() {
+      const previewBox = document.getElementById('modal-images-preview');
+      previewBox.innerHTML = '';
+      modalImagesBase64.forEach((img, idx) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'position:relative; display:inline-block;';
+        div.innerHTML = `
+          <img src="${img}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e0;">
+          <button onclick="removeModalImage(${idx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer;">×</button>
+        `;
+        previewBox.appendChild(div);
       });
-      
-      updateSubCatDropdown();
-      document.getElementById('prod-sub-cat-select').value = prod.subCat;
-      document.getElementById('prod-unit-input').value = prod.unit || 'حبة';
-      document.getElementById('prod-box-input').value = prod.boxQty || 1;
-      document.getElementById('prod-stock-input').value = prod.stockQty !== undefined ? prod.stockQty : 0;
-      
-      modalImagesBase64 = prod.images ? [...prod.images] : [];
-      const previewContainer = document.getElementById('modal-images-preview');
-      previewContainer.innerHTML = '';
-      modalImagesBase64.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.style.width = '40px';
-        img.style.height = '40px';
-        img.style.objectFit = 'contain';
-        img.style.border = '1px solid #cbd5e0';
-        img.style.borderRadius = '4px';
-        previewContainer.appendChild(img);
-      });
-      
-      document.getElementById('product-modal').style.display = 'flex';
+    }
+
+    function removeModalImage(idx) {
+      modalImagesBase64.splice(idx, 1);
+      renderModalImagePreviews();
     }
 
     function saveProduct() {
@@ -1092,179 +1091,204 @@
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
       const subCat = document.getElementById('prod-sub-cat-select').value;
-      const unit = document.getElementById('prod-unit-input').value || 'حبة';
+      const unit = document.getElementById('prod-unit-input').value;
       const boxQty = parseInt(document.getElementById('prod-box-input').value) || 1;
       const stockQty = parseInt(document.getElementById('prod-stock-input').value) || 0;
       
-      if (!name) return alert("الرجاء إدخال اسم المنتج!");
-      if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
+      if (!name) return alert("يرجى أدخال اسم المنتج!");
+
+      const imagesToSave = modalImagesBase64.length > 0 ? modalImagesBase64 : [placeholderImg];
 
       if (editId === -1) {
         const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
         products.push({
           id: newId,
-          name: name,
-          mainCat: mainCat,
-          subCat: subCat,
-          unit: unit,
-          boxQty: boxQty,
-          stockQty: stockQty,
-          images: modalImagesBase64
+          name,
+          mainCat,
+          subCat,
+          unit,
+          boxQty,
+          stockQty,
+          images: imagesToSave
         });
       } else {
-        const prod = products.find(p => p.id === editId);
-        if (prod) {
-          prod.name = name;
-          prod.mainCat = mainCat;
-          prod.subCat = subCat;
-          prod.unit = unit;
-          prod.boxQty = boxQty;
-          prod.stockQty = stockQty;
-          prod.images = modalImagesBase64;
+        const index = products.findIndex(p => p.id === editId);
+        if (index !== -1) {
+          products[index] = {
+            id: editId,
+            name,
+            mainCat,
+            subCat,
+            unit,
+            boxQty,
+            stockQty,
+            images: imagesToSave
+          };
         }
       }
-      
+
       saveProductsData();
-      closeModal('product-modal');
       renderProducts(products);
+      closeModal('product-modal');
+      alert("تم حفظ بيانات المنتج بنجاح.");
     }
 
-    function deleteProduct(id) {
-      if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
-        products = products.filter(p => p.id !== id);
+    function editProduct(prodId) {
+      const p = products.find(prod => prod.id === prodId);
+      if (!p) return;
+
+      openProductModal();
+      document.getElementById('product-modal-title').innerText = "تعديل المنتج";
+      document.getElementById('edit-prod-id').value = p.id;
+      document.getElementById('prod-name-input').value = p.name;
+      document.getElementById('prod-main-cat-select').value = p.mainCat;
+      updateSubCatDropdown();
+      document.getElementById('prod-sub-cat-select').value = p.subCat;
+      document.getElementById('prod-unit-input').value = p.unit || "حبة";
+      document.getElementById('prod-box-input').value = p.boxQty || 1;
+      document.getElementById('prod-stock-input').value = p.stockQty !== undefined ? p.stockQty : 100;
+      
+      modalImagesBase64 = p.images ? [...p.images] : [];
+      renderModalImagePreviews();
+    }
+
+    function deleteProduct(prodId) {
+      if (confirm("هل أنت تأكد من حذف هذا المنتج؟")) {
+        products = products.filter(p => p.id !== prodId);
         saveProductsData();
         renderProducts(products);
       }
     }
 
-    function changeMainImage(prodId, imgSrc, thumbEl) {
-      const mainImg = document.getElementById(`main-product-img-${prodId}`);
-      if (mainImg) mainImg.src = imgSrc;
-      const card = thumbEl.closest('.product-card');
-      if (card) {
-        card.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active-thumb'));
-        thumbEl.classList.add('active-thumb');
+    function addToCart(prodId) {
+      const prod = products.find(p => p.id === prodId);
+      if (!prod) return;
+
+      const qtyInput = document.getElementById(`qty-${prodId}`);
+      const unitSelect = document.getElementById(`unit-type-${prodId}`);
+      
+      const qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+      const selectedUnit = unitSelect ? unitSelect.value : (prod.unit || 'حبة');
+
+      const existingIndex = cart.findIndex(item => item.id === prodId && item.unit === selectedUnit);
+      if (existingIndex !== -1) {
+        cart[existingIndex].qty += qty;
+      } else {
+        cart.push({
+          id: prod.id,
+          name: prod.name,
+          unit: selectedUnit,
+          qty: qty,
+          boxQty: prod.boxQty || 1
+        });
+      }
+
+      saveCartData();
+      alert(`تمت إضافة (${qty} ${selectedUnit}) من منتج (${prod.name}) إلى قائمة الطلبات.`);
+    }
+
+    function openCartModal() {
+      const container = document.getElementById('cart-items-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#718096; padding:20px;">السلة فارغة حالياً.</p>';
+      } else {
+        cart.forEach((item, index) => {
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex; justify-between; align-items:center; border-bottom:1px solid #e2e8f0; padding:8px 0; font-size:13px;';
+          row.innerHTML = `
+            <div style="flex:1;">
+              <strong>${item.name}</strong>
+              <div style="font-size:11px; color:#718096;">الوحدة: ${item.unit} ${item.unit === 'كرتون' ? `(${item.boxQty} حبة)` : ''}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="number" min="1" value="${item.qty}" onchange="updateCartItemQty(${index}, this.value)" style="width:50px; text-align:center; padding:4px; border:1px solid #cbd5e0; border-radius:4px;">
+              <button onclick="removeFromCart(${index})" style="background:#e53e3e; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">إزالة</button>
+            </div>
+          `;
+          container.appendChild(row);
+        });
+      }
+
+      document.getElementById('cart-modal').style.display = 'flex';
+    }
+
+    function updateCartItemQty(index, newQty) {
+      const parsed = parseInt(newQty);
+      if (!isNaN(parsed) && parsed > 0) {
+        cart[index].qty = parsed;
+        saveCartData();
       }
     }
 
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      saveCartData();
+      openCartModal();
+    }
+
+    function sendCartToWhatsApp() {
+      if (cart.length === 0) return alert("سلة الطلبات فارغة!");
+
+      let message = "السلام عليكم ورحمة الله وبركاته،\nأود طلب المنتجات التالية من مؤسسة الأنسياب المتقدم:\n\n";
+      cart.forEach((item, idx) => {
+        message += `${idx + 1}. ${item.name}\n   - الكمية: ${item.qty} ${item.unit}\n`;
+      });
+      message += "\nيرجى تزويدي بالأسعار والتأكيد. شكراً لكم!";
+
+      const encodedMsg = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${targetPhoneNumber}?text=${encodedMsg}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
     function openLightboxForProduct(prodId) {
-      const p = products.find(item => item.id === prodId);
-      if (!p || !p.images || p.images.length === 0) return;
-      currentLightboxImages = p.images;
+      const prod = products.find(p => p.id === prodId);
+      if (!prod || !prod.images || prod.images.length === 0) return;
+
+      currentLightboxImages = prod.images;
       currentLightboxIndex = 0;
-      currentLightboxTitle = p.name;
-      
-      document.getElementById('lightbox-img-src').src = currentLightboxImages[currentLightboxIndex];
-      document.getElementById('lightbox-title').innerText = currentLightboxTitle;
+      currentLightboxTitle = prod.name;
+
+      updateLightboxDisplay();
       document.getElementById('image-lightbox').style.display = 'flex';
+    }
+
+    function updateLightboxDisplay() {
+      const imgEl = document.getElementById('lightbox-img-src');
+      const titleEl = document.getElementById('lightbox-title');
+      
+      if (imgEl && currentLightboxImages.length > 0) {
+        imgEl.src = currentLightboxImages[currentLightboxIndex];
+      }
+      if (titleEl) {
+        titleEl.innerText = `${currentLightboxTitle} (${currentLightboxIndex + 1} / ${currentLightboxImages.length})`;
+      }
+    }
+
+    function changeLightboxImage(direction) {
+      if (currentLightboxImages.length <= 1) return;
+      currentLightboxIndex += direction;
+      
+      if (currentLightboxIndex < 0) {
+        currentLightboxIndex = currentLightboxImages.length - 1;
+      } else if (currentLightboxIndex >= currentLightboxImages.length) {
+        currentLightboxIndex = 0;
+      }
+      
+      updateLightboxDisplay();
     }
 
     function closeLightbox() {
       document.getElementById('image-lightbox').style.display = 'none';
     }
 
-    function changeLightboxImage(dir) {
-      if (!currentLightboxImages || currentLightboxImages.length === 0) return;
-      currentLightboxIndex = (currentLightboxIndex + dir + currentLightboxImages.length) % currentLightboxImages.length;
-      document.getElementById('lightbox-img-src').src = currentLightboxImages[currentLightboxIndex];
-    }
-
-    function addToCart(prodId) {
-      const p = products.find(item => item.id === prodId);
-      if (!p) return;
-      const qty = parseInt(document.getElementById(`qty-${prodId}`).value) || 1;
-      const unitType = document.getElementById(`unit-type-${prodId}`).value;
-      
-      const existing = cart.find(item => item.id === prodId && item.unitType === unitType);
-      if (existing) {
-        existing.qty += qty;
-      } else {
-        cart.push({
-          id: p.id,
-          name: p.name,
-          mainCat: p.mainCat,
-          qty: qty,
-          unitType: unitType
-        });
-      }
-      saveCart();
-      updateCartBadge();
-      alert(`تمت إضافة "${p.name}" (${qty} ${unitType}) إلى قائمة الطلبات بنجاح!`);
-    }
-
-    function saveCart() {
-      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
-    }
-
-    function updateCartBadge() {
-      const badge = document.getElementById('cart-count');
-      if (!badge) return;
-      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-      badge.innerText = totalQty;
-    }
-
-    function openCartModal() {
-      const container = document.getElementById('cart-items-container');
-      container.innerHTML = '';
-      if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#718096; padding:20px;">قائمة الطلب فارغة حالياً.</p>';
-      } else {
-        let html = '<table style="width:100%; border-collapse:collapse; font-size:13px;">';
-        html += '<tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0; text-align:right;"><th style="padding:8px;">المنتج</th><th style="padding:8px;">الكمية</th><th style="padding:8px;">الوحدة</th><th style="padding:8px;">حذف</th></tr>';
-        cart.forEach((item, index) => {
-          html += `
-            <tr style="border-bottom:1px solid #edf2f7;">
-              <td style="padding:8px; font-weight:700;">${item.name}</td>
-              <td style="padding:8px;">
-                <input type="number" value="${item.qty}" min="1" style="width:45px; text-align:center;" onchange="updateCartItemQty(${index}, this.value)">
-              </td>
-              <td style="padding:8px; color:#718096;">${item.unitType}</td>
-              <td style="padding:8px;"><button style="background:#e53e3e; color:white; border:none; padding:3px 6px; border-radius:4px; cursor:pointer;" onclick="removeCartItem(${index})">✕</button></td>
-            </tr>
-          `;
-        });
-        html += '</table>';
-        container.innerHTML = html;
-      }
-      document.getElementById('cart-modal').style.display = 'flex';
-    }
-
-    function updateCartItemQty(index, newQty) {
-      const q = parseInt(newQty);
-      if (q > 0) {
-        cart[index].qty = q;
-        saveCart();
-        updateCartBadge();
-      }
-    }
-
-    function removeCartItem(index) {
-      cart.splice(index, 1);
-      saveCart();
-      updateCartBadge();
-      openCartModal();
-    }
-
-    function sendCartToWhatsApp() {
-      if (cart.length === 0) return alert("قائمة الطلب فارغة!");
-      let text = "السلام عليكم، أرغب في طلب المنتجات التالية من متجر الأنسياب المتقدم:\n\n";
-      cart.forEach((item, i) => {
-        text += `${i + 1}. *${item.name}* - الكمية: ${item.qty} ${item.unitType}\n`;
-      });
-      text += "\nشكراً لكم.";
-      const encoded = encodeURIComponent(text);
-      window.open(`https://wa.me/${targetPhoneNumber}?text=${encoded}`, '_blank');
-    }
-
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
+    window.onload = function() {
       buildCategoryAccordion();
-      renderProducts(products, "جميع المنتجات");
+      renderProducts(products);
       updateCartBadge();
-    });
+    };
   </script>
 </body>
 </html>
