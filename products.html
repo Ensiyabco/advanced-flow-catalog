@@ -20,7 +20,7 @@
       color: #333;
     }
 
-    /* --- الهيدر الرئيسي والشعار --- */
+    /* --- الهيدر الرئيسي --- */
     header {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
@@ -39,7 +39,7 @@
     }
 
     .logo-text {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       color: #1b365d;
     }
@@ -73,18 +73,50 @@
       background: linear-gradient(135deg, #1b365d, #2c5282);
       color: white;
       text-align: center;
-      padding: 50px 20px;
+      padding: 45px 20px;
       margin-bottom: 30px;
     }
 
     .hero-banner h1 {
-      font-size: 28px;
+      font-size: 26px;
       margin-bottom: 10px;
     }
 
     .hero-banner p {
-      font-size: 15px;
+      font-size: 14px;
       opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    .search-box-container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .search-box-container input {
+      width: 100%;
+      padding: 12px 20px;
+      border-radius: 30px;
+      border: none;
+      font-size: 14px;
+      text-align: right;
+      outline: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .section-title-container {
+      max-width: 1200px;
+      margin: 0 auto 20px auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title-container h2 {
+      font-size: 18px;
+      color: #2d3748;
+      margin: 0;
     }
 
     .main-categories-grid {
@@ -92,7 +124,7 @@
       margin: 0 auto 40px auto;
       padding: 0 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
     }
 
@@ -100,11 +132,11 @@
       background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 20px 10px;
+      padding: 20px 15px;
       text-align: center;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-      transition: transform 0.2s;
+      transition: transform 0.2s, border-color 0.2s;
     }
 
     .main-cat-card:hover {
@@ -112,9 +144,24 @@
       border-color: #1b365d;
     }
 
+    .cat-icon-box {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 12px auto;
+      background: #f7fafc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1b365d;
+      font-weight: bold;
+      font-size: 14px;
+      border: 1px solid #edf2f7;
+    }
+
     .main-cat-card h3 {
-      font-size: 15px;
-      margin: 10px 0 0 0;
+      font-size: 14px;
+      margin: 0;
       color: #2d3748;
     }
 
@@ -299,6 +346,15 @@
       font-size: 12px;
     }
 
+    footer {
+      background-color: #1b365d;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
     @media (max-width: 768px) {
       .products-wrapper {
         flex-direction: column;
@@ -317,47 +373,34 @@
 
   <!-- الهيدر الرئيسي -->
   <header>
-    <div class="logo-container" id="site-logo" onclick="showPage('home')" title="انقر مرتين لتفعيل الأدمن">
-      <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
-    </div>
     <nav class="nav-links">
       <a href="#" id="nav-home" class="active" onclick="showPage('home')">الرئيسية</a>
       <a href="#" id="nav-products" onclick="showPage('products')">المنتجات</a>
       <a href="#">من نحن</a>
       <a href="#">التواصل</a>
     </nav>
+    <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر مرتين لتفعيل الأدمن">
+      <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
+    </div>
   </header>
 
   <!-- الصفحة الرئيسية -->
   <div id="home-page">
     <div class="hero-banner">
-      <h1>مؤسسة الأنسياب المتقدم التجارية</h1>
-      <p>متخصصون في أدوات ولوازم الغاز، المعدات، ومستلزمات الرحلات والكشتات</p>
+      <h1>أفضل أدوات الغاز والرحلات... جودة تعتمد عليها</h1>
+      <p>نوفر كل ما تحتاجه للغاز، الرحلات، الشواء، ولوازم الكشتات</p>
+      <div class="search-box-container">
+        <input type="text" placeholder="ابحث عن منتج في الكتالوج..." id="search-input">
+      </div>
     </div>
 
-    <div style="max-width:1200px; margin: 0 auto 15px; padding: 0 20px;">
-      <h2 style="font-size: 18px; color: #2d3748;">تصفح حسب الأقسام الرئيسية</h2>
+    <div class="section-title-container">
+      <h2>تصفح الأقسام</h2>
     </div>
 
-    <div class="main-categories-grid">
-      <div class="main-cat-card" onclick="openCategoryProducts('طباخات وفوانيس')">
-        <h3>طباخات وفوانيس</h3>
-      </div>
-      <div class="main-cat-card" onclick="openCategoryProducts('محابس وتواصيل')">
-        <h3>محابس وتواصيل غاز</h3>
-      </div>
-      <div class="main-cat-card" onclick="openCategoryProducts('ساعات ومنظمات غاز')">
-        <h3>ساعات ومنظمات</h3>
-      </div>
-      <div class="main-cat-card" onclick="openCategoryProducts('ادوات ولوازم الرحلات')">
-        <h3>لوازم الرحلات</h3>
-      </div>
-      <div class="main-cat-card" onclick="openCategoryProducts('مواقد غاز')">
-        <h3>مواقد الغاز</h3>
-      </div>
-      <div class="main-cat-card" onclick="openCategoryProducts('ليات غاز')">
-        <h3>ليات غاز ورجلات</h3>
-      </div>
+    <!-- شبكة الأقسام الكاملة -->
+    <div class="main-categories-grid" id="home-categories-grid">
+      <!-- يتم تعبئتها تلقائياً من البرمجة لضمان ظهور كافة الأقسام -->
     </div>
   </div>
 
@@ -367,8 +410,7 @@
       
       <aside class="sidebar">
         <div class="sidebar-title">أقسام المتجر</div>
-        <button class="btn-all-products" onclick="filterProducts('الكل')">عرض كل المنتجات</button>
-
+        <button class="btn-all-products" onclick="filterCategory('الكل')">عرض كل المنتجات</button>
         <div id="categories-tree"></div>
       </aside>
 
@@ -387,10 +429,10 @@
             <div class="product-img-box">
               <span style="color:#a0aec0; font-size:12px;">صورة المنتج</span>
             </div>
-            <div class="product-title">منتج تجريبي مقيد بالنظام</div>
+            <div class="product-title">منتج تجريبي</div>
             <div class="product-info">الوحدة: حبة | شد الكرتون: 12</div>
             <button class="btn-whatsapp">اطلب عبر الواتساب</button>
-            <button class="admin-btn" style="margin-top:6px; width:100%;" onclick="openEditModal(this)">تعديل</button>
+            <button class="admin-btn" style="margin-top:6px; width:100%;" onclick="openEditModal()">تعديل</button>
           </div>
         </div>
       </main>
@@ -430,31 +472,26 @@
     </div>
   </div>
 
+  <footer>
+    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
+  </footer>
+
   <script>
     const storeCategories = {
-      "منزليات": ["أدوات منزلية", "أواني تقديم"],
-      "ادوات ولوازم الرحلات": ["عزب ورحلات", "فرشات وسجاد"],
-      "ادوات لحام وصواريخ بقاعدة": ["لحام غاز", "صواريخ بقاعدة"],
-      "طباخات وفوانيس": [
-        "طباخات غاز سائل",
-        "فوانيس غاز سائل",
-        "فوانيس بطاريات",
-        "دوافير غاز",
-        "فتايل",
-        "أتاريك",
-        "قزاز فوانيس واتاريك"
-      ],
-      "ولاعات وشعالات": ["ولاعات غاز", "شعالات كهربائية"],
+      "طباخات وفوانيس": ["طباخات غاز سائل", "فوانيس غاز سائل", "فوانيس بطاريات", "دوافير غاز", "فتايل", "أتاريك", "قزاز فوانيس واتاريك"],
       "مواقد غاز": ["مواقد سفري", "مواقد منزلية"],
-      "محابس وتواصيل": ["محابس غاز", "تواصيل ونقاصات"],
-      "ليات غاز": ["ليات ضغط عالي", "ليات عادية"],
-      "قطع غيار": ["قطع غيار مواقد", "قطع غيار فوانيس"],
-      "قدور": ["قدور ضغط", "قدور طبخ"],
-      "ساعات ومنظمات غاز": ["منظمات ضغط عالي", "منظمات ضغط منخفض"],
       "دوافير ودبات": ["دبات غاز", "دوافير كاملة"],
+      "ساعات ومنظمات غاز": ["منظمات ضغط عالي", "منظمات ضغط منخفض"],
+      "ليات غاز ورجلات": ["ليات ضغط عالي", "ليات عادية", "رجلات غاز"],
+      "محابس وتواصيل غاز": ["محابس غاز", "تواصيل ونقاصات"],
+      "قطع غيار": ["قطع غيار مواقد", "قطع غيار فوانيس"],
+      "خضاضات وسطول ومواعين": ["خضاضات لبن", "سطول ومواعين"],
       "دفايات": ["دفايات غاز", "دفايات كشتات"],
-      "خضاضات وسطول": ["خضاضات لبن", "سطول ومواعين"],
-      "ادوات ولوازم الشواء": ["شوايات", "فحم ولوازم"]
+      "ولاعات غاز وشعالات كهرباء": ["ولاعات غاز", "شعالات كهربائية"],
+      "ادوات ولوازم الشواء": ["شوايات", "فحم ولوازم"],
+      "ادوات لحام وواربخ": ["لحام غاز", "صواريخ بقاعدة"],
+      "ادوات ولوازم الرحلات": ["عزب ورحلات", "فرشات وسجاد"],
+      "قدور": ["قدور ضغط", "قدور طبخ"]
     };
 
     function showPage(pageId) {
@@ -463,6 +500,7 @@
       
       document.getElementById('nav-home').classList.toggle('active', pageId === 'home');
       document.getElementById('nav-products').classList.toggle('active', pageId === 'products');
+      window.scrollTo(0, 0);
     }
 
     function openCategoryProducts(catName) {
@@ -470,16 +508,32 @@
       document.getElementById('current-cat-title').innerText = catName;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      buildSidebarCategories();
+    let isAdmin = false;
+    function toggleAdmin() {
+      isAdmin = !isAdmin;
+      alert(isAdmin ? 'تم تفعيل وضع الأدمن' : 'تم خروج الأدمن');
+      document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = isAdmin ? 'block' : 'none');
+    }
 
-      let isAdmin = false;
-      document.getElementById('site-logo').addEventListener('dblclick', function() {
-        isAdmin = !isAdmin;
-        alert(isAdmin ? 'تم تفعيل وضع الأدمن' : 'تم خروج الأدمن');
-        document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = isAdmin ? 'block' : 'none');
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+      buildHomeCategories();
+      buildSidebarCategories();
     });
+
+    function buildHomeCategories() {
+      const grid = document.getElementById('home-categories-grid');
+      grid.innerHTML = '';
+      Object.keys(storeCategories).forEach(cat => {
+        const card = document.createElement('div');
+        card.className = 'main-cat-card';
+        card.onclick = () => openCategoryProducts(cat);
+        card.innerHTML = `
+          <div class="cat-icon-box">إنسياب</div>
+          <h3>${cat}</h3>
+        `;
+        grid.appendChild(card);
+      });
+    }
 
     function buildSidebarCategories() {
       const container = document.getElementById('categories-tree');
@@ -490,23 +544,19 @@
         item.className = 'category-item';
 
         const subArr = storeCategories[mainCat];
-        const isDefaultOpen = mainCat === "طباخات وفوانيس";
-
         const header = document.createElement('div');
-        header.className = `category-header ${isDefaultOpen ? 'active' : ''}`;
-        header.innerHTML = `
-          <span>${mainCat}</span>
-          <span>${subArr.length > 0 ? (isDefaultOpen ? '▲' : '▼') : ''}</span>
-        `;
+        header.className = 'category-header';
+        header.innerHTML = `<span>${mainCat}</span><span>▼</span>`;
 
         const subList = document.createElement('div');
-        subList.className = `subcategory-list ${isDefaultOpen ? 'open' : ''}`;
+        subList.className = 'subcategory-list';
 
         subArr.forEach(sub => {
           const subItem = document.createElement('div');
           subItem.className = 'subcategory-item';
           subItem.innerText = sub;
-          subItem.onclick = function() {
+          subItem.onclick = function(e) {
+            e.stopPropagation();
             document.getElementById('current-cat-title').innerText = sub;
           };
           subList.appendChild(subItem);
@@ -517,7 +567,7 @@
           document.querySelectorAll('.subcategory-list').forEach(l => l.classList.remove('open'));
           document.querySelectorAll('.category-header').forEach(h => h.classList.remove('active'));
           
-          if (!isOpen && subArr.length > 0) {
+          if (!isOpen) {
             subList.classList.add('open');
             header.classList.add('active');
           }
@@ -530,20 +580,24 @@
       });
     }
 
-    window.openAddModal = function() {
+    function filterCategory(catName) {
+      document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
+    }
+
+    function openAddModal() {
       document.getElementById('product-form').reset();
       document.getElementById('modal-title').innerText = 'إضافة منتج جديد';
       document.getElementById('admin-modal').style.display = 'flex';
-    };
+    }
 
-    window.openEditModal = function(btn) {
+    function openEditModal() {
       document.getElementById('modal-title').innerText = 'تعديل المنتج';
       document.getElementById('admin-modal').style.display = 'flex';
-    };
+    }
 
-    window.closeAdminModal = function() {
+    function closeAdminModal() {
       document.getElementById('admin-modal').style.display = 'none';
-    };
+    }
 
     document.getElementById('product-form').addEventListener('submit', function(e) {
       e.preventDefault();
