@@ -43,7 +43,7 @@
 
     .main-layout { display: flex; max-width: 1300px; margin: 25px auto; gap: 20px; padding: 0 15px; }
 
-    .sidebar { width: 300px; flex-shrink: 0; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 15px; height: fit-content; }
+    .sidebar { width: 320px; flex-shrink: 0; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 15px; height: fit-content; }
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
     .sidebar-header h3 { font-size: 16px; margin: 0; font-weight: 800; color: #1b365d; }
 
@@ -60,6 +60,9 @@
       display: block; padding: 5px 0; font-size: 12px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
     }
     .subcat-link:hover { color: #e53e3e; }
+
+    /* تنسيق صورة القسم التوضيحية */
+    .cat-icon { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0; }
 
     .products-container { flex: 1; }
     .top-filter-bar {
@@ -150,73 +153,28 @@
   </div>
 
   <script>
-    // جميع الأقسام الرئيسية والفرعية الخاصة بكم بالكامل
-    const categoriesData = [
-      {
-        name: "ادوات لحام ووصواريخ بقاعدة",
-        subcategories: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"]
-      },
-      {
-        name: "مواقد غاز",
-        subcategories: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"]
-      },
-      {
-        name: "ادوات ولوازم الرحلات",
-        subcategories: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"]
-      },
-      {
-        name: "ادوات ولوازم الشواء",
-        subcategories: ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"]
-      },
-      {
-        name: "دفايات",
-        subcategories: ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"]
-      },
-      {
-        name: "محابس وتواصيل",
-        subcategories: ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"]
-      },
-      {
-        name: "ساعات ومنظمات غاز",
-        subcategories: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"]
-      },
-      {
-        name: "ليات غاز",
-        subcategories: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"]
-      },
-      {
-        name: "ولاعات وشعالات",
-        subcategories: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"]
-      },
-      {
-        name: "قطع غيار",
-        subcategories: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"]
-      },
-      {
-        name: "قدور",
-        subcategories: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"]
-      },
-      {
-        name: "خضاضات وسطول",
-        subcategories: ["خضاضات لبن", "سطول لبن", "مواعين سمن"]
-      },
-      {
-        name: "دوافير ودبات",
-        subcategories: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"]
-      },
-      {
-        name: "طباخات وفوانيس",
-        subcategories: ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"]
-      },
-      {
-        name: "منزليات",
-        subcategories: []
-      },
-      {
-        name: "اكسسوارات عامة",
-        subcategories: []
-      }
+    // جميع الأقسام الرئيسية والفرعية مع معرف فريد id لكل قسم
+    const defaultCategories = [
+      { id: 1, name: "ادوات لحام ووصواريخ بقاعدة", subcategories: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
+      { id: 2, name: "مواقد غاز", subcategories: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"] },
+      { id: 3, name: "ادوات ولوازم الرحلات", subcategories: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"] },
+      { id: 4, name: "ادوات ولوازم الشواء", subcategories: ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"] },
+      { id: 5, name: "دفايات", subcategories: ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"] },
+      { id: 6, name: "محابس وتواصيل", subcategories: ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"] },
+      { id: 7, name: "ساعات ومنظمات غاز", subcategories: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"] },
+      { id: 8, name: "ليات غاز", subcategories: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"] },
+      { id: 9, name: "ولاعات وشعالات", subcategories: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"] },
+      { id: 10, name: "قطع غيار", subcategories: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"] },
+      { id: 11, name: "قدور", subcategories: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"] },
+      { id: 12, name: "خضاضات وسطول", subcategories: ["خضاضات لبن", "سطول لبن", "مواعين سمن"] },
+      { id: 13, name: "دوافير ودبات", subcategories: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"] },
+      { id: 14, name: "طباخات وفوانيس", subcategories: ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"] },
+      { id: 15, name: "منزليات", subcategories: [] },
+      { id: 16, name: "اكسسوارات عامة", subcategories: [] }
     ];
+
+    let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
+    let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
 
     const products = [
       {
@@ -274,9 +232,15 @@
           subHtml = `<div class="subcat-link" onclick="filterBySubcat('${cat.name}', '${cat.name}')">• عرض الكل</div>`;
         }
 
+        const imgSrc = categoryImages[cat.id] || 'assets/images/logo.png';
+
         item.innerHTML = `
           <button class="accordion-header" onclick="toggleAccordion(${index})">
-            <span>${cat.name}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <img src="${imgSrc}" class="cat-icon" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+              <span>${cat.name}</span>
+              <span class="admin-only" onclick="event.stopPropagation(); changeCategoryImage(${cat.id})" title="تغيير صورة القسم" style="font-size: 11px; cursor: pointer; background: #e2e8f0; padding: 2px 5px; border-radius: 4px;">📷</span>
+            </div>
             <span id="arrow-${index}">▼</span>
           </button>
           <div class="accordion-content" id="content-${index}">
@@ -285,6 +249,19 @@
         `;
         container.appendChild(item);
       });
+
+      checkAdminStatus();
+    }
+
+    // دالة تغيير صورة القسم مباشرة للمشرف
+    function changeCategoryImage(catId) {
+      const newImg = prompt("أدخل رابط الصورة الجديدة للقسم (URL):");
+      if (newImg && newImg.trim() !== "") {
+        categoryImages[catId] = newImg.trim();
+        localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
+        renderCategories();
+        alert("تم تحديث صورة القسم بنجاح!");
+      }
     }
 
     function toggleAccordion(index) {
