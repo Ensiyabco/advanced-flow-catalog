@@ -192,10 +192,17 @@
       justify-content: space-between;
       align-items: center;
       font-size: 13px;
+      transition: background 0.2s;
     }
 
     .accordion-header:hover {
       background: #e2e8f0;
+    }
+
+    .accordion-header.active-header {
+      background: #ebf8ff;
+      color: var(--secondary-color);
+      border-right: 4px solid var(--secondary-color);
     }
 
     .accordion-body {
@@ -212,14 +219,24 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px dashed #e2e8f0;
+      padding: 6px 8px;
+      margin: 2px 0;
+      border-radius: 4px;
       font-size: 12px;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
     .sub-cat-item:hover {
+      background: #f7fafc;
       color: var(--secondary-color);
+      font-weight: bold;
+      padding-right: 12px;
+    }
+
+    .sub-cat-item.active-sub {
+      background: #ebf8ff;
+      color: #2b6cb0;
       font-weight: bold;
     }
 
@@ -244,6 +261,31 @@
 
     .add-subcat-btn:hover {
       background: #bee3f8;
+    }
+
+    /* Category Title Bar Above Products */
+    .category-title-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .category-title-bar h2 {
+      font-size: 16px;
+      color: var(--primary-color);
+    }
+
+    .category-title-bar span {
+      font-size: 12px;
+      color: #718096;
+      background: #edf2f7;
+      padding: 4px 10px;
+      border-radius: 12px;
     }
 
     /* Products Grid Left */
@@ -550,6 +592,10 @@
 
     <!-- Products Content (Left Grid) -->
     <main class="products-content">
+      <div class="category-title-bar">
+        <h2 id="current-view-title">جميع المنتجات</h2>
+        <span id="current-view-count">0 منتج</span>
+      </div>
       <div id="products-grid-container" class="products-grid"></div>
     </main>
   </div>
@@ -727,7 +773,8 @@
       alert(`تم إضافة القسم الرئيسي (${name}) بنجاح.`);
     }
 
-    function openAddSubCategoryModal(mainCatName) {
+    function openAddSubCategoryModal(mainCatName, event) {
+      if (event) event.stopPropagation(); // منع فتح/إغلاق الأكورديون عند الضغط على زر إضافة قسم فرعي
       document.getElementById('target-main-cat-name').value = mainCatName;
       document.getElementById('display-main-cat-name').value = mainCatName;
       document.getElementById('new-sub-cat-name').value = '';
@@ -751,12 +798,18 @@
       }
     }
 
-    function renderProducts(list) {
+    function renderProducts(list, titleText = "جميع المنتجات") {
       const grid = document.getElementById('products-grid-container');
+      const titleEl = document.getElementById('current-view-title');
+      const countEl = document.getElementById('current-view-count');
+
+      if (titleEl) titleEl.innerText = titleText;
+      if (countEl) countEl.innerText = `${list ? list.length : 0} منتج`;
+
       if (!grid) return;
       grid.innerHTML = '';
       if (!list || list.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:30px;">لا توجد منتجات مطابقة للعرض حالياً.</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:40px; background:white; border-radius:8px; border:1px solid #e2e8f0;">لا توجد منتجات مسجلة في هذا القسم حالياً.</p>';
         return;
       }
       
@@ -823,6 +876,96 @@
       });
     }
 
+    function buildCategoryAccordion() {
+      const container = document.getElementById('category-accordion');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      // زر عرض الجميع
+      const allItem = document.createElement('div');
+      allItem.className = 'accordion-header active-header';
+      allItem.id = 'header-all';
+      allItem.style.marginBottom = '8px';
+      allItem.innerHTML = '<span>عرض جميع المنتجات</span> <span>📦</span>';
+      allItem.onclick = () => {
+        clearCategoryActiveStates();
+        allItem.classList.add('active-header');
+        renderProducts(products, "جميع المنتجات");
+      };
+      container.appendChild(allItem);
+
+      categories.forEach((cat, cIdx) => {
+        const item = document.createElement('div');
+        item.className = 'accordion-item';
+        
+        let subHtml = '';
+        if (cat.subCats) {
+          cat.subCats.forEach((sub) => {
+            subHtml += `
+              <div class="sub-cat-item" id="sub-item-${cIdx}-${sub}" onclick="filterProductsBySub('${cat.name}', '${sub}', event)">
+                <span>📂 ${sub}</span>
+              </div>
+            `;
+          });
+        }
+
+        subHtml += `
+          <div class="add-subcat-row">
+            <button class="add-subcat-btn" onclick="openAddSubCategoryModal('${cat.name}', event)">+ إضافة قسم فرعي</button>
+          </div>
+        `;
+
+        item.innerHTML = `
+          <div class="accordion-header" id="header-cat-${cIdx}" onclick="clickMainCategory('${cat.name}', ${cIdx})">
+            <span>📁 ${cat.name}</span>
+            <span>▾</span>
+          </div>
+          <div class="accordion-body" id="acc-body-${cIdx}">
+            ${subHtml}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function clearCategoryActiveStates() {
+      document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('active-header'));
+      document.querySelectorAll('.sub-cat-item').forEach(s => s.classList.remove('active-sub'));
+    }
+
+    function clickMainCategory(mainCatName, cIdx) {
+      clearCategoryActiveStates();
+      
+      const headerEl = document.getElementById(`header-cat-${cIdx}`);
+      if (headerEl) headerEl.classList.add('active-header');
+
+      const bodyEl = document.getElementById(`acc-body-${cIdx}`);
+      if (bodyEl) {
+        const isOpen = bodyEl.classList.contains('active');
+        document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
+        if (!isOpen) bodyEl.classList.add('active');
+      }
+
+      // تصفية وعرض جميع منتجات هذا القسم الرئيسي بمختلف أقسامه الفرعية
+      const filtered = products.filter(p => p.mainCat === mainCatName);
+      renderProducts(filtered, `قسم: ${mainCatName}`);
+    }
+
+    function filterProductsBySub(mainCat, subCat, event) {
+      if (event) event.stopPropagation(); // منع تداخل الحدث
+      clearCategoryActiveStates();
+
+      // إبقاء الأكورديون الخاص بالقسم الرئيسي مفتوحاً
+      const catIdx = categories.findIndex(c => c.name === mainCat);
+      if (catIdx !== -1) {
+        const bodyEl = document.getElementById(`acc-body-${catIdx}`);
+        if (bodyEl) bodyEl.classList.add('active');
+      }
+
+      const filtered = products.filter(p => p.mainCat === mainCat && p.subCat === subCat);
+      renderProducts(filtered, `${mainCat} ➔ ${subCat}`);
+    }
+
     function quickUpdateStock(prodId) {
       const prod = products.find(p => p.id === prodId);
       if (!prod) return;
@@ -837,66 +980,6 @@
           alert("الرجاء إدخال رقم صحيح لعدد المخزن.");
         }
       }
-    }
-
-    function buildCategoryAccordion() {
-      const container = document.getElementById('category-accordion');
-      if (!container) return;
-      container.innerHTML = '';
-      
-      const allItem = document.createElement('div');
-      allItem.className = 'accordion-header';
-      allItem.style.marginBottom = '8px';
-      allItem.innerText = 'عرض جميع المنتجات';
-      allItem.onclick = () => renderProducts(products);
-      container.appendChild(allItem);
-
-      categories.forEach((cat, cIdx) => {
-        const item = document.createElement('div');
-        item.className = 'accordion-item';
-        
-        let subHtml = '';
-        if (cat.subCats) {
-          cat.subCats.forEach((sub) => {
-            subHtml += `
-              <div class="sub-cat-item" onclick="filterProductsBySub('${cat.name}', '${sub}')">
-                <span>${sub}</span>
-              </div>
-            `;
-          });
-        }
-
-        subHtml += `
-          <div class="add-subcat-row">
-            <button class="add-subcat-btn" onclick="openAddSubCategoryModal('${cat.name}')">+ إضافة قسم فرعي</button>
-          </div>
-        `;
-
-        item.innerHTML = `
-          <div class="accordion-header" onclick="toggleAccordion(${cIdx})">
-            <span>${cat.name}</span>
-            <span>▾</span>
-          </div>
-          <div class="accordion-body" id="acc-body-${cIdx}">
-            ${subHtml}
-          </div>
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    function toggleAccordion(idx) {
-      const el = document.getElementById(`acc-body-${idx}`);
-      if (el) {
-        const isOpen = el.classList.contains('active');
-        document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
-        if (!isOpen) el.classList.add('active');
-      }
-    }
-
-    function filterProductsBySub(mainCat, subCat) {
-      const filtered = products.filter(p => p.mainCat === mainCat && p.subCat === subCat);
-      renderProducts(filtered);
     }
 
     function saveProductsData() {
@@ -1179,7 +1262,7 @@
 
     document.addEventListener("DOMContentLoaded", function() {
       buildCategoryAccordion();
-      renderProducts(products);
+      renderProducts(products, "جميع المنتجات");
       updateCartBadge();
     });
   </script>
