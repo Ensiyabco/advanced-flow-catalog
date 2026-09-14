@@ -354,22 +354,28 @@
     }
 
     .customer-qty-box input {
-      width: 55px;
+      width: 45px;
       padding: 5px;
       text-align: center;
       border: 1px solid #cbd5e0;
       border-radius: 6px;
       font-family: 'Cairo', sans-serif;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
       color: #1b365d;
     }
 
-    .qty-unit-text {
-      font-weight: 800;
-      color: #2b6cb0;
-      font-size: 13px;
+    .customer-qty-box select {
+      padding: 5px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      outline: none;
+      background: #fff;
+      color: #1b365d;
     }
 
     .btn-add-to-cart {
@@ -584,12 +590,15 @@
         
         <div style="display:flex; gap:12px; margin-top:12px;">
           <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">الوحدة:</label>
+            <label style="display:block; font-size:13px; font-weight:700; color:#4a5568;">الوحدة الافتراضية:</label>
             <select id="prod-unit" style="width:100%; padding:10px; margin-top:5px; border:1px solid #cbd5e0; border-radius:8px; font-size:14px; font-family:'Cairo', sans-serif; outline:none; background:#fff;">
-              <option value="حبة">حبة</option>
-              <option value="شد">شد</option>
               <option value="كرتون">كرتون</option>
               <option value="درزن">درزن</option>
+              <option value="حبة">حبة</option>
+              <option value="علبة">علبة</option>
+              <option value="متر">متر</option>
+              <option value="لفه">لفه</option>
+              <option value="ربطه">ربطه</option>
             </select>
           </div>
           <div style="flex:1;">
@@ -647,7 +656,6 @@
       buildSidebarCategories();
       updateCartBadge();
 
-      // التحقق من وجود معاملات في الرابط (مثل الضغط على قسم أو بحث من الرئيسية)
       const urlParams = new URLSearchParams(window.location.search);
       const catParam = urlParams.get('category');
       const searchParam = urlParams.get('search');
@@ -762,7 +770,7 @@
           
           <div class="product-specs-box">
             <div class="spec-item">
-              <span class="spec-label">الوحدة</span>
+              <span class="spec-label">الوحدة الافتراضية</span>
               <span class="spec-value">${prod.unit}</span>
             </div>
             <div style="height:20px; width:1px; background:#e2e8f0;"></div>
@@ -773,14 +781,22 @@
           </div>
 
           <div class="customer-qty-box">
-            <label>الكمية المطلوبة:</label>
+            <label>الكمية:</label>
             <div class="qty-input-wrapper">
               <input type="number" id="qty-${prod.id}" value="1" min="1">
-              <span class="qty-unit-text">${prod.unit}</span>
+              <select id="unit-${prod.id}">
+                <option value="كرتون" ${prod.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
+                <option value="درزن" ${prod.unit === 'درزن' ? 'selected' : ''}>درزن</option>
+                <option value="حبة" ${prod.unit === 'حبة' ? 'selected' : ''}>حبة</option>
+                <option value="علبة" ${prod.unit === 'علبة' ? 'selected' : ''}>علبة</option>
+                <option value="متر" ${prod.unit === 'متر' ? 'selected' : ''}>متر</option>
+                <option value="لفه" ${prod.unit === 'لفه' ? 'selected' : ''}>لفه</option>
+                <option value="ربطه" ${prod.unit === 'ربطه' ? 'selected' : ''}>ربطه</option>
+              </select>
             </div>
           </div>
 
-          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}', '${prod.unit}')">إضافة إلى قائمة الطلب</button>
+          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}')">إضافة إلى قائمة الطلب</button>
         `;
         container.appendChild(card);
       });
@@ -813,7 +829,7 @@
           
           <div class="product-specs-box">
             <div class="spec-item">
-              <span class="spec-label">الوحدة</span>
+              <span class="spec-label">الوحدة الافتراضية</span>
               <span class="spec-value">${prod.unit}</span>
             </div>
             <div style="height:20px; width:1px; background:#e2e8f0;"></div>
@@ -824,14 +840,22 @@
           </div>
 
           <div class="customer-qty-box">
-            <label>الكمية المطلوبة:</label>
+            <label>الكمية:</label>
             <div class="qty-input-wrapper">
               <input type="number" id="qty-${prod.id}" value="1" min="1">
-              <span class="qty-unit-text">${prod.unit}</span>
+              <select id="unit-${prod.id}">
+                <option value="كرتون" ${prod.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
+                <option value="درزن" ${prod.unit === 'درزن' ? 'selected' : ''}>درزن</option>
+                <option value="حبة" ${prod.unit === 'حبة' ? 'selected' : ''}>حبة</option>
+                <option value="علبة" ${prod.unit === 'علبة' ? 'selected' : ''}>علبة</option>
+                <option value="متر" ${prod.unit === 'متر' ? 'selected' : ''}>متر</option>
+                <option value="لفه" ${prod.unit === 'لفه' ? 'selected' : ''}>لفه</option>
+                <option value="ربطه" ${prod.unit === 'ربطه' ? 'selected' : ''}>ربطه</option>
+              </select>
             </div>
           </div>
 
-          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}', '${prod.unit}')">إضافة إلى قائمة الطلب</button>
+          <button class="btn-add-to-cart" onclick="addToCart(${prod.id}, '${prod.name}')">إضافة إلى قائمة الطلب</button>
           
           ${isAdmin ? `
             <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
@@ -875,25 +899,27 @@
       }
     });
 
-    function addToCart(prodId, prodName, prodUnit) {
+    function addToCart(prodId, prodName) {
       const qtyInput = document.getElementById(`qty-${prodId}`);
+      const unitSelect = document.getElementById(`unit-${prodId}`);
       const quantity = parseInt(qtyInput ? qtyInput.value : 1);
+      const unit = unitSelect ? unitSelect.value : 'حبة';
 
-      const existingIndex = cart.findIndex(item => item.id === prodId);
+      const existingIndex = cart.findIndex(item => item.id === prodId && item.unit === unit);
       if (existingIndex > -1) {
         cart[existingIndex].quantity += quantity;
       } else {
         cart.push({
           id: prodId,
           name: prodName,
-          unit: prodUnit,
+          unit: unit,
           quantity: quantity
         });
       }
 
       localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
-      alert(`تم إضافة "${prodName}" إلى قائمة الطلب بنجاح!`);
+      alert(`تم إضافة "${prodName}" (${quantity} ${unit}) إلى قائمة الطلب بنجاح!`);
     }
 
     function updateCartBadge() {
@@ -915,7 +941,7 @@
             <div class="cart-item-info">${index + 1}. ${item.name}</div>
             <div style="display:flex; align-items:center; gap:10px;">
               <span class="cart-item-qty">${item.quantity} ${item.unit}</span>
-              <button class="btn-remove-item" onclick="removeFromCart(${item.id})">✕</button>
+              <button class="btn-remove-item" onclick="removeFromCart(${item.id}, '${item.unit}')">✕</button>
             </div>
           `;
           container.appendChild(row);
@@ -929,8 +955,8 @@
       document.getElementById('cart-modal').style.display = 'none';
     }
 
-    function removeFromCart(prodId) {
-      cart = cart.filter(item => item.id !== prodId);
+    function removeFromCart(prodId, prodUnit) {
+      cart = cart.filter(item => !(item.id === prodId && item.unit === prodUnit));
       localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       openCartModal();
