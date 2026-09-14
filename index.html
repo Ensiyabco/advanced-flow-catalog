@@ -8,6 +8,7 @@
 </head>
 <body>
 
+  <!-- الهيدر -->
   <header>
     <a href="index.html" class="logo-container">
       <div class="brand-title">
@@ -24,21 +25,54 @@
       </ul>
     </nav>
     <button class="cart-btn-header" onclick="window.location.href='products.html'">
-      🛒 سلة الطلبات
+      🛒 سلة الطلبات <span class="cart-badge" id="cart-badge">0</span>
     </button>
   </header>
 
-  <main class="main-container" style="text-align: center; padding: 50px 15px;">
-    <div style="background: white; padding: 40px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+  <!-- المحتوى الرئيسي للرئيسية (الأقسام الرئيسية) -->
+  <main class="main-container">
+    <section class="hero-section" style="text-align: center; margin-bottom: 40px; background: white; padding: 40px; border-radius: 12px; border: 1px solid #e2e8f0;">
       <h2 style="color: #1b365d; font-size: 2rem; margin-bottom: 15px; font-weight: 800;">مرحباً بكم في الأنسياب المتقدم</h2>
-      <p style="color: #718096; font-size: 1.1rem; margin-bottom: 30px;">وجهتكم الأولى لأفضل أدوات ولوازم الغاز، الكشتات، ومستلزمات الرحلات البرية بجودة عالية وعملية.</p>
-      <a href="products.html" style="background: #2b6cb0; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 16px; display: inline-block;">تصفح المنتجات والأقسام</a>
+      <p style="color: #718096; font-size: 1.1rem; margin-bottom: 25px;">وجهتكم الأولى لأفضل أدوات ولوازم الغاز، الكشتات، ومستلزمات الرحلات البرية.</p>
+      <a href="products.html" style="background: #2b6cb0; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: 800; display: inline-block;">تصفح كافة المنتجات والأقسام</a>
+    </section>
+
+    <!-- عرض الأقسام الرئيسية السريعة -->
+    <h3 style="color: #1b365d; margin-bottom: 20px; font-weight: 800;">الأقسام الرئيسية</h3>
+    <div class="products-grid">
+      <div class="product-card" onclick="window.location.href='products.html'" style="cursor: pointer;">
+        <h3>دوافير ومواقد الغاز</h3>
+        <p>تشكيلة واسعة من الدوافير والمواقد بمختلف الأحجام والقدرات.</p>
+        <span class="stock-badge badge-available">تصفح القسم</span>
+      </div>
+      <div class="product-card" onclick="window.location.href='products.html'" style="cursor: pointer;">
+        <h3>ساعات ومنظمات غاز</h3>
+        <p>منظمات وساعات غاز أصلية وآمنة للاستخدام المنزلي والرحلات.</p>
+        <span class="stock-badge badge-available">تصفح القسم</span>
+      </div>
+      <div class="product-card" onclick="window.location.href='products.html'" style="cursor: pointer;">
+        <h3>ليات وقطع غيار ومحابس</h3>
+        <p>مدات وليدات غاز، محابس وتواصيل وقطع غيار أصلية.</p>
+        <span class="stock-badge badge-available">تصفح القسم</span>
+      </div>
+      <div class="product-card" onclick="window.location.href='products.html'" style="cursor: pointer;">
+        <h3>لوازم الرحلات والكشتات</h3>
+        <p>مستلزمات متكاملة للبر والرحلات وخدمة الكشتات.</p>
+        <span class="stock-badge badge-available">تصفح القسم</span>
+      </div>
     </div>
   </main>
 
+  <!-- تذييل الموقع -->
   <footer>
     <p>جميع الحقوق محفوظة &copy; الأنسياب المتقدم 2026</p>
   </footer>
 
+  <script>
+    let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
+    let totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+    let badge = document.getElementById('cart-badge');
+    if(badge) badge.innerText = totalQty;
+  </script>
 </body>
 </html>
