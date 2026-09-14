@@ -57,7 +57,7 @@
     .accordion-content { display: none; padding: 5px 15px 10px 0; background: #fafbfc; }
     .accordion-content.active { display: block; }
     .subcat-link {
-      display: block; padding: 5px 0; font-size: 12px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; color: #4a5568; text-decoration: none; font-weight: 600; cursor: pointer;
     }
     .subcat-link:hover { color: #e53e3e; }
 
@@ -119,8 +119,8 @@
     </a>
     
     <div class="header-actions">
-      <button class="btn-admin admin-only" onclick="alert('إضافة قسم جديد')">+ قسم جديد</button>
-      <button class="btn-admin admin-only" onclick="alert('إضافة منتج جديد')">+ إضافة منتج</button>
+      <button class="btn-admin admin-only" onclick="addMainCategory()">+ قسم جديد</button>
+      <button class="btn-admin admin-only" onclick="addNewProduct()">+ إضافة منتج</button>
       
       <button class="cart-btn-header" onclick="location.href='cart.html'">
         <span>قائمة الطلبات</span>
@@ -133,7 +133,7 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <h3>أقسام المنتجات</h3>
-        <button class="btn-admin admin-only" style="padding: 3px 8px; font-size: 11px;">+ قسم رئيسي</button>
+        <button class="btn-admin admin-only" onclick="addMainCategory()" style="padding: 3px 8px; font-size: 11px;">+ قسم رئيسي</button>
       </div>
       <div id="accordion-container">
         <!-- يتم جلب جميع الأقسام والكتالوج هنا تلقائياً -->
@@ -176,7 +176,7 @@
     let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
     let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
 
-    const products = [
+    let products = JSON.parse(localStorage.getItem('ansiyab_products')) || [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
@@ -209,6 +209,40 @@
       });
     }
 
+    function saveCategories() {
+      localStorage.setItem('ansiyab_categories', JSON.stringify(categoriesData));
+      renderCategories();
+    }
+
+    function saveProducts() {
+      localStorage.setItem('ansiyab_products', JSON.stringify(products));
+      renderProducts(products);
+    }
+
+    function addMainCategory() {
+      const name = prompt("أدخل اسم القسم الرئيسي الجديد:");
+      if (name && name.trim()) {
+        const newCat = {
+          id: Date.now(),
+          name: name.trim(),
+          subcategories: []
+        };
+        categoriesData.push(newCat);
+        saveCategories();
+      }
+    }
+
+    function addSubCategory(catId) {
+      const subName = prompt("أدخل اسم القسم الفرعي الجديد:");
+      if (subName && subName.trim()) {
+        const cat = categoriesData.find(c => c.id === catId);
+        if (cat) {
+          cat.subcategories.push(subName.trim());
+          saveCategories();
+        }
+      }
+    }
+
     function renderCategories() {
       const container = document.getElementById('accordion-container');
       container.innerHTML = `
@@ -226,11 +260,16 @@
         let subHtml = '';
         if (cat.subcategories && cat.subcategories.length > 0) {
           cat.subcategories.forEach(sub => {
-            subHtml += `<div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')">• ${sub}</div>`;
+            subHtml += `
+              <div class="subcat-link" onclick="filterBySubcat('${sub}', '${sub}')">
+                <span>• ${sub}</span>
+              </div>`;
           });
         } else {
-          subHtml = `<div class="subcat-link" onclick="filterBySubcat('${cat.name}', '${cat.name}')">• عرض الكل</div>`;
+          subHtml = `<div class="subcat-link" onclick="filterBySubcat('${cat.name}', '${cat.name}')"><span>• عرض الكل</span></div>`;
         }
+
+        subHtml += `<button class="btn-admin admin-only" style="margin-top:5px; padding: 2px 6px; font-size: 10px;" onclick="addSubCategory(${cat.id})">+ فرعي جديد</button>`;
 
         const imgSrc = categoryImages[cat.id] || 'assets/images/logo.png';
 
@@ -253,7 +292,6 @@
       checkAdminStatus();
     }
 
-    // دالة تغيير صورة القسم مباشرة للمشرف
     function changeCategoryImage(catId) {
       const newImg = prompt("أدخل رابط الصورة الجديدة للقسم (URL):");
       if (newImg && newImg.trim() !== "") {
@@ -298,8 +336,8 @@
         card.className = 'product-card';
         card.innerHTML = `
           <div class="prod-actions-top admin-only">
-            <button class="btn-action admin-only" onclick="alert('تعديل')">✏️</button>
-            <button class="btn-action admin-only" onclick="alert('حذف')">🗑️</button>
+            <button class="btn-action admin-only" onclick="editProduct(${p.id})">✏️</button>
+            <button class="btn-action admin-only" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
 
           <img src="${p.img}" class="prod-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
@@ -313,7 +351,7 @@
           <div class="order-box">
             <div class="stock-row">
               <span>المتوفر: ${p.stock}</span>
-              <button class="btn-action admin-only" style="background:#e2e8f0;">تحديث المخزن 🔄</button>
+              <button class="btn-action admin-only" onclick="updateStock(${p.id})" style="background:#e2e8f0;">تحديث المخزن 🔄</button>
             </div>
             <div class="qty-row">
               <label style="font-size:11px; font-weight:700;">الطلبية:</label>
@@ -335,6 +373,60 @@
       });
 
       checkAdminStatus();
+    }
+
+    function addNewProduct() {
+      const name = prompt("أدخل اسم المنتج الجديد:");
+      if (!name) return;
+      const category = prompt("أدخل اسم القسم الرئيسي:");
+      const subcategory = prompt("أدخل اسم القسم الفرعي:");
+      const unit = prompt("أدخل الوحدة الأساسية (مثال: حبة، كرتون):") || "حبة";
+      const boxQty = parseInt(prompt("أدخل عدد الشد داخل الكرتون:")) || 1;
+      const stock = parseInt(prompt("أدخل الكمية المتوفرة بالمخزن:")) || 0;
+      const img = prompt("أدخل رابط صورة المنتج:") || "assets/images/logo.png";
+
+      const newProd = {
+        id: Date.now(),
+        name, category, subcategory, unit, boxQty, stock, img
+      };
+
+      products.push(newProd);
+      saveProducts();
+    }
+
+    function editProduct(id) {
+      const p = products.find(prod => prod.id === id);
+      if (!p) return;
+
+      const newName = prompt("تعديل اسم المنتج:", p.name);
+      if (newName === null) return;
+      const newStock = prompt("تعديل الكمية في المخزن:", p.stock);
+      const newBoxQty = prompt("تعديل شد الكرتون:", p.boxQty);
+      const newImg = prompt("تعديل رابط الصورة:", p.img);
+
+      p.name = newName || p.name;
+      p.stock = newStock !== null ? parseInt(newStock) : p.stock;
+      p.boxQty = newBoxQty !== null ? parseInt(newBoxQty) : p.boxQty;
+      p.img = newImg || p.img;
+
+      saveProducts();
+    }
+
+    function deleteProduct(id) {
+      if (confirm("هل أنت تأكد من رغبتك في حذف هذا المنتج؟")) {
+        products = products.filter(p => p.id !== id);
+        saveProducts();
+      }
+    }
+
+    function updateStock(id) {
+      const p = products.find(prod => prod.id === id);
+      if (!p) return;
+      const newStock = prompt("أدخل كمية المخزن الجديدة:", p.stock);
+      if (newStock !== null) {
+        p.stock = parseInt(newStock) || 0;
+        saveProducts();
+      }
     }
 
     function addToCart(prodId) {
