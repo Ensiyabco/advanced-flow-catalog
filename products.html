@@ -151,24 +151,25 @@
       border-color: #2b6cb0;
     }
 
-    /* خلفية مائية بشعار المؤسسة لمربعات الأقسام الرئيسية */
+    /* صندوق عرض شعار المؤسسة داخل مربعات الأقسام */
     .cat-img-box {
       width: 100%;
       height: 110px;
       background-color: #f8fafc;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('https://via.placeholder.com/120x35?text=Logo');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 80px auto;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 12px;
       border: 1px solid #edf2f7;
-      color: #1b365d;
-      font-weight: bold;
-      font-size: 13px;
+      padding: 10px;
+    }
+
+    .cat-img-box img {
+      max-width: 85%;
+      max-height: 80px;
+      object-fit: contain;
+      opacity: 0.85;
     }
 
     .main-cat-card h3 {
@@ -306,23 +307,25 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
 
-    /* خلفية مائية بشعار المؤسسة لصناديق المنتجات */
+    /* صندوق عرض شعار المؤسسة داخل صناديق المنتجات */
     .product-img-box {
       width: 100%;
       height: 130px;
       background-color: #f8fafc;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('https://via.placeholder.com/120x35?text=Logo');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 90px auto;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 10px;
-      font-size: 12px;
-      color: #718096;
       border: 1px solid #edf2f7;
+      padding: 10px;
+    }
+
+    .product-img-box img {
+      max-width: 85%;
+      max-height: 95px;
+      object-fit: contain;
+      opacity: 0.85;
     }
 
     .product-title {
@@ -427,6 +430,7 @@
 
   <header>
     <div class="logo-container" id="site-logo" onclick="showPage('home')" ondblclick="toggleAdmin()" title="ضغطة واحدة للرئيسية | ضغطتان لتفعيل الأدمن">
+      <!-- استبدل رابط الصورة أدناه برابط شعار المؤسسة الخاص بك إن أردت -->
       <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
     </div>
@@ -628,7 +632,9 @@
         card.className = 'main-cat-card';
         card.onclick = () => openCategoryProducts(cat);
         card.innerHTML = `
-          <div class="cat-img-box"></div>
+          <div class="cat-img-box">
+            <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المؤسسة">
+          </div>
           <h3>${cat}</h3>
         `;
         grid.appendChild(card);
@@ -697,7 +703,9 @@
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-          <div class="product-img-box"></div>
+          <div class="product-img-box">
+            <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المؤسسة">
+          </div>
           <div class="product-title">${prod.name}</div>
           
           <div class="product-specs-box">
