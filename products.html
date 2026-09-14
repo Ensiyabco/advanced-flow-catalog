@@ -38,6 +38,11 @@
       cursor: pointer;
     }
 
+    .logo-img {
+      height: 35px;
+      width: auto;
+    }
+
     .logo-text {
       font-size: 15px;
       font-weight: bold;
@@ -47,6 +52,7 @@
     .nav-links {
       display: flex;
       gap: 20px;
+      align-items: center;
     }
 
     .nav-links a {
@@ -60,8 +66,7 @@
     }
 
     .nav-links a.active, .nav-links a:hover {
-      background-color: #f1f5f9;
-      color: #1b365d;
+      color: #2b6cb0;
     }
 
     /* --- الصفحة الرئيسية --- */
@@ -73,23 +78,24 @@
       background: linear-gradient(135deg, #1b365d, #2c5282);
       color: white;
       text-align: center;
-      padding: 45px 20px;
+      padding: 50px 20px 60px 20px;
       margin-bottom: 30px;
     }
 
     .hero-banner h1 {
-      font-size: 26px;
+      font-size: 28px;
       margin-bottom: 10px;
+      font-weight: bold;
     }
 
     .hero-banner p {
-      font-size: 14px;
+      font-size: 15px;
       opacity: 0.9;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .search-box-container {
-      max-width: 500px;
+      max-width: 420px;
       margin: 0 auto;
     }
 
@@ -98,7 +104,7 @@
       padding: 12px 20px;
       border-radius: 30px;
       border: none;
-      font-size: 14px;
+      font-size: 13px;
       text-align: right;
       outline: none;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -109,8 +115,7 @@
       margin: 0 auto 20px auto;
       padding: 0 20px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
     }
 
     .section-title-container h2 {
@@ -124,7 +129,7 @@
       margin: 0 auto 40px auto;
       padding: 0 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
     }
 
@@ -132,37 +137,44 @@
       background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 20px 15px;
+      padding: 15px;
       text-align: center;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
       transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .main-cat-card:hover {
       transform: translateY(-3px);
-      border-color: #1b365d;
+      border-color: #2b6cb0;
     }
 
-    .cat-icon-box {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 12px auto;
+    .cat-img-box {
+      width: 100%;
+      height: 130px;
       background: #f7fafc;
-      border-radius: 50%;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #1b365d;
-      font-weight: bold;
-      font-size: 14px;
+      margin-bottom: 12px;
       border: 1px solid #edf2f7;
+    }
+
+    .cat-img-box img {
+      max-height: 90px;
+      max-width: 90px;
+      object-fit: contain;
     }
 
     .main-cat-card h3 {
       font-size: 14px;
       margin: 0;
       color: #2d3748;
+      font-weight: bold;
     }
 
     /* --- صفحة المنتجات والكتالوج --- */
@@ -355,16 +367,24 @@
       margin-top: 40px;
     }
 
+    @media (max-width: 992px) {
+      .main-categories-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
     @media (max-width: 768px) {
+      .main-categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
       .products-wrapper {
         flex-direction: column;
       }
       .sidebar {
         width: 100%;
       }
-      .products-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
+      header {
+        padding: 10px 15px;
       }
     }
   </style>
@@ -373,15 +393,16 @@
 
   <!-- الهيدر الرئيسي -->
   <header>
+    <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر مرتين لتفعيل الأدمن">
+      <img src="https://ensiyabco.com/images/logo.png" alt="شعار الأنسياب" class="logo-img" onerror="this.style.display='none'">
+      <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
+    </div>
     <nav class="nav-links">
       <a href="#" id="nav-home" class="active" onclick="showPage('home')">الرئيسية</a>
       <a href="#" id="nav-products" onclick="showPage('products')">المنتجات</a>
       <a href="#">من نحن</a>
       <a href="#">التواصل</a>
     </nav>
-    <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر مرتين لتفعيل الأدمن">
-      <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
-    </div>
   </header>
 
   <!-- الصفحة الرئيسية -->
@@ -398,10 +419,8 @@
       <h2>تصفح الأقسام</h2>
     </div>
 
-    <!-- شبكة الأقسام الكاملة -->
-    <div class="main-categories-grid" id="home-categories-grid">
-      <!-- يتم تعبئتها تلقائياً من البرمجة لضمان ظهور كافة الأقسام -->
-    </div>
+    <!-- شبكة الأقسام الرئيسية -->
+    <div class="main-categories-grid" id="home-categories-grid"></div>
   </div>
 
   <!-- صفحة المنتجات والكتالوج الجانبي -->
@@ -440,7 +459,7 @@
     </div>
   </div>
 
-  <!-- النافذة المنبثقة للوحة التحكم -->
+  <!-- النافذة المنبثقة لوحة التحكم -->
   <div id="admin-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:20px; border-radius:8px; width:90%; max-width:450px;">
       <h3 id="modal-title" style="margin-top:0;">إضافة / تعديل منتج</h3>
@@ -478,20 +497,20 @@
 
   <script>
     const storeCategories = {
+      "قدور": ["قدور ضغط", "قدور طبخ"],
       "طباخات وفوانيس": ["طباخات غاز سائل", "فوانيس غاز سائل", "فوانيس بطاريات", "دوافير غاز", "فتايل", "أتاريك", "قزاز فوانيس واتاريك"],
       "مواقد غاز": ["مواقد سفري", "مواقد منزلية"],
       "دوافير ودبات": ["دبات غاز", "دوافير كاملة"],
-      "ساعات ومنظمات غاز": ["منظمات ضغط عالي", "منظمات ضغط منخفض"],
-      "ليات غاز ورجلات": ["ليات ضغط عالي", "ليات عادية", "رجلات غاز"],
-      "محابس وتواصيل غاز": ["محابس غاز", "تواصيل ونقاصات"],
       "قطع غيار": ["قطع غيار مواقد", "قطع غيار فوانيس"],
-      "خضاضات وسطول ومواعين": ["خضاضات لبن", "سطول ومواعين"],
+      "محابس وتواصيل غاز": ["محابس غاز", "تواصيل ونقاصات"],
+      "ليات غاز ورجلات": ["ليات ضغط عالي", "ليات عادية", "رجلات غاز"],
+      "ساعات ومنظمات غاز": ["منظمات ضغط عالي", "منظمات ضغط منخفض"],
+      "ادوات ولوازم الشواء": ["شوايات", "فحم ولوازم"],
       "دفايات": ["دفايات غاز", "دفايات كشتات"],
       "ولاعات غاز وشعالات كهرباء": ["ولاعات غاز", "شعالات كهربائية"],
-      "ادوات ولوازم الشواء": ["شوايات", "فحم ولوازم"],
+      "خضاضات وسطول ومواعين": ["خضاضات لبن", "سطول ومواعين"],
       "ادوات لحام وواربخ": ["لحام غاز", "صواريخ بقاعدة"],
-      "ادوات ولوازم الرحلات": ["عزب ورحلات", "فرشات وسجاد"],
-      "قدور": ["قدور ضغط", "قدور طبخ"]
+      "ادوات ولوازم الرحلات": ["عزب ورحلات", "فرشات وسجاد"]
     };
 
     function showPage(pageId) {
@@ -528,7 +547,9 @@
         card.className = 'main-cat-card';
         card.onclick = () => openCategoryProducts(cat);
         card.innerHTML = `
-          <div class="cat-icon-box">إنسياب</div>
+          <div class="cat-img-box">
+            <img src="https://ensiyabco.com/images/logo.png" alt="${cat}" onerror="this.style.display='none'">
+          </div>
           <h3>${cat}</h3>
         `;
         grid.appendChild(card);
