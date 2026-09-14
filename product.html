@@ -8,441 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box !important;
-    }
-
-    html, body {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: 'Cairo', sans-serif !important;
-      background-color: #f4f7f9;
-      color: #2d3748;
-      line-height: 1.6;
-    }
-
-    header {
-      background-color: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 12px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      text-align: center;
-    }
-
-    .logo-container {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    #logo-img {
-      width: 45px;
-      height: 45px;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .brand-title {
-      margin-bottom: 10px;
-      text-align: right;
-    }
-
-    .brand-title h1 {
-      font-size: 1.2rem;
-      color: #1b365d;
-      margin: 0 0 2px 0;
-      font-weight: 800;
-    }
-
-    .brand-title p {
-      font-size: 0.8rem;
-      color: #718096;
-      margin: 0;
-      font-weight: 600;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .nav-links a, .cart-btn-header {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 7px 14px;
-      border-radius: 6px;
-      background-color: #1b365d;
-      transition: all 0.3s ease;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'Cairo', sans-serif;
-      border: none;
-      cursor: pointer;
-    }
-
-    .nav-links a.active, .nav-links a:hover, .cart-btn-header:hover {
-      background-color: #2b6cb0;
-    }
-
-    .cart-badge {
-      background-color: #e53e3e;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      font-size: 11px;
-    }
-
-    @media (min-width: 768px) {
-      header {
-        flex-direction: row;
-        justify-content: space-between;
-        text-align: right;
-        padding: 12px 30px;
-      }
-      .brand-title {
-        margin-bottom: 0;
-      }
-      .nav-links {
-        width: auto;
-        justify-content: flex-end;
-      }
-    }
-
-    .main-container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 0 15px;
-    }
-
-    .product-details-card {
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      padding: 25px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-    }
-
-    .product-gallery-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .main-img-container {
-      width: 100%;
-      height: 280px;
-      background: #f8fafc;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
-
-    .main-img-container img {
-      max-width: 95%;
-      max-height: 260px;
-      object-fit: contain;
-      transition: transform 0.2s;
-    }
-
-    .main-img-container img:hover {
-      transform: scale(1.05);
-    }
-
-    .product-thumbnails {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-      overflow-x: auto;
-      padding-bottom: 5px;
-      justify-content: center;
-    }
-
-    .thumb-img {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-      background: #f8fafc;
-      border: 1px solid #cbd5e0;
-      border-radius: 6px;
-      cursor: pointer;
-      opacity: 0.7;
-      transition: all 0.2s;
-    }
-
-    .thumb-img:hover, .thumb-img.active-thumb {
-      opacity: 1;
-      border-color: #2b6cb0;
-      transform: scale(1.05);
-    }
-
-    .product-info-section {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .product-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: #1b365d;
-      margin-bottom: 10px;
-    }
-
-    .product-category-path {
-      font-size: 13px;
-      color: #718096;
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-
-    /* تنسيقات حالة المخزن */
-    .stock-badge {
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-weight: 800;
-      font-size: 13px;
-      display: inline-block;
-      margin-bottom: 15px;
-      width: fit-content;
-    }
-    .badge-available {
-      background-color: #e1f5fe;
-      color: #0288d1;
-    }
-    .badge-low-stock {
-      background-color: #fff3e0;
-      color: #f57c00;
-    }
-    .badge-out-of-stock {
-      background-color: #ffebee;
-      color: #c62828;
-    }
-
-    .product-specs-table {
-      width: 100%;
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      justify-content: space-around;
-      text-align: center;
-      margin-bottom: 20px;
-      border: 1px solid #edf2f7;
-    }
-
-    .spec-item label {
-      display: block;
-      font-size: 11px;
-      color: #a0aec0;
-      font-weight: 700;
-    }
-
-    .spec-item span {
-      font-size: 14px;
-      color: #2d3748;
-      font-weight: 800;
-    }
-
-    .quantity-control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .quantity-control input, .quantity-control select {
-      padding: 8px;
-      border: 1px solid #cbd5e0;
-      border-radius: 6px;
-      font-family: 'Cairo', sans-serif;
-      font-size: 14px;
-    }
-    .quantity-control input { width: 60px; text-align: center; }
-
-    .add-to-cart-btn {
-      width: 100%;
-      background: #2b6cb0;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 15px;
-      font-family: 'Cairo', sans-serif;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .add-to-cart-btn:hover { background: #1a4971; }
-    .add-to-cart-btn:disabled {
-      background-color: #e2e8f0 !important;
-      color: #a0aec0 !important;
-      cursor: not-allowed;
-    }
-
-    /* نافذة Lightbox للتكبير والتنقل بين الصور */
-    .image-lightbox-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
-      z-index: 999999;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .image-lightbox-content {
-      position: relative;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 90%;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .image-lightbox-content img {
-      max-width: 75vw;
-      max-height: 70vh;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .lightbox-close-btn {
-      position: absolute;
-      top: 10px;
-      left: 15px;
-      background: #e53e3e;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .lightbox-nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(27, 54, 93, 0.8);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .lightbox-prev { right: -20px; }
-    .lightbox-next { left: -20px; }
-
-    /* مودال السلة */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 99999;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-card {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 480px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-card h3 {
-      margin-top: 0;
-      color: #1b365d;
-      font-weight: 800;
-      text-align: center;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .modal-actions button {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      font-weight: 700;
-      font-family: 'Cairo', sans-serif;
-      cursor: pointer;
-    }
-
-    footer {
-      background-color: #1b365d;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 50px;
-    }
-
-    @media (max-width: 768px) {
-      .product-details-card {
-        grid-template-columns: 1fr;
-      }
-      .lightbox-prev { right: 5px; }
-      .lightbox-next { left: 5px; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
@@ -498,7 +64,6 @@
   </footer>
 
   <script>
-    // جلب المنتجات المخزنة
     const defaultProducts = [
       { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 8, images: ["https://i.imgur.com/7A26w6i.png"] },
       { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 3, images: ["https://i.imgur.com/7A26w6i.png"] },
@@ -508,15 +73,13 @@
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
 
-    // متغيرات الـ Lightbox
     let currentLightboxImages = [];
     let currentLightboxIndex = 0;
     let currentLightboxTitle = "";
 
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
-      const prodId = parseInt(urlParams.get('id')) || 1; // الافتراضي أول منتج إذا لم يُحدد ID
-
+      const prodId = parseInt(urlParams.get('id')) || 1;
       const product = products.find(p => p.id === prodId) || products[0];
       renderProductDetails(product);
       updateCartBadge();
@@ -528,7 +91,6 @@
       let images = prod.images && prod.images.length > 0 ? prod.images : ['https://i.imgur.com/7A26w6i.png'];
       const mainImg = images[0];
 
-      // بناء شريط الصور المصغرة
       let thumbsHtml = '';
       if (images.length > 1) {
         thumbsHtml = `<div class="product-thumbnails">`;
@@ -538,8 +100,7 @@
         thumbsHtml += `</div>`;
       }
 
-      // حساب حالة المخزن
-      let stockQty = prod.stock !== undefined ? prod.stock : 10; // القيمة الافتراضية إذا لم تُحدد
+      let stockQty = prod.stock !== undefined ? prod.stock : 10;
       let stockHtml = '';
       let isOutOfStock = false;
 
@@ -568,7 +129,7 @@
             ${stockHtml}
 
             <div class="product-specs-table">
-              <div class="spec-item"><label>الوحدة الافتراضية</label><span>${prod.unit || 'حبة'}</span></div>
+              <div class="spec-item"><label>وحدة القياس</label><span>${prod.unit || 'حبة'}</span></div>
               <div class="spec-item"><label>شد الكرتون</label><span>${prod.boxQty || 1}</span></div>
             </div>
 
@@ -576,8 +137,14 @@
               <label>الكمية:</label>
               <input type="number" id="product-qty" value="1" min="1" ${isOutOfStock ? 'disabled' : ''}>
               <select id="product-unit" ${isOutOfStock ? 'disabled' : ''}>
-                <option value="حبة">حبة</option>
-                <option value="كرتون">كرتون</option>
+                <option value="حبة" ${prod.unit === 'حبة' ? 'selected' : ''}>حبة</option>
+                <option value="علبة" ${prod.unit === 'علبة' ? 'selected' : ''}>علبة</option>
+                <option value="كرتون" ${prod.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
+                <option value="درزن" ${prod.unit === 'درزن' ? 'selected' : ''}>درزن</option>
+                <option value="لفة" ${prod.unit === 'لفة' ? 'selected' : ''}>لفة</option>
+                <option value="متر" ${prod.unit === 'متر' ? 'selected' : ''}>متر</option>
+                <option value="ربطة" ${prod.unit === 'ربطة' ? 'selected' : ''}>ربطة</option>
+                <option value="بالة" ${prod.unit === 'بالة' ? 'selected' : ''}>بالة</option>
               </select>
             </div>
 
