@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="assets/css/style.css">
 
   <style>
-    /* شريط المشرف العلوي */
     .admin-bar {
       background: #1b365d;
       color: white;
@@ -57,7 +56,7 @@
 
     /* الشريط الجانبي للأقسام */
     .sidebar-categories {
-      width: 280px;
+      width: 300px;
       flex-shrink: 0;
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -104,9 +103,10 @@
       background: #edf2f7;
     }
 
+    /* تنسيق قائمة الأقسام الفرعية لتظهر كاملة وواضحة */
     .sub-cat-list {
       display: none;
-      padding: 8px 15px 8px 5px;
+      padding: 6px 10px 6px 5px;
       background: #fff;
     }
 
@@ -118,8 +118,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 0;
+      padding: 6px 8px;
       border-bottom: 1px dashed #f1f5f9;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .sub-cat-row:hover {
+      background: #f8fafc;
     }
 
     .sub-cat-item {
@@ -127,11 +133,12 @@
       color: #4a5568;
       cursor: pointer;
       flex-grow: 1;
+      font-weight: 600;
     }
 
     .sub-cat-item:hover, .sub-cat-item.active {
       color: #3182ce;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .admin-sub-tools {
@@ -247,10 +254,10 @@
         <button class="sidebar-btn-all" onclick="filterCategory('all', 'all', this)">عرض كل المنتجات</button>
         
         <div id="sidebar-categories-list">
-          <!-- الأقسام الرئيسية والفرعية -->
+          <!-- الأقسام الرئيسية والفرعية كاملة -->
         </div>
 
-        <div id="add-subcat-section" style="margin-top:10px; display:none;">
+        <div id="add-subcat-section" style="margin-top:12px; display:none;">
           <button class="admin-action-btn" style="background:#3182ce; width:100%; justify-content:center;" onclick="addNewSubCategoryModal()">+ إضافة قسم فرعي</button>
         </div>
       </aside>
@@ -333,6 +340,7 @@
       
       let html = '';
       mainCats.forEach((mainCat, index) => {
+        // استخراج كافة الأقسام الفرعية التابعة لهذا القسم الرئيسي بدقة ومن دون أي نقصان
         const subs = [...new Set(products.filter(p => p.mainCat === mainCat).map(p => p.subCat).filter(Boolean))];
         
         html += `
@@ -340,7 +348,7 @@
             <div class="main-cat-header" onclick="toggleSubMenu(this, '${mainCat}')">
               <span>${mainCat}</span>
               <div style="display:flex; align-items:center; gap:5px;">
-                ${isAdmin ? `<button onclick="event.stopPropagation(); editMainCat('${mainCat}')" style="background:none; border:none; cursor:pointer;" title="تعديل">✏️</button>` : ''}
+                ${isAdmin ? `<button onclick="event.stopPropagation(); editMainCat('${mainCat}')" style="background:none; border:none; cursor:pointer;" title="تعديل اسم القسم">✏️</button>` : ''}
                 <span>▼</span>
               </div>
             </div>
@@ -355,7 +363,7 @@
             <div class="sub-cat-row">
               <div class="sub-cat-item" onclick="filterCategory('${mainCat}', '${sub}', this)">${sub}</div>
               <div class="admin-sub-tools">
-                <button onclick="deleteSubCat('${mainCat}', '${sub}')" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-size:12px;" title="حذف">❌</button>
+                <button onclick="deleteSubCat('${mainCat}', '${sub}')" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-size:12px;" title="حذف القسم الفرعي">❌</button>
               </div>
             </div>
           `;
@@ -454,7 +462,6 @@
       });
     }
 
-    // وظائف المشرف الإضافية
     function addNewMainCategory() {
       let name = prompt("أدخل اسم القسم الرئيسي الجديد:");
       if (name && name.trim() !== "") {
