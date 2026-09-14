@@ -86,7 +86,7 @@
     .nav-tools {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 10px;
     }
 
     .cart-btn-trigger {
@@ -120,6 +120,16 @@
       font-weight: bold;
     }
 
+    .add-cat-btn-nav {
+      background-color: #2b6cb0;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     /* Main Container Structure */
     .main-container {
       display: flex;
@@ -131,8 +141,8 @@
 
     /* Sidebar Right */
     .sidebar {
-      width: 300px;
-      min-width: 300px;
+      width: 320px;
+      min-width: 320px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -142,11 +152,28 @@
       overflow-y: auto;
     }
 
-    .sidebar h3 {
-      font-size: 16px;
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 15px;
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 8px;
+    }
+
+    .sidebar-header h3 {
+      font-size: 16px;
+    }
+
+    .sidebar-action-btn {
+      background: #3182ce;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     .accordion-item {
@@ -196,6 +223,29 @@
       font-weight: bold;
     }
 
+    .add-subcat-row {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .add-subcat-btn {
+      background: #ebf8ff;
+      color: #2b6cb0;
+      border: 1px dashed #3182ce;
+      width: 100%;
+      padding: 5px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .add-subcat-btn:hover {
+      background: #bee3f8;
+    }
+
     /* Products Grid Left */
     .products-content {
       flex: 1;
@@ -204,7 +254,7 @@
 
     .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 20px;
       width: 100%;
     }
@@ -288,30 +338,60 @@
     .product-title {
       font-weight: bold;
       font-size: 14px;
-      margin: 10px 0;
+      margin: 10px 0 6px 0;
       height: 38px;
       overflow: hidden;
     }
 
     .product-info-table {
       display: flex;
-      gap: 10px;
+      gap: 6px;
       background: #f8fafc;
       padding: 6px;
       border-radius: 4px;
-      font-size: 12px;
+      font-size: 11px;
       margin-bottom: 10px;
+      border: 1px solid #edf2f7;
     }
 
     .info-item {
       flex: 1;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
     .info-item label {
       color: #718096;
       font-size: 10px;
+      margin-bottom: 2px;
+    }
+
+    .info-item span {
+      font-weight: bold;
+    }
+
+    .stock-control-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ebf8ff;
+      border: 1px dashed #bee3f8;
+      padding: 6px 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+
+    .stock-update-btn {
+      background: #3182ce;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
     }
 
     .quantity-control {
@@ -449,6 +529,7 @@
     </div>
 
     <div class="nav-tools">
+      <button class="add-cat-btn-nav" onclick="openAddCategoryModal()">+ قسم جديد</button>
       <button class="admin-btn" onclick="openProductModal()">+ إضافة منتج</button>
       <button class="cart-btn-trigger" onclick="openCartModal()">
         🛒 قائمة الطلبات <span class="cart-badge" id="cart-count">0</span>
@@ -460,7 +541,10 @@
   <div class="main-container">
     <!-- Sidebar / Categories Accordion (Right) -->
     <aside class="sidebar">
-      <h3>أقسام المنتجات</h3>
+      <div class="sidebar-header">
+        <h3>أقسام المنتجات</h3>
+        <button class="sidebar-action-btn" onclick="openAddCategoryModal()">+ قسم رئيسي</button>
+      </div>
       <div id="category-accordion"></div>
     </aside>
 
@@ -468,6 +552,41 @@
     <main class="products-content">
       <div id="products-grid-container" class="products-grid"></div>
     </main>
+  </div>
+
+  <!-- Add Main Category Modal -->
+  <div class="modal-overlay" id="category-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 15px;">إضافة قسم رئيسي جديد</h3>
+      <div class="form-group">
+        <label>اسم القسم الرئيسي الجديد</label>
+        <input type="text" id="new-main-cat-name" placeholder="مثال: أجهزة طهي حديثة">
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeModal('category-modal')" style="padding: 8px 15px; border: none; background: #cbd5e0; border-radius: 4px; cursor: pointer;">إلغاء</button>
+        <button onclick="saveNewMainCategory()" style="padding: 8px 15px; border: none; background: var(--secondary-color); color: white; border-radius: 4px; cursor: pointer;">حفظ القسم</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Sub Category Modal -->
+  <div class="modal-overlay" id="subcategory-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 15px;">إضافة قسم فرعي</h3>
+      <input type="hidden" id="target-main-cat-name">
+      <div class="form-group">
+        <label>اسم القسم الرئيسي</label>
+        <input type="text" id="display-main-cat-name" readonly style="background: #edf2f7;">
+      </div>
+      <div class="form-group">
+        <label>اسم القسم الفرعي الجديد</label>
+        <input type="text" id="new-sub-cat-name" placeholder="مثال: مواقد كهربائية سفري">
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeModal('subcategory-modal')" style="padding: 8px 15px; border: none; background: #cbd5e0; border-radius: 4px; cursor: pointer;">إلغاء</button>
+        <button onclick="saveNewSubCategory()" style="padding: 8px 15px; border: none; background: var(--secondary-color); color: white; border-radius: 4px; cursor: pointer;">حفظ القسم الفرعي</button>
+      </div>
+    </div>
   </div>
 
   <!-- Product Modal (Add/Edit) -->
@@ -502,6 +621,10 @@
       <div class="form-group">
         <label>شد الكرتون / التعبئة (الكمية داخل الكرتون أو العلبة)</label>
         <input type="number" id="prod-box-input" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>كمية المخزن المتاحة</label>
+        <input type="number" id="prod-stock-input" value="100" min="0">
       </div>
       <div class="form-group">
         <label>صور المنتج (يمكن اختيار أكثر من صورة)</label>
@@ -541,9 +664,10 @@
 
   <!-- JavaScript Code -->
   <script>
+    const targetPhoneNumber = "966506645562";
     const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23edf2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23a0aec0' font-size='16'>صورة المنتج</text></svg>";
 
-    const fullCategoriesList = [
+    const defaultCategoriesList = [
       { name: "ادوات لحام ووصواريخ بقاعدة", subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
       { name: "مواقد غاز", subCats: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"] },
       { name: "ادوات ولوازم الرحلات", subCats: ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"] },
@@ -562,8 +686,8 @@
       { name: "اكسسوارات عامة", subCats: ["عام"] }
     ];
 
-    let categories = fullCategoriesList;
-    let products = JSON.parse(localStorage.getItem('ansiyab_products_v6')) || [
+    let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v1')) || defaultCategoriesList;
+    let products = JSON.parse(localStorage.getItem('ansiyab_products_v7')) || [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
@@ -571,6 +695,7 @@
         subCat: "دبات غاز سفري",
         unit: "حبة",
         boxQty: 12,
+        stockQty: 50,
         images: [placeholderImg]
       }
     ];
@@ -580,6 +705,51 @@
     let currentLightboxImages = [];
     let currentLightboxIndex = 0;
     let currentLightboxTitle = "";
+
+    function saveCategoriesData() {
+      localStorage.setItem('ansiyab_categories_v1', JSON.stringify(categories));
+    }
+
+    function openAddCategoryModal() {
+      document.getElementById('new-main-cat-name').value = '';
+      document.getElementById('category-modal').style.display = 'flex';
+    }
+
+    function saveNewMainCategory() {
+      const name = document.getElementById('new-main-cat-name').value.trim();
+      if (!name) return alert("يرجى كتابة اسم القسم الرئيسي!");
+      if (categories.some(c => c.name === name)) return alert("هذا القسم موجود بالفعل!");
+      
+      categories.push({ name: name, subCats: ["عام"] });
+      saveCategoriesData();
+      buildCategoryAccordion();
+      closeModal('category-modal');
+      alert(`تم إضافة القسم الرئيسي (${name}) بنجاح.`);
+    }
+
+    function openAddSubCategoryModal(mainCatName) {
+      document.getElementById('target-main-cat-name').value = mainCatName;
+      document.getElementById('display-main-cat-name').value = mainCatName;
+      document.getElementById('new-sub-cat-name').value = '';
+      document.getElementById('subcategory-modal').style.display = 'flex';
+    }
+
+    function saveNewSubCategory() {
+      const mainCatName = document.getElementById('target-main-cat-name').value;
+      const subName = document.getElementById('new-sub-cat-name').value.trim();
+      if (!subName) return alert("يرجى كتابة اسم القسم الفرعي!");
+      
+      const catObj = categories.find(c => c.name === mainCatName);
+      if (catObj) {
+        if (!catObj.subCats) catObj.subCats = [];
+        if (catObj.subCats.includes(subName)) return alert("هذا القسم الفرعي موجود بالفعل!");
+        catObj.subCats.push(subName);
+        saveCategoriesData();
+        buildCategoryAccordion();
+        closeModal('subcategory-modal');
+        alert(`تم إضافة القسم الفرعي (${subName}) إلى (${mainCatName}) بنجاح.`);
+      }
+    }
 
     function renderProducts(list) {
       const grid = document.getElementById('products-grid-container');
@@ -600,6 +770,7 @@
         }
         
         const defaultUnit = p.unit || 'حبة';
+        const currentStock = (p.stockQty !== undefined && p.stockQty !== null) ? p.stockQty : 0;
 
         const card = document.createElement('div');
         card.className = 'product-card';
@@ -613,6 +784,7 @@
           </div>
           ${thumbsHtml ? `<div class="product-thumbnails">${thumbsHtml}</div>` : ''}
           <div class="product-title">${p.name}</div>
+          
           <div class="product-info-table">
             <div class="info-item">
               <label>الوحدة</label>
@@ -622,9 +794,19 @@
               <label>شد الكرتون</label>
               <span>${p.boxQty || 1}</span>
             </div>
+            <div class="info-item">
+              <label>المخزن</label>
+              <span style="color:${currentStock > 0 ? '#2b6cb0' : '#e53e3e'};">${currentStock}</span>
+            </div>
           </div>
+
+          <div class="stock-control-bar">
+            <span>📦 المتوفر: <strong>${currentStock}</strong></span>
+            <button class="stock-update-btn" onclick="quickUpdateStock(${p.id})">تحديث المخزن 🔄</button>
+          </div>
+
           <div class="quantity-control">
-            <span style="font-size:12px; font-weight:700;">الكمية:</span>
+            <span style="font-size:12px; font-weight:700;">الطلبية:</span>
             <input type="number" id="qty-${p.id}" value="1" min="1">
             <select id="unit-type-${p.id}">
               <option value="حبة" ${defaultUnit === 'حبة' ? 'selected' : ''}>حبة</option>
@@ -639,6 +821,22 @@
         `;
         grid.appendChild(card);
       });
+    }
+
+    function quickUpdateStock(prodId) {
+      const prod = products.find(p => p.id === prodId);
+      if (!prod) return;
+      const newStock = prompt(`تحديث الكمية المتاحة في المخزن لـ (${prod.name}):`, prod.stockQty !== undefined ? prod.stockQty : 0);
+      if (newStock !== null) {
+        const parsed = parseInt(newStock);
+        if (!isNaN(parsed) && parsed >= 0) {
+          prod.stockQty = parsed;
+          saveProductsData();
+          renderProducts(products);
+        } else {
+          alert("الرجاء إدخال رقم صحيح لعدد المخزن.");
+        }
+      }
     }
 
     function buildCategoryAccordion() {
@@ -659,7 +857,7 @@
         
         let subHtml = '';
         if (cat.subCats) {
-          cat.subCats.forEach((sub, sIdx) => {
+          cat.subCats.forEach((sub) => {
             subHtml += `
               <div class="sub-cat-item" onclick="filterProductsBySub('${cat.name}', '${sub}')">
                 <span>${sub}</span>
@@ -667,6 +865,12 @@
             `;
           });
         }
+
+        subHtml += `
+          <div class="add-subcat-row">
+            <button class="add-subcat-btn" onclick="openAddSubCategoryModal('${cat.name}')">+ إضافة قسم فرعي</button>
+          </div>
+        `;
 
         item.innerHTML = `
           <div class="accordion-header" onclick="toggleAccordion(${cIdx})">
@@ -696,7 +900,7 @@
     }
 
     function saveProductsData() {
-      localStorage.setItem('ansiyab_products_v6', JSON.stringify(products));
+      localStorage.setItem('ansiyab_products_v7', JSON.stringify(products));
     }
 
     function openProductModal() {
@@ -705,6 +909,7 @@
       document.getElementById('prod-name-input').value = "";
       document.getElementById('prod-unit-input').value = "حبة";
       document.getElementById('prod-box-input').value = "1";
+      document.getElementById('prod-stock-input').value = "100";
       document.getElementById('prod-files-input').value = "";
       document.getElementById('modal-images-preview').innerHTML = "";
       modalImagesBase64 = [];
@@ -780,6 +985,7 @@
       document.getElementById('prod-sub-cat-select').value = prod.subCat;
       document.getElementById('prod-unit-input').value = prod.unit || 'حبة';
       document.getElementById('prod-box-input').value = prod.boxQty || 1;
+      document.getElementById('prod-stock-input').value = prod.stockQty !== undefined ? prod.stockQty : 0;
       
       modalImagesBase64 = prod.images ? [...prod.images] : [];
       const previewContainer = document.getElementById('modal-images-preview');
@@ -805,6 +1011,7 @@
       const subCat = document.getElementById('prod-sub-cat-select').value;
       const unit = document.getElementById('prod-unit-input').value || 'حبة';
       const boxQty = parseInt(document.getElementById('prod-box-input').value) || 1;
+      const stockQty = parseInt(document.getElementById('prod-stock-input').value) || 0;
       
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
       if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
@@ -818,6 +1025,7 @@
           subCat: subCat,
           unit: unit,
           boxQty: boxQty,
+          stockQty: stockQty,
           images: modalImagesBase64
         });
       } else {
@@ -828,6 +1036,7 @@
           prod.subCat = subCat;
           prod.unit = unit;
           prod.boxQty = boxQty;
+          prod.stockQty = stockQty;
           prod.images = modalImagesBase64;
         }
       }
@@ -961,7 +1170,7 @@
       });
       text += "\nشكراً لكم.";
       const encoded = encodeURIComponent(text);
-      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+      window.open(`https://wa.me/${targetPhoneNumber}?text=${encoded}`, '_blank');
     }
 
     function closeModal(modalId) {
