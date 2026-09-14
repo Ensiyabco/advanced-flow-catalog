@@ -78,23 +78,6 @@
       background-color: #1b365d;
     }
 
-    .admin-login-btn-header {
-      background: #edf2f7;
-      color: #1b365d;
-      border: 1px solid #cbd5e0;
-      padding: 7px 12px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-      font-family: 'Cairo', sans-serif;
-      transition: all 0.2s ease;
-    }
-
-    .admin-login-btn-header:hover {
-      background: #e2e8f0;
-    }
-
     .cart-btn-header {
       background-color: #2b6cb0;
       color: #fff;
@@ -549,7 +532,7 @@
 <body>
 
   <div id="admin-toolbar">
-    <span>⚙️ أنت في وضع إدارة الموقع</span>
+    <span>⚙️ أنت في وضع إدارة الموقع (اضغط خروج للإخفاء)</span>
     <div>
       <button class="admin-btn" onclick="openMainCatModal()">➕ إضافة قسم رئيسي</button>
       <button class="admin-btn" onclick="openProductModal()">➕ إضافة منتج جديد</button>
@@ -567,9 +550,6 @@
         <a href="index.html">الرئيسية</a>
         <a href="products.html" class="active">المنتجات</a>
       </nav>
-      <button class="admin-login-btn-header" onclick="triggerAdminLogin()" id="header-admin-btn">
-        🔑 دخول المشرف
-      </button>
       <button class="cart-btn-header" onclick="openCartModal()">
         <span>قائمة الطلب</span>
         <span class="cart-badge" id="cart-count">0</span>
@@ -684,15 +664,10 @@
   </div>
 
   <footer>
-    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة | 
-      <a href="javascript:void(0)" onclick="triggerAdminLogin()" id="admin-login-link" style="color: #63b3ed; font-weight: bold; text-decoration: underline; cursor: pointer; display: inline-block; padding: 2px 6px;">
-        تسجيل دخول المشرفين
-      </a>
-    </p>
+    <p>© 2026 الأنسياب المتقدم - جميع الحقوق محفوظة</p>
   </footer>
 
   <script>
-    // القائمة المحدثة بالكامل حسب طلبك
     const defaultCategories = [
       { name: "ادوات لحام ووصواريخ بقاعدة", image: "https://i.imgur.com/7A26w6i.png", subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
       { name: "مواقد غاز", image: "https://i.imgur.com/7A26w6i.png", subCats: ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"] },
@@ -718,7 +693,6 @@
       { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, image: "" }
     ];
 
-    // لتحديث البيانات القديمة المخزنة في متصفحك تلقائياً بالقائمة الجديدة، استخدمنا مفتاح تخزين v3
     let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v3')) || defaultCategories;
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v3')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
@@ -774,22 +748,17 @@
     function applyAdminState() {
       const toolbar = document.getElementById('admin-toolbar');
       const layout = document.getElementById('main-layout-container');
-      const headerBtn = document.getElementById('header-admin-btn');
-      const footerLink = document.getElementById('admin-login-link');
 
       if (isAdmin) {
         toolbar.style.display = 'flex';
         layout.classList.add('admin-active');
-        if (headerBtn) headerBtn.innerText = "🔑 خروج المشرف";
-        if (footerLink) footerLink.innerText = "وضع المشرف (تسجيل الخروج)";
       } else {
         toolbar.style.display = 'none';
         layout.classList.remove('admin-active');
-        if (headerBtn) headerBtn.innerText = "🔑 دخول المشرف";
-        if (footerLink) footerLink.innerText = "تسجيل دخول المشرفين";
       }
     }
 
+    // اختصار لوحة المفاتيح المخفي للدخول كمسؤول: Ctrl + Alt + A (أو Ctrl + Alt + ش)
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش')) {
         e.preventDefault();
@@ -1160,7 +1129,6 @@
         });
       }
 
-      document.getElementById('modal-overlay').style.display = 'flex'; // ملاحظة: تعديل لتطابق الكود الصحيح
       document.getElementById('cart-modal').style.display = 'flex';
     }
 
