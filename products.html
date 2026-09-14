@@ -416,8 +416,8 @@
 <body>
 
   <header>
-    <!-- تم ضبط الضغطتين (DblClick) هنا لتفعيل وضع الأدمن -->
-    <div class="logo-container" id="site-logo" ondblclick="toggleAdmin()" title="انقر ضغطتين متتاليتين لتفعيل وضع الأدمن">
+    <!-- ضغطة واحدة تفتح الرئيسية، وضغطتان (دبل كليك) لتفعيل الأدمن -->
+    <div class="logo-container" id="site-logo" onclick="showPage('home')" ondblclick="toggleAdmin()" title="ضغطة واحدة للرئيسية | ضغطتان لتفعيل الأدمن">
       <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
     </div>
@@ -584,7 +584,7 @@
       renderProducts();
     }
 
-    // تفعيل الأدمن بضغطتين متتاليتين (دبل كليك) مع كلمة مرور (admin123)
+    // تفعيل الأدمن بضغطتين متتاليتين مع كلمة مرور (admin123)
     function toggleAdmin() {
       if (!isAdmin) {
         let password = prompt("الرجاء إدخال كلمة مرور الأدمن:");
