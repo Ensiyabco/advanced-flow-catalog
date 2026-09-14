@@ -147,10 +147,11 @@
       font-weight: 800;
     }
 
-    /* حماية صارمة: أدوات المشرف مخفية تماماً عن الزوار ولا تظهر إلا بوجود class اسمها admin-mode في الجسم */
+    /* 🛡️ حماية صارمة: أدوات وإدارة المخزون مخفية تماماً عن الزوار ولا تظهر إلا بوجود class اسمها admin-mode في الجسم */
     .admin-sub-tools, 
     .admin-main-tools, 
     .admin-product-controls,
+    .admin-stock-control-panel,
     #add-subcat-section {
       display: none !important;
     }
@@ -158,6 +159,7 @@
     body.admin-mode .admin-sub-tools,
     body.admin-mode .admin-main-tools,
     body.admin-mode .admin-product-controls,
+    body.admin-mode .admin-stock-control-panel,
     body.admin-mode #add-subcat-section {
       display: flex !important;
     }
@@ -168,6 +170,10 @@
 
     body.admin-mode div.admin-main-tools {
       display: flex !important;
+    }
+
+    body.admin-mode div.admin-stock-control-panel {
+      display: block !important;
     }
 
     /* منطقة المنتجات */
@@ -535,7 +541,7 @@
 
         let mainImg = (prod.images && prod.images.length > 0 && prod.images[0].trim() !== '') ? prod.images[0] : defaultProductImage;
 
-        // أدوات التحكم الإدارية (تعديل، تجميد، حذف) - تظهر حصرياً للمشرف فقط داخل .admin-product-controls
+        // أدوات التحكم الإدارية (تعديل، تجميد، حذف) - مخفية تماماً عن الزوار وتظهر حصرياً للمشرف في وضع الإدارة
         let adminProductTools = `
           <div class="admin-product-controls" style="margin-top:8px; display:flex; gap:5px; flex-wrap:wrap; border-top:1px dashed #cbd5e0; padding-top:6px;">
             <a href="edit-product.html?id=${prod.id}" style="background:#d69e2e; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; text-decoration:none;">تعديل الصنف</a>
@@ -610,10 +616,10 @@
       const prod = products.find(p => p.id === id);
       if (prod) {
         if (prod.stock > 0) {
-          prod.stock = 0; // تجميد الصنف وجعل كميته صفراً
+          prod.stock = 0; 
           alert(`تم تجميد الصنف (${prod.name}) عن الطلب بنجاح.`);
         } else {
-          prod.stock = 10; // إعادة تفعيل الصنف
+          prod.stock = 10; 
           alert(`تم إلغاء تجميد الصنف (${prod.name}) وعودته للطلب.`);
         }
         localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
