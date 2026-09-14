@@ -11,16 +11,21 @@
   <link rel="stylesheet" href="assets/css/style.css">
 
   <style>
+    /* شريط المشرف - مخفي تماماً بشكل افتراضي ولا يظهر إلا عند تفعيل وضع الإدارة */
     .admin-bar {
+      display: none;
       background: #1b365d;
       color: white;
       padding: 10px 20px;
-      display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 13px;
       font-weight: 700;
       border-bottom: 2px solid #2b6cb0;
+    }
+
+    body.admin-mode .admin-bar {
+      display: flex;
     }
 
     .admin-bar-btns {
@@ -103,7 +108,7 @@
       background: #edf2f7;
     }
 
-    /* تنسيق قائمة الأقسام الفرعية لتظهر كاملة وواضحة */
+    /* تنسيق قائمة الأقسام الفرعية */
     .sub-cat-list {
       display: none;
       padding: 6px 10px 6px 5px;
@@ -141,13 +146,21 @@
       font-weight: 800;
     }
 
-    .admin-sub-tools {
-      display: none;
-      gap: 5px;
+    /* أدوات المشرف للأقسام الفرعية - مخفية تماماً افتراضياً */
+    .admin-sub-tools, 
+    .admin-main-tools, 
+    #add-subcat-section {
+      display: none !important;
     }
 
-    body.admin-mode .admin-sub-tools {
-      display: inline-flex;
+    body.admin-mode .admin-sub-tools,
+    body.admin-mode .admin-main-tools,
+    body.admin-mode #add-subcat-section {
+      display: inline-flex !important;
+    }
+
+    body.admin-mode div#add-subcat-section {
+      display: block !important;
     }
 
     /* منطقة المنتجات */
@@ -218,7 +231,7 @@
 </head>
 <body id="page-body">
 
-  <!-- شريط مميزات المشرف العلوي -->
+  <!-- شريط مميزات المشرف العلوي (مخفي للعملاء تماماً) -->
   <div class="admin-bar" id="admin-bar-container">
     <span id="admin-status-text">⚠️ أنت في وضع إدارة الموقع (اضغط خروج للإخفاء)</span>
     <div class="admin-bar-btns">
@@ -230,9 +243,9 @@
 
   <header>
     <a href="index.html" class="logo-container">
-      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100%\' height=\'100%\' fill=\'%23edf2f7\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%23a0aec0\' text-anchor=\'middle\' dominant-baseline=\'middle\'>لا توجد صورة</text></svg>'">
+      <img src="assets/images/logo.png" alt="شعار المؤسسة" id="logo-img" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100%\' height=\'100%\' fill=\'%23edf2f7\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%23a0aec0\' text-anchor=\'middle\' dominant-baseline=\'middle\'>لا توجد صورة</text></svg>'">
       <div class="brand-title">
-        <h1>الأنسياب المتقدم</h1>
+        <h1>الأنصياب المتقدم</h1>
         <p>أدوات ولوازم الغاز والرحلات</p>
       </div>
     </a>
@@ -254,10 +267,10 @@
         <button class="sidebar-btn-all" onclick="filterCategory('all', 'all', this)">عرض كل المنتجات</button>
         
         <div id="sidebar-categories-list">
-          <!-- الأقسام الرئيسية والفرعية كاملة -->
+          <!-- الأقسام الرئيسية والفرعية -->
         </div>
 
-        <div id="add-subcat-section" style="margin-top:12px; display:none;">
+        <div id="add-subcat-section" style="margin-top:12px;">
           <button class="admin-action-btn" style="background:#3182ce; width:100%; justify-content:center;" onclick="addNewSubCategoryModal()">+ إضافة قسم فرعي</button>
         </div>
       </aside>
@@ -302,28 +315,22 @@
     let isAdmin = localStorage.getItem('ansiyab_admin_mode') === 'true';
     let selectedMainCatForSub = '';
 
-    const placeholderSvg = "data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'><rect width=\'100%\' height=\'100%\' fill=\'%23f1f5f9\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>الأنسياب المتقدم</text></svg>";
+    // تعيين شعار المؤسسة الرسمي كصورة افتراضية أساسية للأصناف التي بلا صورة
+    const defaultProductImage = "assets/images/logo.png";
 
     document.addEventListener('DOMContentLoaded', function() {
       updateAdminModeUI();
       renderSidebarCategories();
-      displayProducts(products, "كل المنتجات");
+      displayProducts(products);
       updateCartBadge();
     });
 
     function updateAdminModeUI() {
       const body = document.getElementById('page-body');
-      const adminBar = document.getElementById('admin-bar-container');
-      const addSubSection = document.getElementById('add-subcat-section');
-
       if (isAdmin) {
         body.classList.add('admin-mode');
-        adminBar.style.display = 'flex';
-        addSubSection.style.display = 'block';
       } else {
         body.classList.remove('admin-mode');
-        adminBar.style.display = 'none';
-        addSubSection.style.display = 'none';
       }
     }
 
@@ -332,6 +339,7 @@
       localStorage.setItem('ansiyab_admin_mode', isAdmin);
       updateAdminModeUI();
       renderSidebarCategories();
+      displayProducts(products);
     }
 
     function renderSidebarCategories() {
@@ -340,7 +348,6 @@
       
       let html = '';
       mainCats.forEach((mainCat, index) => {
-        // استخراج كافة الأقسام الفرعية التابعة لهذا القسم الرئيسي بدقة ومن دون أي نقصان
         const subs = [...new Set(products.filter(p => p.mainCat === mainCat).map(p => p.subCat).filter(Boolean))];
         
         html += `
@@ -348,7 +355,7 @@
             <div class="main-cat-header" onclick="toggleSubMenu(this, '${mainCat}')">
               <span>${mainCat}</span>
               <div style="display:flex; align-items:center; gap:5px;">
-                ${isAdmin ? `<button onclick="event.stopPropagation(); editMainCat('${mainCat}')" style="background:none; border:none; cursor:pointer;" title="تعديل اسم القسم">✏️</button>` : ''}
+                <span class="admin-main-tools" onclick="event.stopPropagation(); editMainCat('${mainCat}')" title="تعديل اسم القسم">✏️</span>
                 <span>▼</span>
               </div>
             </div>
@@ -434,10 +441,11 @@
           badgeHtml = `<span style="font-size:11px; color:#c62828; font-weight:700;">نفذت الكمية</span>`;
         }
 
-        let mainImg = (prod.images && prod.images.length > 0 && prod.images[0].trim() !== '') ? prod.images[0] : placeholderSvg;
+        // استخدام شعار المؤسسة إذا لم تكن هناك صورة مسجلة للمنتج
+        let mainImg = (prod.images && prod.images.length > 0 && prod.images[0].trim() !== '') ? prod.images[0] : defaultProductImage;
 
         let adminProductTools = isAdmin ? `
-          <div style="margin-top:8px; display:flex; gap:5px;">
+          <div class="admin-main-tools" style="margin-top:8px; display:flex; gap:5px;">
             <a href="edit-product.html?id=${prod.id}" style="background:#d69e2e; color:#fff; padding:3px 8px; border-radius:4px; font-size:11px; text-decoration:none;">تعديل</a>
             <button onclick="deleteProduct(${prod.id})" style="background:#e53e3e; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;">حذف</button>
           </div>
@@ -446,7 +454,7 @@
         grid.innerHTML += `
           <div class="product-card">
             <div>
-              <img src="${mainImg}" alt="${prod.name}" onerror="this.src='${placeholderSvg}'">
+              <img src="${mainImg}" alt="${prod.name}" onerror="this.src='${defaultProductImage}'">
               <div style="font-size:11px; color:#718096; margin-bottom:3px;">${prod.mainCat}</div>
               <h3>${prod.name}</h3>
               ${adminProductTools}
@@ -468,6 +476,7 @@
         products.push({ id: Date.now(), name: "منتج تجريبي", mainCat: name.trim(), subCat: "عام", unit: "حبة", boxQty: 1, stock: 10, images: [] });
         localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
         renderSidebarCategories();
+        displayProducts(products);
         alert("تم إضافة القسم الرئيسي بنجاح!");
       }
     }
@@ -482,6 +491,7 @@
         products.push({ id: Date.now(), name: "منتج تجريبي", mainCat: selectedMainCatForSub, subCat: subName.trim(), unit: "حبة", boxQty: 1, stock: 10, images: [] });
         localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
         renderSidebarCategories();
+        displayProducts(products);
         alert("تم إضافة القسم الفرعي بنجاح!");
       }
     }
@@ -495,7 +505,7 @@
         products = products.filter(p => p.id !== id);
         localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
         renderSidebarCategories();
-        displayProducts(products, "كل المنتجات");
+        displayProducts(products);
       }
     }
 
@@ -504,7 +514,7 @@
         products = products.filter(p => !(p.mainCat === mainCat && p.subCat === subCat));
         localStorage.setItem('ansiyab_products_v4', JSON.stringify(products));
         renderSidebarCategories();
-        displayProducts(products, "كل المنتجات");
+        displayProducts(products);
       }
     }
 
