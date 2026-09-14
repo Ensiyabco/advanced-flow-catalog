@@ -37,6 +37,11 @@
       cursor: pointer;
     }
 
+    .logo-container img {
+      height: 35px;
+      object-fit: contain;
+    }
+
     .logo-text {
       font-size: 15px;
       font-weight: bold;
@@ -316,7 +321,6 @@
       color: #2d3748;
     }
 
-    /* صندوق عرض الكمية والوحدة المحدث */
     .product-specs-box {
       background: #f7fafc;
       border: 1px solid #e2e8f0;
@@ -411,7 +415,9 @@
 <body>
 
   <header>
-    <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر مرتين لتفعيل الأدمن">
+    <!-- تم إضافة مسار صورة اللوجو هنا، يمكنك استبدال الرابط برابط شعارك الخاص -->
+    <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر هنا لتفعيل/تعطيل وضع الأدمن">
+      <img src="https://via.placeholder.com/120x35?text=Logo" alt="شعار المتجر" id="logo-img" onerror="this.style.display='none'">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
     </div>
     <nav class="nav-links">
@@ -463,11 +469,12 @@
     </div>
   </div>
 
-  <!-- نافذة إضافة منتج -->
+  <!-- نافذة إضافة / تعديل منتج -->
   <div id="admin-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:20px; border-radius:8px; width:90%; max-width:450px;">
       <h3 id="modal-title" style="margin-top:0;">إضافة منتج جديد</h3>
       <form id="product-form">
+        <input type="hidden" id="prod-id">
         
         <label style="display:block; margin-top:8px; font-size:12px; font-weight:bold;">القسم الفرعي المستهدف:</label>
         <input type="text" id="prod-category" readonly style="width:100%; padding:8px; margin-top:4px; border:1px solid #ccc; border-radius:4px; background:#edf2f7; color:#4a5568; font-weight:bold;">
@@ -576,6 +583,7 @@
       renderProducts();
     }
 
+    // تفعيل الأدمن بضغطة واحدة على اللوجو
     function toggleAdmin() {
       isAdmin = !isAdmin;
       alert(isAdmin ? 'تم تفعيل وضع الأدمن بنجاح' : 'تم الخروج من وضع الأدمن');
@@ -669,7 +677,6 @@
           <div class="product-img-box">صورة المنتج</div>
           <div class="product-title">${prod.name}</div>
           
-          <!-- عرض الكمية والوحدة بوضوح تام على بطاقة المنتج -->
           <div class="product-specs-box">
             <div class="spec-item">
               <span class="spec-label">الوحدة</span>
@@ -684,7 +691,12 @@
 
           <button class="btn-whatsapp" onclick="window.open('https://wa.me/?text=أرغب في طلب المنتج: ${encodeURIComponent(prod.name)} - الكمية/الشد: ${prod.pack} ${prod.unit}')">اطلب عبر الواتساب</button>
           
-          ${isAdmin ? `<button class="admin-btn" style="display:block; margin-top:6px; width:100%; background:#e53e3e;" onclick="deleteProduct(${prod.id})">حذف المنتج</button>` : ''}
+          ${isAdmin ? `
+            <div style="display:flex; gap:5px; width:100%; margin-top:6px;">
+              <button class="admin-btn" style="display:block; flex:1; background:#d69e2e;" onclick="openEditModal(${prod.id})">تعديل</button>
+              <button class="admin-btn" style="display:block; flex:1; background:#e53e3e;" onclick="deleteProduct(${prod.id})">حذف</button>
+            </div>
+          ` : ''}
         `;
         container.appendChild(card);
       });
@@ -696,7 +708,23 @@
         return;
       }
       document.getElementById('product-form').reset();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('modal-title').innerText = 'إضافة منتج جديد';
       document.getElementById('prod-category').value = currentSelectedCategory;
+      document.getElementById('admin-modal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+      const prod = productsData.find(p => p.id === id);
+      if (!prod) return;
+
+      document.getElementById('modal-title').innerText = 'تعديل بيانات المنتج';
+      document.getElementById('prod-id').value = prod.id;
+      document.getElementById('prod-category').value = prod.category;
+      document.getElementById('prod-name').value = prod.name;
+      document.getElementById('prod-unit').value = prod.unit;
+      document.getElementById('prod-pack').value = prod.pack;
+      
       document.getElementById('admin-modal').style.display = 'flex';
     }
 
@@ -707,20 +735,37 @@
     document.getElementById('product-form').addEventListener('submit', function(e) {
       e.preventDefault();
       
-      const newProd = {
-        id: Date.now(),
-        name: document.getElementById('prod-name').value,
-        category: document.getElementById('prod-category').value,
-        unit: document.getElementById('prod-unit').value,
-        pack: document.getElementById('prod-pack').value || 1
-      };
+      const prodId = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value;
+      const category = document.getElementById('prod-category').value;
+      const unit = document.getElementById('prod-unit').value;
+      const pack = document.getElementById('prod-pack').value || 1;
 
-      productsData.push(newProd);
+      if (prodId) {
+        // تحديث منتج موجود
+        productsData = productsData.map(p => {
+          if (p.id == prodId) {
+            return { ...p, name, category, unit, pack };
+          }
+          return p;
+        });
+        alert('تم تعديل المنتج بنجاح!');
+      } else {
+        // إضافة منتج جديد
+        const newProd = {
+          id: Date.now(),
+          name,
+          category,
+          unit,
+          pack
+        };
+        productsData.push(newProd);
+        alert('تم إضافة المنتج بنجاح!');
+      }
+
       localStorage.setItem('ansiyab_products', JSON.stringify(productsData));
-      
       renderProducts();
       closeAdminModal();
-      alert('تم إضافة المنتج بنجاح مع تفاصيل الوحدة والكمية!');
     });
 
     function deleteProduct(id) {
