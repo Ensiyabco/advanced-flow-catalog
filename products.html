@@ -1284,11 +1284,32 @@
       document.getElementById('image-lightbox').style.display = 'none';
     }
 
-    window.onload = function() {
-      buildCategoryAccordion();
-      renderProducts(products);
-      updateCartBadge();
+   window.onload = function() {
+        buildCategoryAccordion();
+        renderProducts(products);
+        updateCartBadge();
+        
+        // فحص وضع المشرف وإظهار/إخفاء الأزرار
+        checkAdminStatus();
     };
-  </script>
+
+    function checkAdminStatus() {
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        document.querySelectorAll('.admin-only').forEach(el => {
+            if (isAdmin) {
+                el.style.setProperty('display', 'inline-block', 'important');
+            } else {
+                el.style.setProperty('display', 'none', 'important');
+            }
+        });
+    }
+</script>
+
+<!-- إضافة تنسيق إخفاء أدوات المشرف تلقائياً -->
+<style>
+    .admin-only {
+        display: none !important;
+    }
+</style>
 </body>
 </html>
