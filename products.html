@@ -1848,10 +1848,15 @@ var R0=Object.defineProperty;var O0=(o,g,r)=>g in o?R0(o,g,{enumerable:!0,config
 
         document.addEventListener('DOMContentLoaded', loadProducts);
     </script>
-    <!-- زر تفعيل وضع التعديل -->
-<button id="admin-login-btn" onclick="toggleAdminMode()" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 12px 20px; background: #1d3557; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-  🔒 دخول الأدمن
-</button>
+  <!-- أزرار لوحة التحكم للآدمن -->
+<div id="admin-controls" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; display: flex; gap: 10px;">
+  <button id="admin-login-btn" onclick="toggleAdminMode()" style="padding: 12px 20px; background: #1d3557; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+    🔒 دخول الأدمن
+  </button>
+  <button id="add-product-btn" onclick="addNewProduct()" style="display: none; padding: 12px 20px; background: #007bff; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+    ➕ إضافة منتج جديد
+  </button>
+</div>
 
 <script>
 const GITHUB_USERNAME = "Ensiyabco";
@@ -1875,88 +1880,129 @@ function toggleAdminMode() {
 
 function enableAdminFeatures() {
   const btn = document.getElementById("admin-login-btn");
+  const addBtn = document.getElementById("add-product-btn");
+  
   if (btn) {
     btn.innerText = "✏️ وضع التعديل مفعل";
     btn.style.background = "#28a745";
   }
+  if (addBtn) addBtn.style.display = "block";
 
   const cards = document.querySelectorAll('.product-card, .card, .product-item, [data-category]');
   cards.forEach((card) => {
-    if (!card.querySelector('.edit-btn')) {
+    if (!card.querySelector('.admin-card-tools')) {
+      const toolsContainer = document.createElement('div');
+      toolsContainer.className = 'admin-card-tools';
+      toolsContainer.style = 'margin-top: 10px; display: flex; gap: 5px;';
+
       const editBtn = document.createElement('button');
-      editBtn.className = 'edit-btn';
-      editBtn.innerText = '✏️ تعديل المنتج';
-      editBtn.style = 'background: #ffc107; color: #000; border: none; padding: 6px 12px; margin-top: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; display: block;';
-      editBtn.onclick = (e) => {
-        e.stopPropagation();
-        saveChangesToGitHub(card);
-      };
-      card.appendChild(editBtn);
+      editBtn.innerText = '✏️ تعديل الاسم';
+      editBtn.style = 'background: #ffc107; color: #000; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1;';
+      editBtn.onclick = (e) => { e.stopPropagation(); saveChangesToGitHub(card, 'title'); };
+
+      const editImgBtn = document.createElement('button');
+      editImgBtn.innerText = '🖼️ الصورة';
+      editImgBtn.style = 'background: #17a2b8; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1;';
+      editImgBtn.onclick = (e) => { e.stopPropagation(); saveChangesToGitHub(card, 'image'); };
+
+      toolsContainer.appendChild(editBtn);
+      toolsContainer.appendChild(editImgBtn);
+      card.appendChild(toolsContainer);
     }
   });
 }
 
-async function saveChangesToGitHub(cardElement) {
+async function saveChangesToGitHub(cardElement, mode) {
   const titleEl = cardElement.querySelector('.product-title') || cardElement.querySelector('h3') || cardElement.querySelector('h4') || cardElement.querySelector('.title');
-  if (!titleEl) {
-    alert("لم يتم العثور على اسم المنتج داخل هذه البطاقة.");
-    return;
-  }
+  const imgEl = cardElement.querySelector('img');
+
+  if (!titleEl) return alert("لم يتم العثور على عنصر الاسم.");
 
   const oldTitle = titleEl.innerText.trim();
-  const newTitle = prompt("أدخل اسم المنتج الجديد:", oldTitle);
 
-  if (!newTitle || newTitle === oldTitle) return;
-
-  alert("جاري الاتصال بـ GitHub لتحديث البيانات...");
-
-  try {
-    const getUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
-    const response = await fetch(getUrl, {
-      headers: { "Authorization": `token ${userToken}` }
-    });
-
-    if (!response.ok) throw new Error("تعذر الوصول للملف.");
-
-    const fileData = await response.json();
-    let rawContent = decodeURIComponent(escape(atob(fileData.content)));
-
-    if (!rawContent.includes(oldTitle)) {
-      alert("لم يتم العثور على الاسم القديم داخل الكود الأصلي.");
-      return;
-    }
-
-    rawContent = rawContent.replace(oldTitle, newTitle);
-
-    const updatedContentBase64 = btoa(unescape(encodeURIComponent(rawContent)));
-
-    const updateResponse = await fetch(getUrl, {
-      method: "PUT",
-      headers: {
-        "Authorization": `token ${userToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `تحديث اسم المنتج: ${newTitle}`,
-        content: updatedContentBase64,
-        sha: fileData.sha
-      })
-    });
-
-    if (updateResponse.ok) {
-      titleEl.innerText = newTitle;
-      alert("تم الحفظ بنجاح وتحديث الموقع!");
-    } else {
-      alert("حدث خطأ أثناء إرسال البيانات.");
-    }
-  } catch (err) {
-    alert("فشلت العملية: " + err.message);
+  if (mode === 'title') {
+    const newTitle = prompt("أدخل اسم المنتج الجديد:", oldTitle);
+    if (!newTitle || newTitle === oldTitle) return;
+    await updateGitHubContent(oldTitle, newTitle, `تحديث اسم المنتج إلى: ${newTitle}`, () => { titleEl.innerText = newTitle; });
+  } else if (mode === 'image') {
+    if (!imgEl) return alert("لم يتم العثور على صورة المنتج.");
+    const oldImgSrc = imgEl.getAttribute('src');
+    const newImgSrc = prompt("أدخل رابط الصورة الجديد (مثل assets/images/products/new.jpg):", oldImgSrc);
+    if (!newImgSrc || newImgSrc === oldImgSrc) return;
+    await updateGitHubContent(oldImgSrc, newImgSrc, `تحديث صورة المنتج: ${oldTitle}`, () => { imgEl.src = newImgSrc; });
   }
 }
 
-if (userToken) {
-  enableAdminFeatures();
+async function addNewProduct() {
+  const name = prompt("أدخل اسم المنتج الجديد:");
+  if (!name) return;
+  const category = prompt("أدخل قسم المنتج (مثال: مواقد غاز منزلية):", "مواقد غاز منزلية");
+  const imgSrc = prompt("أدخل رابط صورة المنتج:", "assets/images/logo.png");
+
+  const newCardHTML = `
+        <div class="product-card" data-category="${category}">
+            <img src="${imgSrc}" alt="${name}">
+            <h3 class="product-title">${name}</h3>
+            <p class="category-name">${category}</p>
+            <button class="whatsapp-btn">اطلب عبر الواتساب</button>
+        </div>`;
+
+  alert("جاري إضافة المنتج الجديد إلى GitHub...");
+
+  try {
+    const { rawContent, sha, fileUrl } = await fetchFileFromGitHub();
+    const insertPosition = rawContent.indexOf('</div>', rawContent.lastIndexOf('product-card'));
+    
+    let updatedContent;
+    if (insertPosition !== -1) {
+      updatedContent = rawContent.slice(0, insertPosition + 6) + "\n" + newCardHTML + rawContent.slice(insertPosition + 6);
+    } else {
+      updatedContent = rawContent.replace('</body>', newCardHTML + '\n</body>');
+    }
+
+    await commitToGitHub(fileUrl, updatedContent, sha, `إضافة منتج جديد: ${name}`);
+    alert("تمت إضافة المنتج بنجاح! قم بتحديث الصفحة لرؤيته.");
+    location.reload();
+  } catch (err) {
+    alert("فشلت عملية الإضافة: " + err.message);
+  }
 }
+
+async function fetchFileFromGitHub() {
+  const fileUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`;
+  const res = await fetch(fileUrl, { headers: { "Authorization": `token ${userToken}` } });
+  if (!res.ok) throw new Error("تعذر الوصول لمستودع GitHub.");
+  const data = await res.json();
+  const rawContent = decodeURIComponent(escape(atob(data.content)));
+  return { rawContent, sha: data.sha, fileUrl };
+}
+
+async function commitToGitHub(fileUrl, updatedContent, sha, commitMessage) {
+  const updatedContentBase64 = btoa(unescape(encodeURIComponent(updatedContent)));
+  const res = await fetch(fileUrl, {
+    method: "PUT",
+    headers: { "Authorization": `token ${userToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ message: commitMessage, content: updatedContentBase64, sha })
+  });
+  if (!res.ok) throw new Error("فشل الحفظ على GitHub.");
+}
+
+async function updateGitHubContent(oldText, newText, commitMessage, onSuccess) {
+  alert("جاري الاتصال بـ GitHub لرفع التحديث...");
+  try {
+    const { rawContent, sha, fileUrl } = await fetchFileFromGitHub();
+    if (!rawContent.includes(oldText)) return alert("لم يتم العثور على العنصر داخل الملف الأصلي.");
+    const updatedContent = rawContent.replace(oldText, newText);
+    await commitToGitHub(fileUrl, updatedContent, sha, commitMessage);
+    onSuccess();
+    alert("تم الحفظ بنجاح على الموقع!");
+  } catch (err) {
+    alert("حدث خطأ: " + err.message);
+  }
+}
+
+if (userToken) enableAdminFeatures();
+</script>
 </script>
 </body>
 </html>
