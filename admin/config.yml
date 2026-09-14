@@ -8,10 +8,10 @@ public_folder: "assets/images"
 
 collections:
   - name: "products"
-  - label: "المنتجات"
-  - folder: "content/products"
-  - create: true
-  - fields:
+    label: "المنتجات"
+    folder: "content/products"
+    create: true
+    fields:
       - {label: "اسم المنتج", name: "title", widget: "string"}
       - label: "القسم الرئيسي"
         name: "mainCat"
@@ -34,8 +34,12 @@ collections:
           - "منزليات"
           - "اكسسوارات عامة"
       - {label: "القسم الفرعي", name: "subCat", widget: "string", required: false}
-      - {label: "الوحدة", name: "unit", widget: "string", default: "حبة"}
+      - label: "وحدة القياس"
+        name: "unit"
+        widget: "select"
+        options: ["حبة", "علبة", "كرتون", "درزن", "لفة", "متر", "ربطة", "بالة"]
+        default: "حبة"
       - {label: "شد الكرتون", name: "boxQty", widget: "number", value_type: "int", default: 1}
-      - {label: "الكمية بالمخزن", name: "stock", widget: "number", value_type: "int", default: 10, hint: "أدخل عدد القطع المتوفرة في المخزن لتظهر حالة التوفر تلقائياً"}
+      - {label: "الكمية بالمخزن", name: "stock", widget: "number", value_type: "int", default: 10, hint: "أدخل عدد القطع المتوفرة لتظهر حالة التوفر تلقائياً"}
       - {label: "صورة المنتج الرئيسية", name: "image", widget: "image"}
       - {label: "صور إضافية (من عدة زوايا)", name: "images", widget: "list", required: false, field: {label: "صورة", name: "img", widget: "image"}}
