@@ -357,14 +357,49 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .product-img-box img {
       max-width: 90%;
-      max-height: 100px;
+      max-height: 110px;
       object-fit: contain;
+      transition: transform 0.2s;
+    }
+
+    .product-img-box img:hover {
+      transform: scale(1.05);
+    }
+
+    /* معرض الصور المصغرة تحت الصورة الرئيسية للمنتج */
+    .product-thumbnails {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      justify-content: center;
+    }
+
+    .thumb-img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      background: #f8fafc;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.2s;
+    }
+
+    .thumb-img:hover, .thumb-img.active-thumb {
+      opacity: 1;
+      border-color: #2b6cb0;
+      transform: scale(1.05);
     }
 
     .product-title {
@@ -502,6 +537,78 @@
       cursor: pointer;
     }
 
+    /* نافذة تكبير الصورة (Lightbox) مع إمكانية التنقل بين الصور */
+    .image-lightbox-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 999999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .image-lightbox-content {
+      position: relative;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 90%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .image-lightbox-content img {
+      max-width: 75vw;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .lightbox-close-btn {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      background: #e53e3e;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(27, 54, 93, 0.8);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-prev { right: -20px; }
+    .lightbox-next { left: -20px; }
+
     footer {
       background-color: #1b365d;
       color: white;
@@ -531,6 +638,8 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
       }
+      .lightbox-prev { right: 5px; }
+      .lightbox-next { left: 5px; }
     }
   </style>
 </head>
@@ -623,7 +732,7 @@
     </div>
   </div>
 
-  <!-- مودال إضافة/تعديل المنتج (محدث لدعم رفع الصور من الجهاز) -->
+  <!-- مودال إضافة/تعديل المنتج -->
   <div class="modal-overlay" id="product-modal">
     <div class="modal-card">
       <h3 id="product-modal-title">إضافة منتج جديد</h3>
@@ -651,9 +760,9 @@
         </div>
       </div>
       <div class="form-group">
-        <label>رفع صورة المنتج من الجهاز:</label>
-        <input type="file" id="prod-file-input" accept="image/*" onchange="encodeImageFileAsURL(this)">
-        <input type="hidden" id="prod-img-input">
+        <label>رفع صور المنتج (يمكنك اختيار عدة صور من عدة زوايا):</label>
+        <input type="file" id="prod-files-input" accept="image/*" multiple onchange="encodeMultipleImages(this)">
+        <div id="modal-images-preview" style="display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;"></div>
       </div>
       <div class="modal-actions">
         <button style="background:#2b6cb0; color:#fff;" onclick="saveProduct()">حفظ المنتج</button>
@@ -669,8 +778,19 @@
       <div id="cart-items-container" style="max-height:300px; overflow-y:auto; margin:15px 0;"></div>
       <div class="modal-actions">
         <button style="background:#25d366; color:#fff;" onclick="sendCartToWhatsApp()">إرسال عبر الواتساب</button>
-        <button style="background:#e2e8f0; color:#4a5568;" onclick="closeModal('cart-modal')">إغلاق</button>
+        <button style="background:#e2e8f0; color:#4a5568;" onclick="closeModal('cart-modal')">إلغاء</button>
       </div>
+    </div>
+  </div>
+
+  <!-- نافذة تكبير الصورة (Lightbox مع أزرار التنقل) -->
+  <div class="image-lightbox-overlay" id="image-lightbox" onclick="closeLightbox()">
+    <div class="image-lightbox-content" onclick="event.stopPropagation()">
+      <button class="lightbox-close-btn" onclick="closeLightbox()">✕</button>
+      <button class="lightbox-nav-btn lightbox-prev" onclick="changeLightboxImage(-1)">&#10095;</button>
+      <img id="lightbox-img-src" src="" alt="صورة مكبرة للمنتج">
+      <button class="lightbox-nav-btn lightbox-next" onclick="changeLightboxImage(1)">&#10094;</button>
+      <p id="lightbox-title" style="margin-top:10px; font-weight:800; color:#1b365d; text-align:center;"></p>
     </div>
   </div>
 
@@ -699,15 +819,20 @@
     ];
 
     const defaultProducts = [
-      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, image: "" },
-      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, image: "" },
-      { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, image: "" }
+      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, images: ["https://i.imgur.com/7A26w6i.png"] },
+      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, images: ["https://i.imgur.com/7A26w6i.png"] },
+      { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, images: ["https://i.imgur.com/7A26w6i.png"] }
     ];
 
-    let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v3')) || defaultCategories;
-    let products = JSON.parse(localStorage.getItem('ansiyab_products_v3')) || defaultProducts;
+    let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v4')) || defaultCategories;
+    let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
     let isAdmin = localStorage.getItem("isAdmin") === "true";
+
+    // متغيرات خاصة بـ Lightbox للتنقل بين الصور
+    let currentLightboxImages = [];
+    let currentLightboxIndex = 0;
+    let currentLightboxTitle = "";
 
     document.addEventListener('DOMContentLoaded', function() {
       applyAdminState();
@@ -924,8 +1049,8 @@
       }
     }
 
-    function saveCategoriesData() { localStorage.setItem('ansiyab_categories_v3', JSON.stringify(categories)); }
-    function saveProductsData() { localStorage.setItem('ansiyab_products_v3', JSON.stringify(products)); }
+    function saveCategoriesData() { localStorage.setItem('ansiyab_categories_v4', JSON.stringify(categories)); }
+    function saveProductsData() { localStorage.setItem('ansiyab_products_v4', JSON.stringify(products)); }
 
     function renderProducts(productsToRender) {
       const container = document.getElementById('products-grid-container');
@@ -935,16 +1060,33 @@
         return;
       }
       productsToRender.forEach(prod => {
+        // التأكد من وجود مصفوفة صور
+        let images = prod.images && prod.images.length > 0 ? prod.images : ['https://i.imgur.com/7A26w6i.png'];
+        const mainImg = images[0];
+
         const card = document.createElement('div');
         card.className = 'product-card';
+        card.id = `prod-card-${prod.id}`;
+        
+        // بناء شريط الصور المصغرة إذا كانت هناك أكثر من صورة
+        let thumbsHtml = '';
+        if (images.length > 1) {
+          thumbsHtml = `<div class="product-thumbnails">`;
+          images.forEach((img, idx) => {
+            thumbsHtml += `<img src="${img}" class="thumb-img ${idx === 0 ? 'active-thumb' : ''}" onclick="changeMainProductImage(${prod.id}, '${img}', this)">`;
+          });
+          thumbsHtml += `</div>`;
+        }
+
         card.innerHTML = `
           <div class="product-admin-overlay">
             <button class="action-icon-btn" style="background:#fff; color:#2b6cb0; box-shadow:0 2px 4px rgba(0,0,0,0.1);" onclick="editProduct(${prod.id})">✏️</button>
             <button class="action-icon-btn" style="background:#fff; color:#e53e3e; box-shadow:0 2px 4px rgba(0,0,0,0.1);" onclick="deleteProduct(${prod.id})">🗑️</button>
           </div>
-          <div class="product-img-box">
-            <img src="${prod.image || 'https://i.imgur.com/7A26w6i.png'}" alt="${prod.name}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+          <div class="product-img-box" id="main-img-box-${prod.id}" onclick="openLightboxForProduct(${prod.id})" title="اضغط لتكبير الصور">
+            <img id="active-img-${prod.id}" src="${mainImg}" alt="${prod.name}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
           </div>
+          ${thumbsHtml}
           <div class="product-title">${prod.name}</div>
           <div class="product-info-table">
             <div class="info-item"><label>الوحدة</label><span>${prod.unit || 'حبة'}</span></div>
@@ -961,14 +1103,26 @@
       });
     }
 
+    // تبديل الصورة الرئيسية للمنتج عند الضغط على صورة مصغرة
+    function changeMainProductImage(prodId, imgSrc, thumbElement) {
+      const card = document.getElementById(`prod-card-${prodId}`);
+      const activeImg = document.getElementById(`active-img-${prodId}`);
+      activeImg.src = imgSrc;
+
+      // إزالة تفعيل الصور المصغرة الأخرى وتفعيل المحددة
+      card.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active-thumb'));
+      thumbElement.classList.add('active-thumb');
+    }
+
     function openProductModal() {
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "-1";
       document.getElementById('prod-name-input').value = "";
       document.getElementById('prod-unit-input').value = "حبة";
       document.getElementById('prod-box-input').value = "1";
-      document.getElementById('prod-file-input').value = "";
-      document.getElementById('prod-img-input').value = "";
+      document.getElementById('prod-files-input').value = "";
+      document.getElementById('modal-images-preview').innerHTML = "";
+      window.tempUploadedImages = [];
       populateCategoryDropdowns();
       document.getElementById('product-modal').style.display = 'flex';
     }
@@ -981,21 +1135,50 @@
       document.getElementById('prod-name-input').value = prod.name;
       document.getElementById('prod-unit-input').value = prod.unit || "حبة";
       document.getElementById('prod-box-input').value = prod.boxQty || 1;
-      document.getElementById('prod-file-input').value = "";
-      document.getElementById('prod-img-input').value = prod.image || "";
+      document.getElementById('prod-files-input').value = "";
+      
+      window.tempUploadedImages = prod.images ? [...prod.images] : (prod.image ? [prod.image] : []);
+      renderModalImagesPreview();
+
       populateCategoryDropdowns(prod.mainCat, prod.subCat);
       document.getElementById('product-modal').style.display = 'flex';
     }
 
-    function encodeImageFileAsURL(element) {
-      const file = element.files[0];
-      if (file) {
+    // معالجة رفع صور متعددة وتحويلها إلى Base64
+    function encodeMultipleImages(element) {
+      const files = element.files;
+      if (!files || files.length === 0) return;
+      if (!window.tempUploadedImages) window.tempUploadedImages = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const reader = new FileReader();
         reader.onloadend = function() {
-          document.getElementById('prod-img-input').value = reader.result;
+          window.tempUploadedImages.push(reader.result);
+          renderModalImagesPreview();
         }
         reader.readAsDataURL(file);
       }
+    }
+
+    function renderModalImagesPreview() {
+      const container = document.getElementById('modal-images-preview');
+      container.innerHTML = '';
+      if (!window.tempUploadedImages) window.tempUploadedImages = [];
+
+      window.tempUploadedImages.forEach((imgSrc, index) => {
+        container.innerHTML += `
+          <div style="position:relative; display:inline-block;">
+            <img src="${imgSrc}" style="width:45px; height:45px; object-fit:contain; border:1px solid #cbd5e0; border-radius:4px; background:#fff;">
+            <button type="button" onclick="removeModalImage(${index})" style="position:absolute; top:-5px; left:-5px; background:#e53e3e; color:#fff; border:none; border-radius:50%; width:16px; height:16px; font-size:10px; cursor:pointer; display:flex; align-items:center; justifyContent:center;">×</button>
+          </div>
+        `;
+      });
+    }
+
+    function removeModalImage(index) {
+      window.tempUploadedImages.splice(index, 1);
+      renderModalImagesPreview();
     }
 
     function populateCategoryDropdowns(selectedMain = "", selectedSub = "") {
@@ -1034,13 +1217,13 @@
       const subCat = document.getElementById('prod-sub-cat-select').value;
       const unit = document.getElementById('prod-unit-input').value.trim() || 'حبة';
       const boxQty = parseInt(document.getElementById('prod-box-input').value) || 1;
-      const image = document.getElementById('prod-img-input').value;
+      const images = window.tempUploadedImages && window.tempUploadedImages.length > 0 ? window.tempUploadedImages : ['https://i.imgur.com/7A26w6i.png'];
 
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
 
       if (editId === -1) {
         const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-        products.push({ id: newId, name, mainCat, subCat, unit, boxQty, image });
+        products.push({ id: newId, name, mainCat, subCat, unit, boxQty, images });
       } else {
         const prod = products.find(p => p.id === editId);
         if (prod) {
@@ -1049,7 +1232,8 @@
           prod.subCat = subCat;
           prod.unit = unit;
           prod.boxQty = boxQty;
-          if (image) prod.image = image; // إذا تم رفع صورة جديدة يتم تحديثها
+          prod.images = images;
+          delete prod.image; // تنظيف القديم إن وجد
         }
       }
       saveProductsData();
@@ -1063,6 +1247,41 @@
         saveProductsData();
         renderProducts(products);
       }
+    }
+
+    /* دوال نافذة تكبير الصورة (Lightbox) المتطورة مع التنقل */
+    function openLightboxForProduct(prodId) {
+      const prod = products.find(p => p.id === prodId);
+      if (!prod) return;
+      currentLightboxImages = prod.images && prod.images.length > 0 ? prod.images : ['https://i.imgur.com/7A26w6i.png'];
+      currentLightboxTitle = prod.name;
+      
+      // تحديد الصورة النشطة حالياً في البطاقة كبداية للعرض في الـ Lightbox
+      const activeImgSrc = document.getElementById(`active-img-${prodId}`).src;
+      currentLightboxIndex = currentLightboxImages.indexOf(activeImgSrc);
+      if (currentLightboxIndex === -1) currentLightboxIndex = 0;
+
+      updateLightboxDisplay();
+      document.getElementById('image-lightbox').style.display = 'flex';
+    }
+
+    function updateLightboxDisplay() {
+      document.getElementById('lightbox-img-src').src = currentLightboxImages[currentLightboxIndex];
+      document.getElementById('lightbox-title').innerText = `${currentLightboxTitle} (${currentLightboxIndex + 1} من ${currentLightboxImages.length})`;
+    }
+
+    function changeLightboxImage(direction) {
+      currentLightboxIndex += direction;
+      if (currentLightboxIndex >= currentLightboxImages.length) {
+        currentLightboxIndex = 0;
+      } else if (currentLightboxIndex < 0) {
+        currentLightboxIndex = currentLightboxImages.length - 1;
+      }
+      updateLightboxDisplay();
+    }
+
+    function closeLightbox() {
+      document.getElementById('image-lightbox').style.display = 'none';
     }
 
     function addToCart(id, name) {
