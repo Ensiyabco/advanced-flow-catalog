@@ -30,10 +30,13 @@ header {
   align-items: center;
   flex-wrap: wrap;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  width: 100%;
 }
 
 .logo-container {
   text-decoration: none;
+  display: flex;
+  align-items: center;
 }
 
 .brand-title h1 {
@@ -51,6 +54,7 @@ header {
   list-style: none;
   display: flex;
   gap: 20px;
+  align-items: center;
 }
 
 .nav-links li a {
@@ -97,7 +101,7 @@ header {
   width: 100%;
 }
 
-/* قسم الأقسام والفلترة (تم التحديث لتظهر كاملة وبشكل أفقي قابل للتمرير) */
+/* قسم الأقسام والفلترة */
 .categories-filter {
   display: flex;
   gap: 10px;
@@ -290,6 +294,7 @@ footer {
   color: #718096;
   font-size: 0.9rem;
   margin-top: auto;
+  width: 100%;
 }
 
 /* التجاوب مع الشاشات الصغيرة */
