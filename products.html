@@ -15,7 +15,7 @@
       max-width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
       background-color: #f8fafc;
       color: #333;
     }
@@ -28,12 +28,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
     .nav-links {
       display: flex;
-      gap: 25px;
+      gap: 20px;
     }
 
     .nav-links a {
@@ -51,17 +50,95 @@
       user-select: none;
     }
 
-    /* --- الهيكل الرئيسي --- */
+    /* --- الهيكل الرئيسي (الشريط الجانبي على اليمين والمنتجات على اليسار) --- */
     .main-wrapper {
       max-width: 1280px;
       margin: 25px auto;
       padding: 0 20px;
       display: flex;
-      flex-direction: row; /* ضبط الاتجاه من اليمين لليسار */
+      flex-direction: row-reverse; /* يضمن وجود القائمة الجانبية في اليمين دائماً */
       gap: 25px;
     }
 
-    /* --- شبكة المحتوى (اليمين) --- */
+    /* --- القائمة الجانبية (يمين الواجهة) --- */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #edf2f7;
+      padding: 15px;
+      align-self: flex-start;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-align: center;
+      color: #2d3748;
+    }
+
+    .btn-all-products {
+      width: 100%;
+      background-color: #e53e3e;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .category-item {
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4a5568;
+    }
+
+    .category-header.active {
+      background-color: #1d2a44;
+      color: #fff;
+      border-radius: 4px;
+    }
+
+    .arrow {
+      font-size: 9px;
+    }
+
+    .subcategory-list {
+      display: none;
+      padding: 5px 0;
+      background-color: #ffffff;
+    }
+
+    .subcategory-list.open {
+      display: block;
+    }
+
+    .subcategory-item {
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #a0aec0;
+      cursor: pointer;
+      text-align: right;
+    }
+
+    .subcategory-item:hover {
+      color: #e53e3e;
+    }
+
+    /* --- شبكة المنتجات (يسار الواجهة) --- */
     .content-area {
       flex: 1;
     }
@@ -159,84 +236,6 @@
       margin-top: auto;
     }
 
-    /* --- القائمة الجانبية (اليسار) --- */
-    .sidebar {
-      width: 260px;
-      flex-shrink: 0;
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #edf2f7;
-      padding: 15px;
-      align-self: flex-start;
-    }
-
-    .sidebar-title {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 12px;
-      text-align: center;
-      color: #2d3748;
-    }
-
-    .btn-all-products {
-      width: 100%;
-      background-color: #e53e3e;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
-
-    .category-item {
-      border-bottom: 1px solid #f7fafc;
-    }
-
-    .category-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 8px;
-      cursor: pointer;
-      font-size: 13px;
-      color: #4a5568;
-    }
-
-    .category-header.active {
-      background-color: #1d2a44;
-      color: #fff;
-      border-radius: 4px;
-    }
-
-    .arrow {
-      font-size: 9px;
-    }
-
-    .subcategory-list {
-      display: none;
-      padding: 5px 0;
-      background-color: #ffffff;
-    }
-
-    .subcategory-list.open {
-      display: block;
-    }
-
-    .subcategory-item {
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #a0aec0;
-      cursor: pointer;
-      text-align: right;
-    }
-
-    .subcategory-item:hover {
-      color: #e53e3e;
-    }
-
     .admin-btn {
       display: none;
       background-color: #3182ce;
@@ -252,7 +251,7 @@
 
     @media (max-width: 768px) {
       .main-wrapper {
-        flex-direction: column-reverse;
+        flex-direction: column;
       }
       .sidebar {
         width: 100%;
@@ -278,10 +277,18 @@
   </header>
 
   <div class="main-wrapper">
-    <!-- المحتوى الرئيسي (اليمين) -->
+    <!-- القائمة الجانبية (يمين الواجهة) -->
+    <aside class="sidebar">
+      <div class="sidebar-title">أقسام المتجر</div>
+      <button class="btn-all-products">عرض كل المنتجات</button>
+
+      <div id="categories-tree"></div>
+    </aside>
+
+    <!-- المحتوى الرئيسي (يسار الواجهة) -->
     <main class="content-area">
       <div class="section-header">
-        <h2 id="current-cat-title">طباخات وفوانيس</h2>
+        <h2 id="current-cat-title">محابس غاز</h2>
         <p>عرض المنتجات التابعة للتصنيف المختار</p>
       </div>
 
@@ -301,17 +308,9 @@
         </div>
       </div>
     </main>
-
-    <!-- القائمة الجانبية (اليسار) -->
-    <aside class="sidebar">
-      <div class="sidebar-title">أقسام المتجر</div>
-      <button class="btn-all-products">عرض كل المنتجات</button>
-
-      <div id="categories-tree"></div>
-    </aside>
   </div>
 
-  <!-- Modal Admin -->
+  <!-- النافذة المنبثقة للأدمن -->
   <div id="admin-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:20px; border-radius:8px; width:90%; max-width:450px;">
       <h3 id="modal-title" style="margin-top:0;">إضافة / تعديل منتج</h3>
@@ -332,18 +331,13 @@
       "منزليات": [],
       "ادوات ولوازم الرحلات": [],
       "ادوات لحام وصواريخ بقاعدة": [],
-      "طباخات وفوانيس": [
-        "طبخات غاز سائل",
-        "فوانيس غاز سائل",
-        "فوانيس بطاريات",
-        "دوافير غاز",
-        "فتايل",
-        "اتاريك",
-        "قزاز فوانيس واتاريك"
-      ],
+      "طباخات وفوانيس": [],
       "ولاعات وشعالات": [],
       "مواقد غاز": [],
-      "محابس وتواصيل": [],
+      "محابس وتواصيل": [
+        "محابس غاز",
+        "تواصيل ونقاصات"
+      ],
       "ليات غاز": [],
       "قطع غيار": [],
       "قدور": [],
@@ -383,7 +377,7 @@
         item.className = 'category-item';
 
         const subArr = storeCategories[mainCat];
-        const isDefaultOpen = mainCat === "طباخات وفوانيس";
+        const isDefaultOpen = mainCat === "محابس وتواصيل";
 
         const header = document.createElement('div');
         header.className = `category-header ${isDefaultOpen ? 'active' : ''}`;
