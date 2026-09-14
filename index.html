@@ -25,7 +25,6 @@
       line-height: 1.6;
     }
 
-    /* استخدام sticky يلغي مشاكل التداخل نهائياً */
     header {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
@@ -327,7 +326,6 @@
       buildHomeCategories();
       updateCartBadge();
 
-      // تفعيل دخول المشرف بالضغط المزدوج على الهيدر أو الشعار
       const headerEl = document.querySelector('header');
       if (headerEl) {
         headerEl.addEventListener('dblclick', function(e) {
@@ -341,7 +339,6 @@
       }
     });
 
-    // اختصار لوحة المفاتيح للمشرف: Ctrl + Alt + A
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش')) {
         e.preventDefault();
@@ -395,8 +392,8 @@
         const card = document.createElement('div');
         card.className = 'main-cat-card';
         card.onclick = () => {
-          const firstSub = storeCategories[cat][0] || cat;
-          window.location.href = `products.html?category=${encodeURIComponent(firstSub)}`;
+          // التعديل هنا: تمرير اسم القسم الرئيسي عبر ?cat= ليتم قراءته تلقائياً في صفحة المنتجات
+          window.location.href = `products.html?cat=${encodeURIComponent(cat)}`;
         };
         card.innerHTML = `
           <div class="cat-img-box">
