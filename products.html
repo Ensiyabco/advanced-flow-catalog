@@ -24,7 +24,6 @@
       line-height: 1.6;
     }
 
-    /* الهيدر الجديد مرتب حسب رغبتك في الجوال والكمبيوتر */
     header {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
@@ -39,8 +38,24 @@
       text-align: center;
     }
 
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #logo-img {
+      width: 45px;
+      height: 45px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
     .brand-title {
       margin-bottom: 10px;
+      text-align: right;
     }
 
     .brand-title h1 {
@@ -343,6 +358,7 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 12px;
+      overflow: hidden;
     }
 
     .product-img-box img {
@@ -438,6 +454,8 @@
       width: 90%;
       max-width: 480px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .modal-card h3 {
@@ -528,10 +546,13 @@
   </div>
 
   <header>
-    <div class="brand-title">
-      <h1>الأنسياب المتقدم</h1>
-      <p>أدوات ولوازم الغاز والرحلات</p>
-    </div>
+    <a href="index.html" class="logo-container">
+      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+      <div class="brand-title">
+        <h1>الأنسياب المتقدم</h1>
+        <p>أدوات ولوازم الغاز والرحلات</p>
+      </div>
+    </a>
     <nav class="nav-links">
       <a href="index.html">الرئيسية</a>
       <a href="products.html" class="active">المنتجات</a>
@@ -566,6 +587,7 @@
     </div>
   </div>
 
+  <!-- مودال إضافة/تعديل القسم الرئيسي -->
   <div class="modal-overlay" id="main-cat-modal">
     <div class="modal-card">
       <h3 id="main-cat-modal-title">إضافة قسم رئيسي جديد</h3>
@@ -585,6 +607,7 @@
     </div>
   </div>
 
+  <!-- مودال إضافة القسم الفرعي -->
   <div class="modal-overlay" id="sub-cat-modal">
     <div class="modal-card">
       <h3>إضافة قسم فرعي</h3>
@@ -600,6 +623,7 @@
     </div>
   </div>
 
+  <!-- مودال إضافة/تعديل المنتج (محدث لدعم رفع الصور من الجهاز) -->
   <div class="modal-overlay" id="product-modal">
     <div class="modal-card">
       <h3 id="product-modal-title">إضافة منتج جديد</h3>
@@ -627,8 +651,9 @@
         </div>
       </div>
       <div class="form-group">
-        <label>رابط صورة المنتج (اختياري):</label>
-        <input type="text" id="prod-img-input" placeholder="أترك فارغاً">
+        <label>رفع صورة المنتج من الجهاز:</label>
+        <input type="file" id="prod-file-input" accept="image/*" onchange="encodeImageFileAsURL(this)">
+        <input type="hidden" id="prod-img-input">
       </div>
       <div class="modal-actions">
         <button style="background:#2b6cb0; color:#fff;" onclick="saveProduct()">حفظ المنتج</button>
@@ -637,6 +662,7 @@
     </div>
   </div>
 
+  <!-- مودال السلة -->
   <div class="modal-overlay" id="cart-modal">
     <div class="modal-card">
       <h3>قائمة الطلبات الخاصة بك</h3>
@@ -941,9 +967,35 @@
       document.getElementById('prod-name-input').value = "";
       document.getElementById('prod-unit-input').value = "حبة";
       document.getElementById('prod-box-input').value = "1";
+      document.getElementById('prod-file-input').value = "";
       document.getElementById('prod-img-input').value = "";
       populateCategoryDropdowns();
       document.getElementById('product-modal').style.display = 'flex';
+    }
+
+    function editProduct(id) {
+      const prod = products.find(p => p.id === id);
+      if (!prod) return;
+      document.getElementById('product-modal-title').innerText = "تعديل المنتج";
+      document.getElementById('edit-prod-id').value = prod.id;
+      document.getElementById('prod-name-input').value = prod.name;
+      document.getElementById('prod-unit-input').value = prod.unit || "حبة";
+      document.getElementById('prod-box-input').value = prod.boxQty || 1;
+      document.getElementById('prod-file-input').value = "";
+      document.getElementById('prod-img-input').value = prod.image || "";
+      populateCategoryDropdowns(prod.mainCat, prod.subCat);
+      document.getElementById('product-modal').style.display = 'flex';
+    }
+
+    function encodeImageFileAsURL(element) {
+      const file = element.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          document.getElementById('prod-img-input').value = reader.result;
+        }
+        reader.readAsDataURL(file);
+      }
     }
 
     function populateCategoryDropdowns(selectedMain = "", selectedSub = "") {
@@ -976,102 +1028,106 @@
     }
 
     function saveProduct() {
+      const editId = parseInt(document.getElementById('edit-prod-id').value);
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
-      const subCat = document.getElementById('prod-sub-cat-select').value || "";
-      const unit = document.getElementById('prod-unit-input').value.trim();
+      const subCat = document.getElementById('prod-sub-cat-select').value;
+      const unit = document.getElementById('prod-unit-input').value.trim() || 'حبة';
       const boxQty = parseInt(document.getElementById('prod-box-input').value) || 1;
-      const image = document.getElementById('prod-img-input').value.trim();
-      const editId = parseInt(document.getElementById('edit-prod-id').value);
+      const image = document.getElementById('prod-img-input').value;
+
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
 
       if (editId === -1) {
-        products.push({ id: Date.now(), name, mainCat, subCat, unit, boxQty, image });
+        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        products.push({ id: newId, name, mainCat, subCat, unit, boxQty, image });
       } else {
-        const prodIndex = products.findIndex(p => p.id === editId);
-        if (prodIndex > -1) products[prodIndex] = { id: editId, name, mainCat, subCat, unit, boxQty, image };
+        const prod = products.find(p => p.id === editId);
+        if (prod) {
+          prod.name = name;
+          prod.mainCat = mainCat;
+          prod.subCat = subCat;
+          prod.unit = unit;
+          prod.boxQty = boxQty;
+          if (image) prod.image = image; // إذا تم رفع صورة جديدة يتم تحديثها
+        }
       }
       saveProductsData();
       closeModal('product-modal');
-      renderProducts(products);
-    }
-
-    function editProduct(id) {
-      const prod = products.find(p => p.id === id);
-      if (!prod) return;
-      document.getElementById('product-modal-title').innerText = "تعديل المنتج";
-      document.getElementById('edit-prod-id').value = prod.id;
-      document.getElementById('prod-name-input').value = prod.name;
-      document.getElementById('prod-unit-input').value = prod.unit || "حبة";
-      document.getElementById('prod-box-input').value = prod.boxQty || 1;
-      document.getElementById('prod-img-input').value = prod.image || "";
-      populateCategoryDropdowns(prod.mainCat, prod.subCat);
-      document.getElementById('product-modal').style.display = 'flex';
+      renderProducts(products.filter(p => p.mainCat === mainCat));
     }
 
     function deleteProduct(id) {
-      if (confirm("هل أنت تأكد من حذف هذا المنتج؟")) {
+      if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
         products = products.filter(p => p.id !== id);
         saveProductsData();
         renderProducts(products);
       }
     }
 
-    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-
-    function addToCart(prodId, prodName) {
-      const qty = parseInt(document.getElementById(`qty-${prodId}`).value) || 1;
-      const unit = document.getElementById(`unit-${prodId}`).value;
-      const existingIndex = cart.findIndex(item => item.id === prodId && item.unit === unit);
-      if (existingIndex > -1) cart[existingIndex].quantity += qty;
-      else cart.push({ id: prodId, name: prodName, quantity: qty, unit: unit });
-
-      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
+    function addToCart(id, name) {
+      const qty = parseInt(document.getElementById(`qty-${id}`).value) || 1;
+      const unit = document.getElementById(`unit-${id}`).value;
+      const existing = cart.find(item => item.id === id && item.unit === unit);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        cart.push({ id, name, qty, unit });
+      }
+      saveCartData();
       updateCartBadge();
-      alert(`تمت إضافة "${prodName}" إلى قائمة الطلب بنجاح!`);
+      alert("تمت الإضافة إلى قائمة الطلب بنجاح");
     }
 
     function updateCartBadge() {
-      document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById('cart-count').innerText = totalCount;
+    }
+
+    function saveCartData() {
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
     }
 
     function openCartModal() {
       const container = document.getElementById('cart-items-container');
       container.innerHTML = '';
       if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#a0aec0; padding:20px;">قائمة الطلب فارغة حالياً.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#a0aec0;">قائمة الطلب فارغة حالياً</p>';
       } else {
         cart.forEach((item, index) => {
-          const row = document.createElement('div');
-          row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #f1f5f9; font-size: 13px;";
-          row.innerHTML = `
-            <div style="font-weight: 700; color: #2d3748;">${index + 1}. ${item.name}</div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span style="color: #718096; font-weight: 600; font-size: 12px; background: #edf2f7; padding: 3px 8px; border-radius: 4px;">${item.quantity} ${item.unit}</span>
-              <button style="background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 14px; font-weight: 700;" onclick="removeFromCart(${item.id}, '${item.unit}')">✕</button>
+          container.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #edf2f7;">
+              <div>
+                <strong>${item.name}</strong><br>
+                <small style="color:#718096;">الكمية: ${item.qty} ${item.unit}</small>
+              </div>
+              <button class="action-icon-btn" style="color:#e53e3e;" onclick="removeFromCart(${index})">🗑️</button>
             </div>
           `;
-          container.appendChild(row);
         });
       }
       document.getElementById('cart-modal').style.display = 'flex';
     }
 
-    function removeFromCart(prodId, unit) {
-      cart = cart.filter(item => !(item.id === prodId && item.unit === unit));
-      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      saveCartData();
       updateCartBadge();
       openCartModal();
     }
 
     function sendCartToWhatsApp() {
-      if (cart.length === 0) return alert('قائمة الطلب فارغة!');
-      let message = "السلام عليكم، أرغب في طلب المنتجات التالية:\n\n";
-      cart.forEach((item, index) => {
-        message += `${index + 1}- ${item.name} | الكمية: ${item.quantity} ${item.unit}\n`;
+      if (cart.length === 0) return alert("قائمة الطلب فارغة!");
+      let text = "مرحباً، أود طلب المنتجات التالية:\n\n";
+      cart.forEach((item, i) => {
+        text += `${i+1}- ${item.name} (الكمية: ${item.qty} ${item.unit})\n`;
       });
-      message += "\nشكراً لكم.";
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
+      const encoded = encodeURIComponent(text);
+      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
     }
   </script>
 </body>
