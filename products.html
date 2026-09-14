@@ -87,8 +87,13 @@
       background: #1a4971;
     }
 
+    .filter-section {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
     .filter-container {
-      margin-bottom: 25px;
+      margin-bottom: 12px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
@@ -112,6 +117,37 @@
       background: #1b365d;
       color: white;
       border-color: #1b365d;
+    }
+
+    .subcat-filter-container {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 8px;
+      min-height: 40px;
+      align-items: center;
+    }
+
+    .sub-filter-btn {
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      color: #334155;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sub-filter-btn.active, .sub-filter-btn:hover {
+      background: #3182ce;
+      color: white;
+      border-color: #3182ce;
     }
   </style>
 </head>
@@ -138,12 +174,21 @@
   <div class="main-container">
     <h2 style="color:#1b365d; font-weight:900; text-align:center; margin-bottom:20px;">دليل المنتجات والأقسام</h2>
     
-    <div class="filter-container" id="categories-filter">
-      <button class="filter-btn active" onclick="filterProducts('all', this)">كل المنتجات</button>
-      <button class="filter-btn" onclick="filterProducts('مواقد غاز', this)">مواقد غاز</button>
-      <button class="filter-btn" onclick="filterProducts('ساعات ومنظمات غاز', this)">ساعات ومنظمات غاز</button>
-      <button class="filter-btn" onclick="filterProducts('ادوات ولوازم الرحلات', this)">لوازم الرحلات</button>
-      <button class="filter-btn" onclick="filterProducts('ادوات لحام ووصواريخ بقاعدة', this)">أدوات اللحام</button>
+    <!-- أزرار الأقسام الرئيسية -->
+    <div class="filter-section">
+      <div class="filter-container" id="categories-filter">
+        <button class="filter-btn active" onclick="filterMainCategory('all', this)">كل المنتجات</button>
+        <button class="filter-btn" onclick="filterMainCategory('ادوات لحام ووصواريخ بقاعدة', this)">أدوات اللحام والصواريخ</button>
+        <button class="filter-btn" onclick="filterMainCategory('مواقد غاز', this)">مواقد غاز</button>
+        <button class="filter-btn" onclick="filterMainCategory('ساعات ومنظمات غاز', this)">ساعات ومنظمات غاز</button>
+        <button class="filter-btn" onclick="filterMainCategory('ادوات ولوازم الرحلات', this)">لوازم الرحلات</button>
+        <button class="filter-btn" onclick="filterMainCategory('ادوات ولوازم الشواء', this)">لوازم الشواء</button>
+      </div>
+
+      <!-- شريط الأقسام الفرعية الديناميكي -->
+      <div class="subcat-filter-container" id="subcategories-filter">
+        <span style="font-size:12px; color:#64748b; font-weight:700;">اختر القسم الرئيسي لعرض الأقسام الفرعية</span>
+      </div>
     </div>
 
     <div class="products-grid" id="products-grid"></div>
@@ -167,28 +212,91 @@
 
   <script>
     const defaultProducts = [
-      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 8, images: [] },
-      { id: 2, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 3, images: [] },
-      { id: 3, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, stock: 0, images: [] },
-      { id: 4, name: "جالون 10 لتر", mainCat: "ادوات ولوازم الرحلات", subCat: "دواوين وسطول", unit: "حبة", boxQty: 6, stock: 12, images: [] }
+      { id: 1, name: "مسدس لحام إيطالي فاخر", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "مسدسات لحام ايطالي", unit: "حبة", boxQty: 6, stock: 50, images: [] },
+      { id: 2, name: "صاروخ ايطالي", mainCat: "ادوات لحام ووصواريخ بقاعدة", subCat: "صواريخ وبقاعدة", unit: "حبة", boxQty: 4, stock: 10, images: [] },
+      { id: 3, name: "موقد غاز سفري رحلات", mainCat: "مواقد غاز", subCat: "مواقد رحلات", unit: "حبة", boxQty: 10, stock: 10, images: [] },
+      { id: 4, name: "منظم غاز إيطالي منزلي", mainCat: "ساعات ومنظمات غاز", subCat: "ساعات غاز منزليه", unit: "حبة", boxQty: 20, stock: 10, images: [] },
+      { id: 5, name: "جالون 10 لتر", mainCat: "ادوات ولوازم الرحلات", subCat: "دواوين وسطول", unit: "حبة", boxQty: 6, stock: 10, images: [] },
+      { id: 6, name: "منقل ثقيل", mainCat: "ادوات ولوازم الشواء", subCat: "مناقل شوي", unit: "حبة", boxQty: 2, stock: 10, images: [] }
     ];
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products_v4')) || defaultProducts;
     let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
+    
+    let currentMainCat = 'all';
+    let currentSubCat = 'all';
 
     const placeholderSvg = "data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'200\'><rect width=\'100%\' height=\'100%\' fill=\'%23f1f5f9\'/><text x=\'50%\' y=\'50%\' font-family=\'Cairo\' font-size=\'14\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>الأنسياب المتقدم</text></svg>";
 
     document.addEventListener('DOMContentLoaded', function() {
-      displayProducts(products);
+      applyFilters();
       updateCartBadge();
     });
+
+    function filterMainCategory(category, btnElement) {
+      document.querySelectorAll('#categories-filter .filter-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      currentMainCat = category;
+      currentSubCat = 'all';
+
+      renderSubcategoriesBar(category);
+      applyFilters();
+    }
+
+    function renderSubcategoriesBar(mainCategory) {
+      const subContainer = document.getElementById('subcategories-filter');
+      subContainer.innerHTML = '';
+
+      if (mainCategory === 'all') {
+        subContainer.innerHTML = '<span style="font-size:12px; color:#64748b; font-weight:700;">اختر القسم الرئيسي لعرض الأقسام الفرعية</span>';
+        return;
+      }
+
+      // استخراج الأقسام الفرعية التابعة للقسم الرئيسي الحالي فقط
+      const matchedProducts = products.filter(p => p.mainCat === mainCategory);
+      const subCategories = [...new Set(matchedProducts.map(p => p.subCat).filter(Boolean))];
+
+      if (subCategories.length === 0) {
+        subContainer.innerHTML = '<span style="font-size:12px; color:#64748b; font-weight:700;">لا توجد أقسام فرعية مسجلة لهذا القسم</span>';
+        return;
+      }
+
+      let html = `<button class="sub-filter-btn active" onclick="filterSubCategory('all', this)">كل الأقسام الفرعية</button>`;
+      subCategories.forEach(sub => {
+        html += `<button class="sub-filter-btn" onclick="filterSubCategory('${sub}', this)">${sub}</button>`;
+      });
+      subContainer.innerHTML = html;
+    }
+
+    function filterSubCategory(subCategory, btnElement) {
+      document.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      currentSubCat = subCategory;
+      applyFilters();
+    }
+
+    function applyFilters() {
+      let filtered = products;
+
+      if (currentMainCat !== 'all') {
+        filtered = filtered.filter(p => p.mainCat === currentMainCat);
+      }
+
+      if (currentSubCat !== 'all') {
+        filtered = filtered.filter(p => p.subCat === currentSubCat);
+      }
+
+      displayProducts(filtered);
+    }
 
     function displayProducts(prodsToDisplay) {
       const grid = document.getElementById('products-grid');
       grid.innerHTML = '';
 
       if (prodsToDisplay.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096;">لا توجد منتجات مطابقة حالياً.</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:30px;">لا توجد منتجات مطابقة في هذا القسم حالياً.</p>';
         return;
       }
 
@@ -226,25 +334,9 @@
       });
     }
 
-    function filterProducts(category, btnElement) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
-
-      if (category === 'all') {
-        displayProducts(products);
-      } else {
-        const filtered = products.filter(p => p.mainCat === category);
-        displayProducts(filtered);
-      }
-    }
-
     function updateCartBadge() {
       const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
       document.getElementById('cart-count').innerText = totalCount;
-    }
-
-    function saveCartData() {
-      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
     }
 
     function openCartModal() {
@@ -270,7 +362,7 @@
 
     function removeFromCart(index) {
       cart.splice(index, 1);
-      saveCartData();
+      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
       updateCartBadge();
       openCartModal();
     }
