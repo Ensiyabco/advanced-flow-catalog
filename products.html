@@ -20,7 +20,6 @@
       color: #333;
     }
 
-    /* --- الهيدر الرئيسي --- */
     header {
       background-color: #ffffff;
       border-bottom: 1px solid #e2e8f0;
@@ -64,7 +63,6 @@
       color: #2b6cb0;
     }
 
-    /* --- الصفحة الرئيسية --- */
     #home-page {
       display: block;
     }
@@ -169,7 +167,6 @@
       font-weight: bold;
     }
 
-    /* --- صفحة المنتجات والكتالوج --- */
     #products-page {
       display: none;
     }
@@ -251,8 +248,9 @@
       text-align: right;
     }
 
-    .subcategory-item:hover {
+    .subcategory-item:hover, .subcategory-item.active-sub {
       color: #e53e3e;
+      font-weight: bold;
     }
 
     .content-area {
@@ -281,7 +279,7 @@
 
     .products-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 15px;
     }
 
@@ -294,17 +292,21 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
 
     .product-img-box {
       width: 100%;
-      height: 150px;
+      height: 130px;
       background: #f7fafc;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 10px;
+      font-size: 12px;
+      color: #a0aec0;
+      border: 1px solid #edf2f7;
     }
 
     .product-title {
@@ -314,10 +316,35 @@
       color: #2d3748;
     }
 
-    .product-info {
-      font-size: 11px;
+    /* صندوق عرض الكمية والوحدة المحدث */
+    .product-specs-box {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px;
+      width: 100%;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .spec-label {
       color: #718096;
-      margin-bottom: 8px;
+      font-size: 10px;
+    }
+
+    .spec-value {
+      font-weight: bold;
+      color: #1b365d;
+      font-size: 13px;
     }
 
     .btn-whatsapp {
@@ -330,7 +357,7 @@
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: auto;
+      margin-top: 4px;
     }
 
     .admin-controls {
@@ -383,7 +410,6 @@
 </head>
 <body>
 
-  <!-- الهيدر الرئيسي -->
   <header>
     <div class="logo-container" id="site-logo" onclick="toggleAdmin()" title="انقر مرتين لتفعيل الأدمن">
       <div class="logo-text">الأنسياب المتقدم | أدوات ولوازم الغاز والرحلات</div>
@@ -396,7 +422,6 @@
     </nav>
   </header>
 
-  <!-- الصفحة الرئيسية -->
   <div id="home-page">
     <div class="hero-banner">
       <h1>أفضل أدوات الغاز والرحلات... جودة تعتمد عليها</h1>
@@ -410,17 +435,15 @@
       <h2>تصفح الأقسام</h2>
     </div>
 
-    <!-- شبكة الأقسام الرئيسية -->
     <div class="main-categories-grid" id="home-categories-grid"></div>
   </div>
 
-  <!-- صفحة المنتجات والكتالوج الجانبي -->
   <div id="products-page">
     <div class="products-wrapper">
       
       <aside class="sidebar">
         <div class="sidebar-title">أقسام المتجر</div>
-        <button class="btn-all-products" onclick="filterCategory('الكل')">عرض كل المنتجات</button>
+        <button class="btn-all-products" onclick="selectCategory('الكل')">عرض كل المنتجات</button>
         <div id="categories-tree"></div>
       </aside>
 
@@ -434,28 +457,22 @@
           <button class="admin-btn btn-add" onclick="openAddModal()">+ إضافة منتج جديد</button>
         </div>
 
-        <div class="products-grid" id="products-container">
-          <div class="product-card">
-            <div class="product-img-box">
-              <span style="color:#a0aec0; font-size:12px;">صورة المنتج</span>
-            </div>
-            <div class="product-title">منتج تجريبي</div>
-            <div class="product-info">الوحدة: حبة | شد الكرتون: 12</div>
-            <button class="btn-whatsapp">اطلب عبر الواتساب</button>
-            <button class="admin-btn" style="margin-top:6px; width:100%;" onclick="openEditModal()">تعديل</button>
-          </div>
-        </div>
+        <div class="products-grid" id="products-container"></div>
       </main>
 
     </div>
   </div>
 
-  <!-- النافذة المنبثقة لوحة التحكم -->
+  <!-- نافذة إضافة منتج -->
   <div id="admin-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; padding:20px; border-radius:8px; width:90%; max-width:450px;">
-      <h3 id="modal-title" style="margin-top:0;">إضافة / تعديل منتج</h3>
+      <h3 id="modal-title" style="margin-top:0;">إضافة منتج جديد</h3>
       <form id="product-form">
-        <label style="display:block; margin-top:8px; font-size:12px; font-weight:bold;">اسم المنتج:</label>
+        
+        <label style="display:block; margin-top:8px; font-size:12px; font-weight:bold;">القسم الفرعي المستهدف:</label>
+        <input type="text" id="prod-category" readonly style="width:100%; padding:8px; margin-top:4px; border:1px solid #ccc; border-radius:4px; background:#edf2f7; color:#4a5568; font-weight:bold;">
+
+        <label style="display:block; margin-top:10px; font-size:12px; font-weight:bold;">اسم المنتج:</label>
         <input type="text" id="prod-name" required style="width:100%; padding:8px; margin-top:4px; border:1px solid #ccc; border-radius:4px;">
         
         <div style="display:flex; gap:10px; margin-top:10px;">
@@ -469,13 +486,13 @@
             </select>
           </div>
           <div style="flex:1;">
-            <label style="display:block; font-size:12px; font-weight:bold;">شد الكرتون:</label>
-            <input type="number" id="prod-pack" placeholder="12" style="width:100%; padding:8px; margin-top:4px; border:1px solid #ccc; border-radius:4px;">
+            <label style="display:block; font-size:12px; font-weight:bold;">شد الكرتون (الكمية):</label>
+            <input type="number" id="prod-pack" value="1" min="1" required style="width:100%; padding:8px; margin-top:4px; border:1px solid #ccc; border-radius:4px;">
           </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:15px;">
-          <button type="submit" style="flex:1; background:#27ae60; color:#fff; border:none; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">حفظ البيانات</button>
+          <button type="submit" style="flex:1; background:#27ae60; color:#fff; border:none; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">حفظ المنتج</button>
           <button type="button" onclick="closeAdminModal()" style="flex:1; background:#e53e3e; color:#fff; border:none; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">إلغاء</button>
         </div>
       </form>
@@ -488,124 +505,47 @@
 
   <script>
     const storeCategories = {
-      "ادوات لحام ووصواريخ بقاعدة": [
-        "مسدسات لحام ايطالي",
-        "مسدسات لحام صيني",
-        "صواريخ بقاعدة",
-        "مسدسات لحام سفري"
-      ],
-      "مواقد غاز": [
-        "مواقد غاز منزلية",
-        "مواقد غاز مطاعم",
-        "مواقد غاز مطابخ",
-        "مواقد رحلات",
-        "مواقد كويتي",
-        "مواقد كنافة",
-        "مسطحات تماتيك",
-        "مواقد كهرباء"
-      ],
-      "ادوات ولوازم الرحلات": [
-        "جوالين وسطول",
-        "شنط وتجهيزات",
-        "جلسات خارجيه",
-        "زمزميات وقوارير",
-        "اضاءة وانارة"
-      ],
-      "ادوات ولوازم الشواء": [
-        "ذرايات وسواتر",
-        "شبوك شوي",
-        "مناقل شوي",
-        "اسياخ شوي",
-        "شنط رحلات"
-      ],
-      "دفايات": [
-        "دفايات قاز",
-        "دفايات غاز",
-        "دفايات كهرباء",
-        "دفايات زيت",
-        "دفايات رحلات",
-        "قطع غيار دفايات"
-      ],
-      "محابس وتواصيل": [
-        "محابس غاز",
-        "تواصيل غاز",
-        "قسامات وموصلات غاز",
-        "تواصيل ومحولات سفري",
-        "قفزان ليات"
-      ],
-      "ساعات ومنظمات غاز": [
-        "ساعات غاز منزليه",
-        "ساعات غاز مطاعم",
-        "ساعات غاز سفري",
-        "ساعات غاز شبكات",
-        "تحويلات غاز"
-      ],
-      "ليات غاز": [
-        "ليات غاز منزليه",
-        "ليات غاز مطاعم",
-        "ليات مواقد رحلات"
-      ],
-      "ولاعات وشعالات": [
-        "ولاعات غاز",
-        "ولاعات بخور",
-        "ولاعات سفري",
-        "شعالات فحم",
-        "قوالب اشعال",
-        "سوائل اشعال"
-      ],
-      "قطع غيار": [
-        "قطع غيار مواقد",
-        "قطع غيار دبات",
-        "قطع غيار دوافير",
-        "قطغ غيار عامه"
-      ],
-      "قدور": [
-        "قدور منزليه",
-        "قدور مطاعم",
-        "قدور عسل",
-        "صواني"
-      ],
-      "خضاضات وسطول": [
-        "خضاضات لبن",
-        "سطول لبن",
-        "مواعين سمن"
-      ],
-      "دوافير ودبات": [
-        "دبات غاز",
-        "روس دوافير",
-        "روس دوافير بلي",
-        "دبات غاز سفري",
-        "اكسسوارات دوافير"
-      ],
-      "طباخات وفوانيس": [
-        "طباخات بالقاز السائل",
-        "فوانيس بالقاز السائل",
-        "فوانيس بالبطاريات",
-        "دوافير قاز",
-        "اتاريك قاز",
-        "اتاريك غاز",
-        "فتايل"
-      ],
-      "منزليات": [
-        "اكسسوارات عامة"
-      ]
+      "ادوات لحام ووصواريخ بقاعدة": ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"],
+      "مواقد غاز": ["مواقد غاز منزلية", "مواقد غاز مطاعم", "مواقد غاز مطابخ", "مواقد رحلات", "مواقد كويتي", "مواقد كنافة", "مسطحات تماتيك", "مواقد كهرباء"],
+      "ادوات ولوازم الرحلات": ["جوالين وسطول", "شنط وتجهيزات", "جلسات خارجيه", "زمزميات وقوارير", "اضاءة وانارة"],
+      "ادوات ولوازم الشواء": ["ذرايات وسواتر", "شبوك شوي", "مناقل شوي", "اسياخ شوي", "شنط رحلات"],
+      "دفايات": ["دفايات قاز", "دفايات غاز", "دفايات كهرباء", "دفايات زيت", "دفايات رحلات", "قطع غيار دفايات"],
+      "محابس وتواصيل": ["محابس غاز", "تواصيل غاز", "قسامات وموصلات غاز", "تواصيل ومحولات سفري", "قفزان ليات"],
+      "ساعات ومنظمات غاز": ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"],
+      "ليات غاز": ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"],
+      "ولاعات وشعالات": ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"],
+      "قطع غيار": ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"],
+      "قدور": ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"],
+      "خضاضات وسطول": ["خضاضات لبن", "سطول لبن", "مواعين سمن"],
+      "دوافير ودبات": ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"],
+      "طباخات وفوانيس": ["طباخات بالقاز السائل", "فوانيس بالقاز السائل", "فوانيس بالبطاريات", "دوافير قاز", "اتاريك قاز", "اتاريك غاز", "فتايل"],
+      "منزليات": ["اكسسوارات عامة"]
     };
+
+    let productsData = JSON.parse(localStorage.getItem('ansiyab_products')) || [
+      { id: 1, name: "مسدس لحام إيطالي فاخر", category: "مسدسات لحام ايطالي", unit: "حبة", pack: 6 },
+      { id: 2, name: "موقد غاز منزلي عالي الأداء", category: "مواقد غاز منزلية", unit: "كرتون", pack: 12 }
+    ];
+
+    let currentSelectedCategory = "مسدسات لحام ايطالي";
+    let isAdmin = false;
 
     function showPage(pageId) {
       document.getElementById('home-page').style.display = pageId === 'home' ? 'block' : 'none';
       document.getElementById('products-page').style.display = pageId === 'products' ? 'block' : 'none';
-      
       document.getElementById('nav-home').classList.toggle('active', pageId === 'home');
       document.getElementById('nav-products').classList.toggle('active', pageId === 'products');
       window.scrollTo(0, 0);
     }
 
-    // الدالة المسؤولة عن فتح القسم المحدد وتوسيع قائمته الفرعية في السايدبار
     function openCategoryProducts(catName) {
       showPage('products');
-      document.getElementById('current-cat-title').innerText = catName;
+      if (storeCategories[catName] && storeCategories[catName].length > 0) {
+        selectCategory(storeCategories[catName][0]);
+      } else {
+        selectCategory(catName);
+      }
       
-      // فتح القائمة الفرعية الخاصة بالقسم الرئيسي المختار تلقائياً
       const items = document.querySelectorAll('.category-item');
       items.forEach(item => {
         const header = item.querySelector('.category-header');
@@ -622,16 +562,31 @@
       });
     }
 
-    let isAdmin = false;
+    function selectCategory(catName) {
+      currentSelectedCategory = catName;
+      document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
+      
+      document.querySelectorAll('.subcategory-item').forEach(el => {
+        if (el.innerText === catName) {
+          el.classList.add('active-sub');
+        } else {
+          el.classList.remove('active-sub');
+        }
+      });
+      renderProducts();
+    }
+
     function toggleAdmin() {
       isAdmin = !isAdmin;
-      alert(isAdmin ? 'تم تفعيل وضع الأدمن' : 'تم خروج الأدمن');
+      alert(isAdmin ? 'تم تفعيل وضع الأدمن بنجاح' : 'تم الخروج من وضع الأدمن');
       document.querySelectorAll('.admin-btn').forEach(btn => btn.style.display = isAdmin ? 'block' : 'none');
+      renderProducts();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
       buildHomeCategories();
       buildSidebarCategories();
+      selectCategory("مسدسات لحام ايطالي");
     });
 
     function buildHomeCategories() {
@@ -642,9 +597,7 @@
         card.className = 'main-cat-card';
         card.onclick = () => openCategoryProducts(cat);
         card.innerHTML = `
-          <div class="cat-img-box">
-            <span>الأنسياب</span>
-          </div>
+          <div class="cat-img-box"><span>الأنسياب</span></div>
           <h3>${cat}</h3>
         `;
         grid.appendChild(card);
@@ -673,7 +626,7 @@
           subItem.innerText = sub;
           subItem.onclick = function(e) {
             e.stopPropagation();
-            document.getElementById('current-cat-title').innerText = sub;
+            selectCategory(sub);
           };
           subList.appendChild(subItem);
         });
@@ -687,7 +640,6 @@
             subList.classList.add('open');
             header.classList.add('active');
           }
-          document.getElementById('current-cat-title').innerText = mainCat;
         };
 
         item.appendChild(header);
@@ -696,20 +648,55 @@
       });
     }
 
-    function filterCategory(catName) {
-      document.getElementById('current-cat-title').innerText = catName === 'الكل' ? 'جميع المنتجات' : catName;
-      document.querySelectorAll('.subcategory-list').forEach(l => l.classList.remove('open'));
-      document.querySelectorAll('.category-header').forEach(h => h.classList.remove('active'));
+    function renderProducts() {
+      const container = document.getElementById('products-container');
+      container.innerHTML = '';
+
+      let filtered = productsData;
+      if (currentSelectedCategory !== 'الكل') {
+        filtered = productsData.filter(p => p.category === currentSelectedCategory);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#a0aec0; padding:20px;">لا توجد منتجات مضافة في هذا القسم حالياً.</p>';
+        return;
+      }
+
+      filtered.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="product-img-box">صورة المنتج</div>
+          <div class="product-title">${prod.name}</div>
+          
+          <!-- عرض الكمية والوحدة بوضوح تام على بطاقة المنتج -->
+          <div class="product-specs-box">
+            <div class="spec-item">
+              <span class="spec-label">الوحدة</span>
+              <span class="spec-value">${prod.unit}</span>
+            </div>
+            <div style="height:20px; width:1px; background:#e2e8f0;"></div>
+            <div class="spec-item">
+              <span class="spec-label">شد الكرتون</span>
+              <span class="spec-value">${prod.pack}</span>
+            </div>
+          </div>
+
+          <button class="btn-whatsapp" onclick="window.open('https://wa.me/?text=أرغب في طلب المنتج: ${encodeURIComponent(prod.name)} - الكمية/الشد: ${prod.pack} ${prod.unit}')">اطلب عبر الواتساب</button>
+          
+          ${isAdmin ? `<button class="admin-btn" style="display:block; margin-top:6px; width:100%; background:#e53e3e;" onclick="deleteProduct(${prod.id})">حذف المنتج</button>` : ''}
+        `;
+        container.appendChild(card);
+      });
     }
 
     function openAddModal() {
+      if (currentSelectedCategory === 'الكل') {
+        alert('الرجاء اختيار قسم فرعي محدد من القائمة الجانبية لإضافة المنتج إليه.');
+        return;
+      }
       document.getElementById('product-form').reset();
-      document.getElementById('modal-title').innerText = 'إضافة منتج جديد';
-      document.getElementById('admin-modal').style.display = 'flex';
-    }
-
-    function openEditModal() {
-      document.getElementById('modal-title').innerText = 'تعديل المنتج';
+      document.getElementById('prod-category').value = currentSelectedCategory;
       document.getElementById('admin-modal').style.display = 'flex';
     }
 
@@ -719,9 +706,30 @@
 
     document.getElementById('product-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      alert('تم حفظ البيانات بنجاح!');
+      
+      const newProd = {
+        id: Date.now(),
+        name: document.getElementById('prod-name').value,
+        category: document.getElementById('prod-category').value,
+        unit: document.getElementById('prod-unit').value,
+        pack: document.getElementById('prod-pack').value || 1
+      };
+
+      productsData.push(newProd);
+      localStorage.setItem('ansiyab_products', JSON.stringify(productsData));
+      
+      renderProducts();
       closeAdminModal();
+      alert('تم إضافة المنتج بنجاح مع تفاصيل الوحدة والكمية!');
     });
+
+    function deleteProduct(id) {
+      if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+        productsData = productsData.filter(p => p.id !== id);
+        localStorage.setItem('ansiyab_products', JSON.stringify(productsData));
+        renderProducts();
+      }
+    }
   </script>
 
 </body>
