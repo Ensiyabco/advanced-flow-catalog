@@ -61,7 +61,7 @@
     
     .cat-edit-badge {
       position: absolute; top: 10px; left: 10px; background: #edf2f7; border: 1px solid #cbd5e0;
-      border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer; z-index: 5;
+      border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer; z-index: 10;
     }
 
     .products-container { margin-top: 20px; }
@@ -120,7 +120,7 @@
     .modal-content h4 { margin: 0 0 15px 0; color: #1b365d; text-align: center; }
     .form-group { margin-bottom: 12px; text-align: right; }
     .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
-    .form-group input { width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-family: 'Cairo'; }
+    .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-family: 'Cairo'; }
 
     .gallery-main-img { width: 100%; height: 280px; object-fit: contain; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
     .gallery-thumbs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; justify-content: center; }
@@ -130,7 +130,7 @@
 </head>
 <body>
 
-  <!-- حقل رفع صور الأقسام -->
+  <!-- عنصر إدخال الملفات المخصص لرفع شعار القسم -->
   <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;" onchange="handleCatFileUpload(event)">
 
   <header>
@@ -169,7 +169,7 @@
     </div>
   </div>
 
-  <!-- مودال إضافة/تعديل المنتجات -->
+  <!-- نافذة إضافة وتعديل المنتج -->
   <div class="modal-backdrop" id="productModal">
     <div class="modal-content">
       <h4 id="modalTitle">إدارة المنتج</h4>
@@ -181,8 +181,10 @@
       </div>
 
       <div class="form-group">
-        <label>القسم الرئيسي:</label>
-        <input type="text" id="edit-prod-category" placeholder="مثال: دوافير ودبات">
+        <label>القسم التابع له:</label>
+        <select id="edit-prod-category">
+          <!-- يتم تعبئتها ديناميكياً بالأقسام -->
+        </select>
       </div>
       
       <div class="form-group">
@@ -196,7 +198,7 @@
       </div>
 
       <div class="form-group">
-        <label>اختر صور المنتج (يمكنك اختيار عدة صور معاً):</label>
+        <label>صور المنتج (يمكنك اختيار عدة صور معاً):</label>
         <input type="file" id="edit-prod-files" accept="image/*" multiple>
       </div>
 
@@ -207,7 +209,7 @@
     </div>
   </div>
 
-  <!-- مودال معرض الصور المتعددة -->
+  <!-- نافذة معرض الصور -->
   <div class="modal-backdrop" id="galleryModal">
     <div class="modal-content" style="text-align: center;">
       <h4 id="galleryModalTitle">معرض صور المنتج</h4>
@@ -248,7 +250,6 @@
         id: 1,
         name: "دافور غاز سفري متكامل",
         category: "دوافير ودبات",
-        subcategory: "دبات غاز سفري",
         unit: "حبة",
         boxQty: 12,
         stock: 50,
@@ -265,6 +266,7 @@
         }
       });
       renderCategoriesGrid();
+      populateCategorySelect();
       renderProducts(products);
       updateCartBadge();
       checkAdminStatus();
@@ -284,6 +286,7 @@
     function saveCategories() {
       localStorage.setItem('ansiyab_categories', JSON.stringify(categoriesData));
       renderCategoriesGrid();
+      populateCategorySelect();
     }
 
     function saveProducts() {
@@ -294,9 +297,13 @@
     function addMainCategory() {
       const name = prompt("أدخل اسم القسم الرئيسي الجديد:");
       if (name && name.trim()) {
-        const newCat = { id: Date.now(), name: name.trim(), subcategories: [] };
-        categoriesData.push(newCat);
-        saveCategories();
+        const trimmed = name.trim();
+        if (!categoriesData.some(c => c.name === trimmed)) {
+          categoriesData.push({ id: Date.now(), name: trimmed, subcategories: [] });
+          saveCategories();
+        } else {
+          alert("هذا القسم موجود مسبقاً!");
+        }
       }
     }
 
@@ -309,11 +316,10 @@
         card.className = 'category-card';
         card.onclick = () => filterByCategory(cat.name);
 
-        // استخدام اسم القسم كمرجع أساسي لحفظ وربط الصورة بكل دقة
         const imgSrc = categoryImages[cat.name] || 'assets/images/logo.png';
 
         card.innerHTML = `
-          <span class="cat-edit-badge admin-only" onclick="event.stopPropagation(); triggerCategoryFile('${cat.name}')" title="تغيير صورة القسم">📷</span>
+          <span class="cat-edit-badge admin-only" onclick="event.stopPropagation(); triggerCategoryFile('${cat.name.replace(/'/g, "\\'")}')" title="تغيير صورة القسم">📷</span>
           <img src="${imgSrc}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
           <h4>${cat.name}</h4>
         `;
@@ -344,9 +350,20 @@
       }
     }
 
+    function populateCategorySelect() {
+      const select = document.getElementById('edit-prod-category');
+      select.innerHTML = '';
+      categoriesData.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        select.appendChild(opt);
+      });
+    }
+
     function filterByCategory(catName) {
       document.getElementById('current-category-name').innerText = catName;
-      const filtered = products.filter(p => p.category === catName || p.subcategory === catName);
+      const filtered = products.filter(p => p.category === catName);
       renderProducts(filtered);
     }
 
@@ -361,7 +378,7 @@
       document.getElementById('products-count').innerText = `${list.length} منتج`;
 
       if (list.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: #718096; font-weight:700;">لا توجد منتجات مسجلة في هذا القسم حالياً.</div>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: #718096; font-weight:700; background:#fff; border-radius:10px; border:1px solid #e2e8f0;">لا توجد منتجات مسجلة في هذا القسم حالياً.</div>`;
         return;
       }
 
@@ -450,10 +467,10 @@
       document.getElementById('modalTitle').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "";
       document.getElementById('edit-prod-name').value = "";
-      document.getElementById('edit-prod-category').value = "";
       document.getElementById('edit-prod-stock').value = "0";
       document.getElementById('edit-prod-box').value = "1";
       document.getElementById('edit-prod-files').value = "";
+      populateCategorySelect();
       document.getElementById('productModal').style.display = 'flex';
     }
 
@@ -464,7 +481,8 @@
       document.getElementById('modalTitle').innerText = "تعديل بيانات وصور المنتج";
       document.getElementById('edit-prod-id').value = p.id;
       document.getElementById('edit-prod-name').value = p.name;
-      document.getElementById('edit-prod-category').value = p.category || "";
+      populateCategorySelect();
+      document.getElementById('edit-prod-category').value = p.category || categoriesData[0].name;
       document.getElementById('edit-prod-stock').value = p.stock;
       document.getElementById('edit-prod-box').value = p.boxQty;
       document.getElementById('edit-prod-files').value = "";
@@ -478,7 +496,7 @@
     function saveModalProduct() {
       const id = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('edit-prod-name').value;
-      const category = document.getElementById('edit-prod-category').value.trim() || "عام";
+      const category = document.getElementById('edit-prod-category').value;
       const stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
       const boxQty = parseInt(document.getElementById('edit-prod-box').value) || 1;
       const fileInput = document.getElementById('edit-prod-files');
@@ -500,7 +518,6 @@
             id: Date.now(),
             name: name || "منتج جديد",
             category: category,
-            subcategory: category,
             unit: "حبة",
             boxQty: boxQty,
             stock: stock,
