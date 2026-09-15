@@ -18,8 +18,48 @@ h1,h2,h3{color:var(--site-navy)}
 .footer{background:#173b63!important}
 </style>
 
+
+<style id="ensiyabco-inner-brand-v10">
+/* V10: هوية الأنسياب المتقدم للصفحات الداخلية */
+.ensiyabco-watermark{
+  pointer-events:none; user-select:none; position:fixed; inset:0; z-index:0;
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.ensiyabco-watermark::before,.ensiyabco-watermark::after{
+  content:""; position:absolute; top:22%; bottom:12%; width:90px; opacity:.32;
+  background:
+    radial-gradient(ellipse at 100% 50%,transparent 58%,#f59e0b 59% 60%,transparent 61% 67%,#fb923c 68% 69%,transparent 70%);
+}
+.ensiyabco-watermark::before{left:-48px;transform:scaleX(-1)}
+.ensiyabco-watermark::after{right:-48px}
+.ensiyabco-watermark-inner{
+  width:min(54vw,620px); text-align:center; opacity:.085; transform:translateY(5%);
+}
+.ensiyabco-watermark-inner img{width:min(38vw,420px);max-height:48vh;object-fit:contain;display:block;margin:0 auto -6px}
+.ensiyabco-watermark-name{font-size:clamp(30px,4vw,58px);font-weight:800;color:#0b3767;line-height:1.1}
+.ensiyabco-watermark-desc{font-size:clamp(14px,1.7vw,24px);font-weight:700;color:#0b3767;margin-top:10px}
+.ensiyabco-watermark-en{font-size:clamp(12px,1.3vw,18px);font-weight:700;letter-spacing:.28em;color:#0b3767;margin-top:10px}
+body>header,body>.site-header,body>section,body>footer,body>.footer,body>.main-container,
+body>.modal-overlay,body>.category-manager-overlay{position:relative;z-index:1}
+@media(max-width:700px){
+  .ensiyabco-watermark-inner{width:82vw;opacity:.065}
+  .ensiyabco-watermark-inner img{width:64vw}
+  .ensiyabco-watermark::before,.ensiyabco-watermark::after{width:55px}
+}
+</style>
+
 </head>
 <body>
+
+<div class="ensiyabco-watermark" aria-hidden="true">
+  <div class="ensiyabco-watermark-inner">
+    <img src="assets/images/ensiyabco-watermark.png" alt="">
+    <div class="ensiyabco-watermark-name">الأنسياب المتقدم</div>
+    <div class="ensiyabco-watermark-desc">أدوات ولوازم الغاز والرحلات والكشتات</div>
+    <div class="ensiyabco-watermark-en">ENSIYABCO · ADVANCED FLOW</div>
+  </div>
+</div>
+
     <header class="site-header">
         <div class="container header-flex">
             <div class="logo-area">
@@ -45,7 +85,7 @@ h1,h2,h3{color:var(--site-navy)}
             <h3>دافور غاز سفري فاخر</h3>
             <p>وصف تفصيلي للمنتج، يتميز بالجودة العالية وسهولة الحمل والاستخدام المباشر في الرحلات.</p>
             <p style="margin-top: 1rem;"><strong>السعر:</strong> 150 ريال</p>
-            <a href="https://wa.me/966500000000" class="btn-action" style="background: #25D366;" target="_blank">طلب عبر الواتساب</a>
+            <a href="https://wa.me/966506645562" class="btn-action" style="background: #25D366;" target="_blank">طلب عبر الواتساب</a>
         </div>
     </section>
 
