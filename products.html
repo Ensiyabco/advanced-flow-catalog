@@ -21,15 +21,10 @@
       background-color: #ffffff; border-bottom: 1px solid #e2e8f0;
       padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000;
-      flex-wrap: wrap; gap: 10px;
     }
     .logo-container { display: flex; align-items: center; gap: 12px; text-decoration: none; }
     .logo-container img { height: 40px; object-fit: contain; }
     .logo-text { font-size: 17px; font-weight: 800; color: #1b365d; }
-    
-    .nav-links { display: flex; gap: 15px; align-items: center; }
-    .nav-links a { text-decoration: none; color: #4a5568; font-weight: 700; font-size: 14px; transition: 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: #2b6cb0; }
 
     .header-actions { display: flex; align-items: center; gap: 10px; }
     .cart-btn-header {
@@ -71,13 +66,10 @@
       background: #edf2f7; color: #4a5568; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700;
     }
 
-    .cat-upload-label {
-      position: absolute; top: 10px; left: 10px; background: #ffffff; border: 1px solid #cbd5e0;
-      border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer; z-index: 20;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold; color: #1b365d;
+    .cat-edit-badge {
+      position: absolute; top: 10px; left: 10px; background: #edf2f7; border: 1px solid #cbd5e0;
+      border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; z-index: 10;
     }
-    .cat-upload-label:hover { background: #edf2f7; }
-    .cat-upload-input { display: none; }
 
     .products-container { margin-top: 20px; }
     .top-filter-bar {
@@ -151,18 +143,14 @@
 </head>
 <body>
 
+  <!-- عنصر إدخال الملفات الديناميكي لرفع صور الأقسام -->
+  <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;">
+
   <header>
-    <a href="index.html" class="logo-container">
+    <a href="#" class="logo-container">
       <img src="assets/images/logo.png" alt="شعار المؤسسة" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
       <div class="logo-text">الأنسياب المتقدم</div>
     </a>
-
-    <nav class="nav-links">
-      <a href="index.html" class="active">الرئيسية</a>
-      <a href="products.html">المنتجات</a>
-      <a href="about.html">من نحن</a>
-      <a href="contact.html">التواصل</a>
-    </nav>
     
     <div class="header-actions">
       <button class="btn-admin" onclick="addMainCategory()">+ قسم جديد</button>
@@ -193,13 +181,14 @@
         </div>
       </div>
 
+      <!-- الأزرار الفرعية للتصفية السريعة داخل القسم -->
       <div class="sub-filter-chips" id="sub-filter-chips"></div>
 
       <div class="products-grid" id="products-grid"></div>
     </div>
   </div>
 
-  <!-- Modal إضافة وتعديل المنتجات -->
+  <!-- نافذة إضافة وتعديل المنتج -->
   <div class="modal-backdrop" id="productModal">
     <div class="modal-content">
       <h4 id="modalTitle">إدارة المنتج</h4>
@@ -212,23 +201,15 @@
 
       <div class="form-group">
         <label>القسم الرئيسي:</label>
-        <select id="edit-prod-category" onchange="updateSubcategoryDropdownOptions()"></select>
+        <select id="edit-prod-category" onchange="updateSubcategoryDropdownOptions()">
+          <!-- يتم تعبئتها ديناميكياً -->
+        </select>
       </div>
 
       <div class="form-group">
         <label>القسم الفرعي:</label>
-        <select id="edit-prod-subcat"></select>
-      </div>
-
-      <div class="form-group">
-        <label>الوحدة الافتراضية:</label>
-        <select id="edit-prod-unit">
-          <option value="حبة">حبة</option>
-          <option value="كرتون">كرتون</option>
-          <option value="علبة">علبة</option>
-          <option value="درزن">درزن</option>
-          <option value="ربطة">ربطة</option>
-          <option value="لفة">لفة</option>
+        <select id="edit-prod-subcat">
+          <!-- يتم تعبئتها ديناميكياً بناءً على القسم الرئيسي -->
         </select>
       </div>
       
@@ -254,7 +235,7 @@
     </div>
   </div>
 
-  <!-- Modal معرض الصور -->
+  <!-- نافذة معرض الصور -->
   <div class="modal-backdrop" id="galleryModal">
     <div class="modal-content" style="text-align: center;">
       <h4 id="galleryModalTitle">معرض صور المنتج</h4>
@@ -286,11 +267,28 @@
       { id: 16, name: "اكسسوارات عامة", subcategories: [] }
     ];
 
-    let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
-    let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
+    // قراءة localStorage بأمان حتى لا تتوقف الصفحة بسبب بيانات تالفة
+    function safeStorageParse(key, fallback, validator) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        if (validator && !validator(parsed)) return fallback;
+        return parsed ?? fallback;
+      } catch (error) {
+        console.error('تعذر قراءة ' + key + ' من localStorage:', error);
+        return fallback;
+      }
+    }
+
+    const isArray = value => Array.isArray(value);
+    const isObject = value => value && typeof value === 'object' && !Array.isArray(value);
+
+    let categoriesData = safeStorageParse('ansiyab_categories', defaultCategories, isArray);
+    let categoryImages = safeStorageParse('ansiyab_cat_images', {}, isObject);
     let currentSelectedCategory = null;
 
-    let products = JSON.parse(localStorage.getItem('ansiyab_products')) || [
+    const defaultProducts = [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
@@ -303,7 +301,20 @@
       }
     ];
 
-    let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
+    let products = safeStorageParse('ansiyab_products', defaultProducts, isArray);
+    let cart = safeStorageParse('ansiyab_cart', [], isArray);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      products.forEach(p => {
+        if (!p.images || p.images.length === 0) {
+          p.images = p.img ? [p.img] : ['https://i.imgur.com/7A26w6i.png'];
+        }
+      });
+      renderCategoriesGrid();
+      populateCategorySelect();
+      renderProducts(products);
+      updateCartBadge();
+    });
 
     function saveCategories() {
       localStorage.setItem('ansiyab_categories', JSON.stringify(categoriesData));
@@ -319,18 +330,6 @@
         renderProducts(products);
       }
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      products.forEach(p => {
-        if (!p.images || p.images.length === 0) {
-          p.images = p.img ? [p.img] : ['https://i.imgur.com/7A26w6i.png'];
-        }
-      });
-      renderCategoriesGrid();
-      populateCategorySelect();
-      renderProducts(products);
-      updateCartBadge();
-    });
 
     function addMainCategory() {
       const name = prompt("أدخل اسم القسم الرئيسي الجديد:");
@@ -361,59 +360,44 @@
           subTagsHTML = `<div class="subcats-list">` + cat.subcategories.slice(0, 3).map(s => `<span class="subcat-tag">${s}</span>`).join('') + (cat.subcategories.length > 3 ? `<span class="subcat-tag">+${cat.subcategories.length - 3}</span>` : '') + `</div>`;
         }
 
-        const catInputId = `cat-input-${cat.id}`;
+        card.innerHTML = `
+          <span class="cat-edit-badge" title="تغيير صورة القسم">📷</span>
+          <img src="${imgSrc}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
+          <h4>${cat.name}</h4>
+          ${subTagsHTML}
+        `;
 
-        const uploadLabel = document.createElement('label');
-        uploadLabel.className = 'cat-upload-label';
-        uploadLabel.setAttribute('for', catInputId);
-        uploadLabel.innerText = '📷 تغيير';
-        uploadLabel.onclick = (e) => e.stopPropagation();
-
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.id = catInputId;
-        fileInput.className = 'cat-upload-input';
-        fileInput.accept = 'image/*';
-        fileInput.onclick = (e) => e.stopPropagation();
-        fileInput.onchange = (e) => {
+        // إضافة حدث النقر بزر تغيير الصورة بشكل آمن لمنع التضارب والـ SyntaxError
+        const editBadge = card.querySelector('.cat-edit-badge');
+        editBadge.onclick = (e) => {
           e.stopPropagation();
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-              categoryImages[cat.name] = evt.target.result;
-              localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
-              renderCategoriesGrid();
-            };
-            reader.readAsDataURL(file);
-          }
+          triggerCategoryFile(cat.name);
         };
-
-        const imgEl = document.createElement('img');
-        imgEl.src = imgSrc;
-        imgEl.onerror = function() { this.src = 'https://i.imgur.com/7A26w6i.png'; };
-
-        const titleEl = document.createElement('h4');
-        titleEl.innerText = cat.name;
-
-        card.appendChild(uploadLabel);
-        card.appendChild(fileInput);
-        card.appendChild(imgEl);
-        card.appendChild(titleEl);
-        
-        if (subTagsHTML) {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = subTagsHTML;
-          card.appendChild(tempDiv.firstElementChild);
-        }
 
         container.appendChild(card);
       });
     }
 
+    function triggerCategoryFile(catName) {
+      const fileInput = document.getElementById('global-cat-file-input');
+      fileInput.value = "";
+      fileInput.onchange = function(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            categoryImages[catName] = e.target.result;
+            localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
+            renderCategoriesGrid();
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      fileInput.click();
+    }
+
     function populateCategorySelect() {
       const select = document.getElementById('edit-prod-category');
-      if (!select) return;
       select.innerHTML = '';
       categoriesData.forEach(cat => {
         const opt = document.createElement('option');
@@ -427,7 +411,6 @@
     function updateSubcategoryDropdownOptions() {
       const catSelect = document.getElementById('edit-prod-category');
       const subSelect = document.getElementById('edit-prod-subcat');
-      if (!catSelect || !subSelect) return;
       const selectedCatName = catSelect.value;
       
       subSelect.innerHTML = '';
@@ -537,12 +520,12 @@
               <label style="font-size:11px; font-weight:700;">الطلبية:</label>
               <input type="number" id="qty-${p.id}" value="1" min="1">
               <select id="unit-${p.id}">
-                <option value="حبة" ${p.unit === 'حبة' ? 'selected' : ''}>حبة</option>
-                <option value="كرتون" ${p.unit === 'كرتون' ? 'selected' : ''}>كرتون</option>
-                <option value="علبة" ${p.unit === 'علبة' ? 'selected' : ''}>علبة</option>
-                <option value="درزن" ${p.unit === 'درزن' ? 'selected' : ''}>درزن</option>
-                <option value="ربطة" ${p.unit === 'ربطة' ? 'selected' : ''}>ربطة</option>
-                <option value="لفة" ${p.unit === 'لفة' ? 'selected' : ''}>لفة</option>
+                <option value="حبة">حبة</option>
+                <option value="كرتون">كرتون</option>
+                <option value="علبة">علبة</option>
+                <option value="درزن">درزن</option>
+                <option value="ربطة">ربطة</option>
+                <option value="لفة">لفة</option>
               </select>
             </div>
           </div>
@@ -587,7 +570,6 @@
       document.getElementById('modalTitle').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "";
       document.getElementById('edit-prod-name').value = "";
-      document.getElementById('edit-prod-unit').value = "حبة";
       document.getElementById('edit-prod-stock').value = "0";
       document.getElementById('edit-prod-box').value = "1";
       document.getElementById('edit-prod-files').value = "";
@@ -603,12 +585,11 @@
       document.getElementById('edit-prod-id').value = p.id;
       document.getElementById('edit-prod-name').value = p.name;
       populateCategorySelect();
-      document.getElementById('edit-prod-category').value = p.category || categoriesData[0].name;
+      document.getElementById('edit-prod-category').value = p.category || (categoriesData[0] ? categoriesData[0].name : '');
       updateSubcategoryDropdownOptions();
       if (p.subcat) {
         document.getElementById('edit-prod-subcat').value = p.subcat;
       }
-      document.getElementById('edit-prod-unit').value = p.unit || "حبة";
       document.getElementById('edit-prod-stock').value = p.stock;
       document.getElementById('edit-prod-box').value = p.boxQty;
       document.getElementById('edit-prod-files').value = "";
@@ -624,7 +605,6 @@
       const name = document.getElementById('edit-prod-name').value;
       const category = document.getElementById('edit-prod-category').value;
       const subcat = document.getElementById('edit-prod-subcat').value;
-      const unit = document.getElementById('edit-prod-unit').value;
       const stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
       const boxQty = parseInt(document.getElementById('edit-prod-box').value) || 1;
       const fileInput = document.getElementById('edit-prod-files');
@@ -636,7 +616,6 @@
             p.name = name;
             p.category = category;
             p.subcat = subcat;
-            p.unit = unit;
             p.stock = stock;
             p.boxQty = boxQty;
             if (newImagesList && newImagesList.length > 0) {
@@ -649,7 +628,7 @@
             name: name || "منتج جديد",
             category: category,
             subcat: subcat,
-            unit: unit || "حبة",
+            unit: "حبة",
             boxQty: boxQty,
             stock: stock,
             images: (newImagesList && newImagesList.length > 0) ? newImagesList : ["https://i.imgur.com/7A26w6i.png"]
@@ -695,11 +674,24 @@
 
     function addToCart(prodId) {
       const p = products.find(item => item.id == prodId);
-      const qty = parseInt(document.getElementById(`qty-${prodId}`).value) || 1;
-      const unit = document.getElementById(`unit-${prodId}`).value;
+      if (!p) {
+        alert('تعذر العثور على المنتج. يرجى تحديث الصفحة والمحاولة مرة أخرى.');
+        return;
+      }
+
+      const qtyInput = document.getElementById(`qty-${prodId}`);
+      const unitSelect = document.getElementById(`unit-${prodId}`);
+      const qty = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+      const unit = unitSelect?.value || p.unit || 'حبة';
 
       cart.push({ id: p.id, name: p.name, quantity: qty, unit: unit });
-      localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
+      try {
+        localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
+      } catch (error) {
+        console.error('تعذر حفظ قائمة الطلب:', error);
+        alert('تعذر حفظ قائمة الطلب. قد تكون مساحة التخزين ممتلئة.');
+        return;
+      }
       updateCartBadge();
       alert('تمت إضافة المنتج إلى قائمة الطلب بنجاح!');
     }
