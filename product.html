@@ -59,6 +59,59 @@
             font-size: 15px;
         }
     </style>
+
+<style>
+:root{
+  --brand-navy:#173b63;--brand-blue:#2b6cb0;--brand-teal:#0ea5a8;
+  --brand-bg:#f4f8fb;--brand-line:#e5edf4;--brand-text:#26384a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0!important;background:linear-gradient(180deg,#f8fbfd 0%,#eef5f8 100%)!important;
+  color:var(--brand-text)!important;font-family:'Cairo','Tajawal',Arial,sans-serif!important;
+}
+header{
+  background:rgba(255,255,255,.96)!important;border-bottom:1px solid var(--brand-line)!important;
+  box-shadow:0 8px 28px rgba(23,59,99,.08)!important;backdrop-filter:blur(12px)!important;
+  position:sticky!important;top:0;z-index:1000;
+}
+.logo-container{transition:.2s}.logo-container:hover{transform:translateY(-1px)}
+.logo-text{color:var(--brand-navy)!important}
+.nav-links a{transition:.2s!important}
+.nav-links a:hover,.nav-links a.active{color:var(--brand-blue)!important}
+.header-actions button,.btn-admin,.cart-btn-header{border-radius:10px!important;transition:.2s!important}
+.main-layout,.page-container,.container{max-width:1280px!important}
+.section-title-bar{
+  border-right:4px solid var(--brand-blue)!important;border-radius:10px!important;
+  padding:10px 14px!important;background:rgba(255,255,255,.72)!important;
+}
+.categories-grid{gap:18px!important}
+.category-card,.product-card,.content-card,.about-card,.contact-card{
+  border:1px solid var(--brand-line)!important;border-radius:18px!important;
+  box-shadow:0 8px 25px rgba(23,59,99,.06)!important;
+  transition:transform .2s,box-shadow .2s!important;
+}
+.category-card:hover,.product-card:hover,.content-card:hover,.about-card:hover,.contact-card:hover{
+  box-shadow:0 16px 35px rgba(23,59,99,.10)!important;
+}
+.product-card:hover,.category-card:hover{transform:translateY(-4px)}
+.products-container{margin-top:24px!important}
+.top-filter-bar{
+  border:1px solid var(--brand-line)!important;border-radius:16px!important;
+  box-shadow:0 8px 24px rgba(23,59,99,.05)!important;background:#fff!important;
+}
+.sub-chip{border-radius:999px!important}
+.modal-content{border-radius:18px!important;border:1px solid var(--brand-line)!important}
+footer{border-radius:22px 22px 0 0!important}
+@media(max-width:700px){
+  header{padding:10px 12px!important}
+  .nav-links{gap:9px!important;flex-wrap:wrap}
+  .main-layout{padding:0 10px!important}
+  .categories-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+}
+</style>
+
 </head>
 <body>
     <header class="site-header">
