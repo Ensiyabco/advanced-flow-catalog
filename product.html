@@ -5,111 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تفاصيل المنتج | الأنسياب المتقدم</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .product-detail-box {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 15px 0;
-            text-align: center;
-            border: 1px solid #edf2f7;
-        }
-        .info-item label {
-            display: block;
-            font-size: 11px;
-            color: #718096;
-        }
-        .info-item span {
-            font-weight: bold;
-            font-size: 13px;
-        }
-        .qty-unit-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .qty-unit-group input, .qty-unit-group select {
-            padding: 8px;
-            border: 1px solid #cbd5e0;
-            border-radius: 4px;
-        }
-        .btn-whatsapp {
-            display: block;
-            width: 100%;
-            text-align: center;
-            background: #25D366;
-            color: white;
-            padding: 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 15px;
-        }
-    </style>
 
 <style>
-:root{
-  --brand-navy:#173b63;--brand-blue:#2b6cb0;--brand-teal:#0ea5a8;
-  --brand-bg:#f4f8fb;--brand-line:#e5edf4;--brand-text:#26384a;
-}
-*{box-sizing:border-box}
+:root{--site-navy:#173b63;--site-blue:#2b6cb0;--site-teal:#0ea5a8;--site-line:#e6edf4}
 html{scroll-behavior:smooth}
-body{
-  margin:0!important;background:linear-gradient(180deg,#f8fbfd 0%,#eef5f8 100%)!important;
-  color:var(--brand-text)!important;font-family:'Cairo','Tajawal',Arial,sans-serif!important;
-}
-header{
-  background:rgba(255,255,255,.96)!important;border-bottom:1px solid var(--brand-line)!important;
-  box-shadow:0 8px 28px rgba(23,59,99,.08)!important;backdrop-filter:blur(12px)!important;
-  position:sticky!important;top:0;z-index:1000;
-}
-.logo-container{transition:.2s}.logo-container:hover{transform:translateY(-1px)}
-.logo-text{color:var(--brand-navy)!important}
-.nav-links a{transition:.2s!important}
-.nav-links a:hover,.nav-links a.active{color:var(--brand-blue)!important}
-.header-actions button,.btn-admin,.cart-btn-header{border-radius:10px!important;transition:.2s!important}
-.main-layout,.page-container,.container{max-width:1280px!important}
-.section-title-bar{
-  border-right:4px solid var(--brand-blue)!important;border-radius:10px!important;
-  padding:10px 14px!important;background:rgba(255,255,255,.72)!important;
-}
-.categories-grid{gap:18px!important}
-.category-card,.product-card,.content-card,.about-card,.contact-card{
-  border:1px solid var(--brand-line)!important;border-radius:18px!important;
-  box-shadow:0 8px 25px rgba(23,59,99,.06)!important;
-  transition:transform .2s,box-shadow .2s!important;
-}
-.category-card:hover,.product-card:hover,.content-card:hover,.about-card:hover,.contact-card:hover{
-  box-shadow:0 16px 35px rgba(23,59,99,.10)!important;
-}
-.product-card:hover,.category-card:hover{transform:translateY(-4px)}
-.products-container{margin-top:24px!important}
-.top-filter-bar{
-  border:1px solid var(--brand-line)!important;border-radius:16px!important;
-  box-shadow:0 8px 24px rgba(23,59,99,.05)!important;background:#fff!important;
-}
-.sub-chip{border-radius:999px!important}
-.modal-content{border-radius:18px!important;border:1px solid var(--brand-line)!important}
-footer{border-radius:22px 22px 0 0!important}
-@media(max-width:700px){
-  header{padding:10px 12px!important}
-  .nav-links{gap:9px!important;flex-wrap:wrap}
-  .main-layout{padding:0 10px!important}
-  .categories-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-}
+body{background:linear-gradient(180deg,#f7fafc,#eef5f8)!important;color:#26384a}
+header,.site-header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--site-line)!important;box-shadow:0 8px 28px rgba(23,59,99,.08)!important;backdrop-filter:blur(12px)}
+.container,.page,.main-container{max-width:1200px}
+.card,.content-card,.about-card,.contact-card,.info-card{border-radius:18px!important;box-shadow:0 10px 30px rgba(23,59,99,.06)!important;border-color:var(--site-line)!important}
+button,a.btn,.btn,.cta{border-radius:10px}
+h1,h2,h3{color:var(--site-navy)}
+.footer{background:#173b63!important}
 </style>
 
 </head>
@@ -134,63 +40,17 @@ footer{border-radius:22px 22px 0 0!important}
 
     <section class="about">
         <h2>تفاصيل المنتج</h2>
-        <div class="product-detail-box">
-            <img src="assets/images/logo.png" alt="صورة المنتج" style="width:100%; height:auto; max-height:300px; object-fit:contain;">
-            <h3 id="prod-title" style="margin-top: 15px;">دافور غاز سفري فاخر</h3>
+        <div class="product-card" style="max-width: 500px; margin: 0 auto;">
+            <img src="assets/images/logo.png" alt="صورة المنتج">
+            <h3>دافور غاز سفري فاخر</h3>
             <p>وصف تفصيلي للمنتج، يتميز بالجودة العالية وسهولة الحمل والاستخدام المباشر في الرحلات.</p>
-
-            <!-- جدول معلومات الوحدات والمخزن -->
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>الوحدة الافتراضية</label>
-                    <span id="default-unit">حبة</span>
-                </div>
-                <div class="info-item">
-                    <label>شد الكرتون</label>
-                    <span id="box-qty">12 حبة</span>
-                </div>
-                <div class="info-item">
-                    <label>المخزن المتوفر</label>
-                    <span id="stock-count" style="color: #2b6cb0;">50 حبة</span>
-                </div>
-            </div>
-
-            <!-- تحديد الكمية والوحدة قبل الطلب -->
-            <div class="qty-unit-group">
-                <label style="font-size: 13px; font-weight: bold;">الكمية المطلوب طلبها:</label>
-                <input type="number" id="order-qty" value="1" min="1" style="width: 70px;">
-                <select id="order-unit" style="flex: 1;">
-                    <option value="حبة">حبة</option>
-                    <option value="كرتون">كرتون (12 حبة)</option>
-                    <option value="علبة">علبة</option>
-                    <option value="درزن">درزن</option>
-                    <option value="ربطة">ربطة</option>
-                    <option value="لفة">لفة</option>
-                </select>
-            </div>
-
-            <!-- زر الطلب المباشر عبر الواتساب -->
-            <button onclick="sendSingleProductWhatsApp()" class="btn-whatsapp" style="border:none; cursor:pointer;">طلب هذا المنتج عبر الواتساب 💬</button>
+            <p style="margin-top: 1rem;"><strong>السعر:</strong> 150 ريال</p>
+            <a href="https://wa.me/966500000000" class="btn-action" style="background: #25D366;" target="_blank">طلب عبر الواتساب</a>
         </div>
     </section>
 
     <footer class="footer">
         <p>© 2026 الأنسياب المتقدم — جميع الحقوق محفوظة</p>
     </footer>
-
-    <script>
-        const targetPhoneNumber = "966506645562";
-
-        function sendSingleProductWhatsApp() {
-            const title = document.getElementById('prod-title').innerText;
-            const qty = document.getElementById('order-qty').value || 1;
-            const unit = document.getElementById('order-unit').value;
-
-            const message = `السلام عليكم ورحمة الله وبركاته،\nأود طلب المنتج التالي من مؤسسة الأنسياب المتقدم:\n\n- المنتج: ${title}\n- الكمية المطلوبة: ${qty} ${unit}\n\nيرجى تأكيد التوفر وإرسال تفاصيل السعر والشحن. شكراً لكم!`;
-
-            const encodedMsg = encodeURIComponent(message);
-            window.open(`https://wa.me/${targetPhoneNumber}?text=${encodedMsg}`, '_blank');
-        }
-    </script>
 </body>
 </html>
