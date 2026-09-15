@@ -908,6 +908,23 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 .site-brand-logo img {width:58px;height:60px;object-fit:contain;}
 @media(max-width:600px){.site-brand-logo{width:48px;height:50px}.site-brand-logo img{width:46px;height:48px}}
 </style>
+
+<style id="mobile-search-v14">
+.catalog-search{display:flex;gap:8px;align-items:center;position:relative;z-index:1;margin:16px auto;max-width:900px;padding:0 15px;font-family:'Tajawal',sans-serif}
+.catalog-search input{flex:1;min-width:0;padding:13px;border:1px solid #cbd5e0;border-radius:10px;font:inherit;background:#fff;color:#173b63}
+.catalog-search button{padding:13px 18px;border:0;border-radius:10px;background:#173b63;color:white;font:inherit;cursor:pointer}
+.products-content{min-width:0;scroll-margin-top:160px}
+.products-content .catalog-search{padding:0;margin-top:0}
+@media(max-width:820px){
+ .main-container{flex-direction:column;gap:16px;width:100%;padding:0 12px}
+ .main-container>.sidebar{width:100%;min-width:0;max-height:36vh}
+ .main-container>.products-content{width:100%;flex:auto;min-width:0}
+ .mobile-subcategory-view .main-container>.sidebar{display:none}
+ .mobile-subcategory-view .subcategory-back{display:inline-block;margin:0 0 14px;padding:10px;color:#173b63;font-weight:700}
+}
+.subcategory-back{display:none}
+@media(max-width:560px){.catalog-search{flex-wrap:wrap}.catalog-search input{flex-basis:65%}.catalog-search button{padding:13px 12px}}
+</style>
 </head>
 <body>
 
@@ -965,6 +982,10 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
     <!-- Products Content (Left Grid) -->
     <main class="products-content">
+<a class="subcategory-back" id="subcategory-back" href="products.html">← العودة للأقسام</a>
+<form class="catalog-search" role="search" onsubmit="event.preventDefault(); runCatalogSearch();">
+<input type="search" name="search" id="catalog-search-input" aria-label="البحث في المنتجات" placeholder="ابحث عن منتج أو قسم…" autocomplete="off">
+<button type="submit">بحث</button><button type="button" onclick="clearCatalogSearch()">مسح</button></form>
       <div class="category-title-bar">
         <h2 id="current-view-title">جميع المنتجات</h2>
         <span id="current-view-count">0 منتج</span>
@@ -1099,6 +1120,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function getCurrentVisibleProducts() {
+      const searchTitle = document.getElementById("current-view-title")?.innerText || "";
+      if (searchTitle.startsWith("نتائج البحث: ")) return searchCatalogProducts(searchTitle.slice("نتائج البحث: ".length));
       const title = document.getElementById("current-view-title")?.innerText || "جميع المنتجات";
       if (title === "جميع المنتجات") return products;
       if (title.startsWith("قسم: ")) {
@@ -1475,6 +1498,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function renderProducts(list, titleText = "جميع المنتجات") {
+      const searchInput = document.getElementById('catalog-search-input');
+      if (searchInput) searchInput.value = titleText.startsWith('نتائج البحث: ') ? titleText.slice('نتائج البحث: '.length) : '';
       const grid = document.getElementById('products-grid-container');
       const titleEl = document.getElementById('current-view-title');
       const countEl = document.getElementById('current-view-count');
@@ -1486,6 +1511,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       grid.innerHTML = '';
       if (!list || list.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:40px; background:white; border-radius:8px; border:1px solid #e2e8f0;">لا توجد منتجات مسجلة في هذا القسم حالياً.</p>';
+        if (titleText.startsWith('نتائج البحث: ')) grid.querySelector('p').textContent = 'لا توجد نتائج مطابقة. جرّب كلمة أخرى أو اضغط مسح لعرض جميع المنتجات.';
         return;
       }
       
@@ -1734,7 +1760,14 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       grid.prepend(crumb);
     }
 
-    function filterProductsBySub(mainCat, subCat, event) {
+    function filterProductsBySub(mainCat, subCat, event, fromUrl = false) {
+      const mobileParams = new URLSearchParams(location.search);
+      if (!fromUrl && window.matchMedia('(max-width:820px)').matches &&
+          (mobileParams.get('cat') !== mainCat || mobileParams.get('sub') !== subCat)) {
+        if (event) event.stopPropagation();
+        location.assign('products.html?cat='+encodeURIComponent(mainCat)+'&sub='+encodeURIComponent(subCat));
+        return;
+      }
       if (event) event.stopPropagation(); // منع تداخل الحدث
       clearCategoryActiveStates();
 
@@ -2103,6 +2136,27 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       return categories.findIndex(c => normalizeCategoryName(c && c.name) === target);
     }
 
+
+function searchCatalogProducts(query) {
+ const terms = normalizeCategoryName(query).toLowerCase().split(' ').filter(Boolean);
+ return products.filter(p => {
+  const text = normalizeCategoryName([p.name,p.mainCat,p.subCat,p.description,p.code,p.sku].filter(v=>v!=null).join(' ')).toLowerCase();
+  return terms.every(term => text.includes(term));
+ });
+}
+function runCatalogSearch() {
+ const query = document.getElementById('catalog-search-input').value.trim();
+ if (!query) { clearCatalogSearch(); return; }
+ clearCategoryActiveStates();
+ history.replaceState(null,'','products.html?search='+encodeURIComponent(query));
+ renderProducts(searchCatalogProducts(query),'نتائج البحث: '+query);
+ document.querySelector('.products-content').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function clearCatalogSearch() {
+ document.getElementById('catalog-search-input').value='';
+ resetCategoryFilter();
+}
+
     function openCategoryFromUrl() {
       const params = new URLSearchParams(window.location.search);
       const catName = (params.get('cat') || '').trim();
@@ -2110,16 +2164,14 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       const search = (params.get('search') || '').trim();
 
       if (search) {
-        const q = search.toLowerCase();
-        const filtered = products.filter(p =>
-          String(p.name || '').toLowerCase().includes(q) ||
-          String(p.mainCat || '').toLowerCase().includes(q) ||
-          String(p.subCat || '').toLowerCase().includes(q)
-        );
-        renderProducts(filtered, `نتائج البحث: ${search}`);
+        renderProducts(searchCatalogProducts(search), `نتائج البحث: ${search}`);
         return;
       }
 
+      if (catName && subName && !search) {
+        document.body.classList.add('mobile-subcategory-view');
+        document.getElementById('subcategory-back').href = 'products.html?cat='+encodeURIComponent(catName);
+      }
       if (!catName) return;
 
       const idx = findCategoryIndexByName(catName);
@@ -2137,7 +2189,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
           const cat = categories[idx];
           if (cat && Array.isArray(cat.subCats) && cat.subCats.some(s => normalizeCategoryName(s) === normalizeCategoryName(subName))) {
             const storedSub = cat.subCats.find(s => normalizeCategoryName(s) === normalizeCategoryName(subName)) || subName;
-            filterProductsBySub(cat.name, storedSub);
+            filterProductsBySub(cat.name, storedSub, null, true);
           }
         }, 0);
       }

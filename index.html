@@ -369,6 +369,23 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
 .logo-container img {width:58px;height:60px;object-fit:contain;}
 </style>
+
+<style id="mobile-search-v14">
+.catalog-search{display:flex;gap:8px;align-items:center;position:relative;z-index:1;margin:16px auto;max-width:900px;padding:0 15px;font-family:'Tajawal',sans-serif}
+.catalog-search input{flex:1;min-width:0;padding:13px;border:1px solid #cbd5e0;border-radius:10px;font:inherit;background:#fff;color:#173b63}
+.catalog-search button{padding:13px 18px;border:0;border-radius:10px;background:#173b63;color:white;font:inherit;cursor:pointer}
+.products-content{min-width:0;scroll-margin-top:160px}
+.products-content .catalog-search{padding:0;margin-top:0}
+@media(max-width:820px){
+ .main-container{flex-direction:column;gap:16px;width:100%;padding:0 12px}
+ .main-container>.sidebar{width:100%;min-width:0;max-height:36vh}
+ .main-container>.products-content{width:100%;flex:auto;min-width:0}
+ .mobile-subcategory-view .main-container>.sidebar{display:none}
+ .mobile-subcategory-view .subcategory-back{display:inline-block;margin:0 0 14px;padding:10px;color:#173b63;font-weight:700}
+}
+.subcategory-back{display:none}
+@media(max-width:560px){.catalog-search{flex-wrap:wrap}.catalog-search input{flex-basis:65%}.catalog-search button{padding:13px 12px}}
+</style>
 </head>
 <body>
 <div class="ensiyabco-watermark" aria-hidden="true">
@@ -399,6 +416,9 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     </div>
   </header>
 
+<form class="catalog-search" role="search" action="products.html" method="get">
+<input type="search" name="search" id="catalog-search-input" aria-label="البحث في المنتجات" placeholder="ابحث عن منتج أو قسم…" autocomplete="off">
+<button type="submit">بحث</button></form>
   <section class="hero-banner hero-slider" id="hero-slider" aria-label="منتجات مميزة">
   <div class="hero-slides" id="hero-slides"></div>
   <button class="hero-arrow hero-prev" id="hero-prev" type="button" aria-label="السابق">‹</button>
