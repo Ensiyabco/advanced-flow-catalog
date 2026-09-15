@@ -263,6 +263,46 @@
       background: #bee3f8;
     }
 
+    .category-admin-actions {
+      display: flex;
+      gap: 4px;
+      padding: 6px 8px;
+      background: #fff;
+      border-top: 1px solid var(--border-color);
+      justify-content: flex-start;
+    }
+
+    .category-admin-btn {
+      border: 1px solid var(--border-color);
+      background: #f8fafc;
+      color: #2d3748;
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .category-admin-btn:hover { background: #edf2f7; }
+    .category-admin-btn.delete:hover { background: #fff5f5; color: #c53030; border-color: #feb2b2; }
+
+    .subcat-admin-actions {
+      display: inline-flex;
+      gap: 3px;
+      margin-right: 6px;
+    }
+
+    .subcat-admin-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 1px 3px;
+      opacity: .65;
+    }
+
+    .subcat-admin-btn:hover { opacity: 1; }
+
     /* Category Title Bar Above Products */
     .category-title-bar {
       background: var(--card-bg);
@@ -732,8 +772,21 @@
       { name: "اكسسوارات عامة", subCats: ["عام"] }
     ];
 
-    let categories = JSON.parse(localStorage.getItem('ansiyab_categories_v1')) || defaultCategoriesList;
-    let products = JSON.parse(localStorage.getItem('ansiyab_products_v7')) || [
+    function readStorageArray(key, fallback) {
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : fallback;
+      } catch (error) {
+        console.warn(`تعذر قراءة البيانات المخزنة (${key})، سيتم استخدام البيانات الافتراضية.`, error);
+        try { localStorage.setItem(`${key}_backup`, raw); } catch (_) {}
+        return fallback;
+      }
+    }
+
+    let categories = readStorageArray('ansiyab_categories_v1', defaultCategoriesList);
+    let products = readStorageArray('ansiyab_products_v7', [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
@@ -744,9 +797,9 @@
         stockQty: 50,
         images: [placeholderImg]
       }
-    ];
+    ]);
 
-    let cart = JSON.parse(localStorage.getItem('ansiyab_cart')) || [];
+    let cart = readStorageArray('ansiyab_cart', []);
     let modalImagesBase64 = [];
     let currentLightboxImages = [];
     let currentLightboxIndex = 0;
@@ -771,6 +824,89 @@
       buildCategoryAccordion();
       closeModal('category-modal');
       alert(`تم إضافة القسم الرئيسي (${name}) بنجاح.`);
+    }
+
+    function editMainCategory(index, event) {
+      if (event) event.stopPropagation();
+      const cat = categories[index];
+      if (!cat) return;
+      const oldName = cat.name;
+      const newName = prompt("تعديل اسم القسم الرئيسي:", oldName);
+      if (newName === null) return;
+      const name = newName.trim();
+      if (!name) return alert("اسم القسم لا يمكن أن يكون فارغاً.");
+      if (categories.some((c, i) => i !== index && c.name.trim() === name)) return alert("يوجد قسم رئيسي بهذا الاسم بالفعل.");
+
+      cat.name = name;
+      products.forEach(p => {
+        if (p.mainCat === oldName) p.mainCat = name;
+      });
+      saveCategoriesData();
+      saveProductsData();
+      buildCategoryAccordion();
+      renderProducts(products, "جميع المنتجات");
+    }
+
+    function deleteMainCategory(index, event) {
+      if (event) event.stopPropagation();
+      const cat = categories[index];
+      if (!cat) return;
+      const count = products.filter(p => p.mainCat === cat.name).length;
+      if (count > 0) {
+        return alert(`لا يمكن حذف القسم (${cat.name}) لأنه يحتوي على ${count} منتج. انقل أو احذف المنتجات أولاً.`);
+      }
+      if (!confirm(`هل أنت متأكد من حذف القسم الرئيسي (${cat.name})؟`)) return;
+      categories.splice(index, 1);
+      saveCategoriesData();
+      buildCategoryAccordion();
+      renderProducts(products, "جميع المنتجات");
+    }
+
+    function editSubCategory(catIndex, subIndex, event) {
+      if (event) event.stopPropagation();
+      const cat = categories[catIndex];
+      if (!cat || !cat.subCats || cat.subCats[subIndex] === undefined) return;
+      const oldName = cat.subCats[subIndex];
+      const newName = prompt("تعديل اسم القسم الفرعي:", oldName);
+      if (newName === null) return;
+      const name = newName.trim();
+      if (!name) return alert("اسم القسم الفرعي لا يمكن أن يكون فارغاً.");
+      if (cat.subCats.some((s, i) => i !== subIndex && s.trim() === name)) return alert("هذا القسم الفرعي موجود بالفعل.");
+
+      cat.subCats[subIndex] = name;
+      products.forEach(p => {
+        if (p.mainCat === cat.name && p.subCat === oldName) p.subCat = name;
+      });
+      saveCategoriesData();
+      saveProductsData();
+      buildCategoryAccordion();
+    }
+
+    function deleteSubCategory(catIndex, subIndex, event) {
+      if (event) event.stopPropagation();
+      const cat = categories[catIndex];
+      if (!cat || !cat.subCats || cat.subCats[subIndex] === undefined) return;
+      const subName = cat.subCats[subIndex];
+      const count = products.filter(p => p.mainCat === cat.name && p.subCat === subName).length;
+      if (count > 0) {
+        return alert(`لا يمكن حذف القسم الفرعي (${subName}) لأنه مرتبط بـ ${count} منتج. انقل أو احذف المنتجات أولاً.`);
+      }
+      if (!confirm(`هل أنت متأكد من حذف القسم الفرعي (${subName})؟`)) return;
+      cat.subCats.splice(subIndex, 1);
+      saveCategoriesData();
+      buildCategoryAccordion();
+    }
+
+    function filterProductsBySubIndex(catIndex, subIndex, event) {
+      if (event) event.stopPropagation();
+      const cat = categories[catIndex];
+      if (!cat || !cat.subCats || cat.subCats[subIndex] === undefined) return;
+      filterProductsBySub(cat.name, cat.subCats[subIndex], event);
+    }
+
+    function clickMainCategoryByIndex(catIndex) {
+      const cat = categories[catIndex];
+      if (cat) clickMainCategory(cat.name, catIndex);
     }
 
     function openAddSubCategoryModal(mainCatName, event) {
@@ -900,10 +1036,14 @@
         
         let subHtml = '';
         if (cat.subCats) {
-          cat.subCats.forEach((sub) => {
+          cat.subCats.forEach((sub, sIdx) => {
             subHtml += `
-              <div class="sub-cat-item" id="sub-item-${cIdx}-${sub}" onclick="filterProductsBySub('${cat.name}', '${sub}', event)">
+              <div class="sub-cat-item" id="sub-item-${cIdx}-${sIdx}" onclick="filterProductsBySubIndex(${cIdx}, ${sIdx}, event)">
                 <span>📂 ${sub}</span>
+                <span class="subcat-admin-actions">
+                  <button class="subcat-admin-btn" title="تعديل القسم الفرعي" onclick="editSubCategory(${cIdx}, ${sIdx}, event)">✏️</button>
+                  <button class="subcat-admin-btn" title="حذف القسم الفرعي" onclick="deleteSubCategory(${cIdx}, ${sIdx}, event)">🗑️</button>
+                </span>
               </div>
             `;
           });
@@ -911,17 +1051,21 @@
 
         subHtml += `
           <div class="add-subcat-row">
-            <button class="add-subcat-btn" onclick="openAddSubCategoryModal('${cat.name}', event)">+ إضافة قسم فرعي</button>
+            <button class="add-subcat-btn" onclick="openAddSubCategoryModal(${JSON.stringify(cat.name)}, event)">+ إضافة قسم فرعي</button>
           </div>
         `;
 
         item.innerHTML = `
-          <div class="accordion-header" id="header-cat-${cIdx}" onclick="clickMainCategory('${cat.name}', ${cIdx})">
+          <div class="accordion-header" id="header-cat-${cIdx}" onclick="clickMainCategoryByIndex(${cIdx})">
             <span>📁 ${cat.name}</span>
             <span>▾</span>
           </div>
           <div class="accordion-body" id="acc-body-${cIdx}">
             ${subHtml}
+            <div class="category-admin-actions">
+              <button class="category-admin-btn" onclick="editMainCategory(${cIdx}, event)">✏️ تعديل القسم</button>
+              <button class="category-admin-btn delete" onclick="deleteMainCategory(${cIdx}, event)">🗑️ حذف القسم</button>
+            </div>
           </div>
         `;
         container.appendChild(item);
