@@ -767,6 +767,21 @@ body.admin-mode .category-admin-actions { display:flex !important; }
 }
 </style>
 
+
+<style id="store-settings-products-css">
+.store-settings-btn{background:#805ad5;color:#fff;border:0;border-radius:9px;padding:8px 11px;font-family:inherit;font-weight:800;cursor:pointer}
+.store-settings-backdrop{display:none;position:fixed;inset:0;background:rgba(10,25,45,.65);z-index:200000;align-items:center;justify-content:center;padding:16px}
+.store-settings-backdrop.open{display:flex}
+.store-settings-modal{width:min(680px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 25px 70px rgba(0,0,0,.25);direction:rtl}
+.store-settings-modal h3{margin:0 0 16px;color:#173b63}
+.store-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.store-settings-grid label{font-weight:800;color:#334155;font-size:13px}
+.store-settings-grid input{width:100%;margin-top:6px;padding:10px;border:1px solid #d9e2ec;border-radius:10px;font-family:inherit}
+.store-settings-preview{width:100%;height:150px;object-fit:cover;border-radius:12px;background:#eef3f7;margin-top:8px}
+.store-settings-actions{display:flex;gap:8px;margin-top:16px}
+.store-settings-actions button{flex:1;padding:11px;border:0;border-radius:10px;font-family:inherit;font-weight:800;cursor:pointer}
+@media(max-width:700px){.store-settings-grid{grid-template-columns:1fr}.store-settings-actions{flex-direction:column}.store-settings-btn{width:100%}}
+</style>
 </head>
 <body>
 
@@ -793,6 +808,7 @@ body.admin-mode .category-admin-actions { display:flex !important; }
       <button class="add-cat-btn-nav admin-only" onclick="openAddCategoryModal()">+ قسم جديد</button>
       <button class="admin-btn admin-only" onclick="openProductModal()">+ إضافة منتج</button>
       <span class="admin-mode-indicator" style="color:#22543d;background:#c6f6d5;padding:6px 10px;border-radius:16px;font-size:11px;font-weight:700;">⚙️ وضع المشرف</span>
+      <button type="button" class="admin-only store-settings-btn" onclick="openStoreSettings()">⚙️ إعدادات المتجر</button>
       <button class="cart-btn-trigger" onclick="openCartModal()">
         🛒 قائمة الطلبات <span class="cart-badge" id="cart-count">0</span>
       </button>
@@ -2019,5 +2035,528 @@ body.admin-mode .category-admin-actions { display:flex !important; }
   </div>
 </div>
 
+
+<div class="store-settings-backdrop" id="store-settings">
+  <div class="store-settings-modal" role="dialog" aria-modal="true">
+    <h3>إعدادات المؤسسة والشعار والشريط</h3>
+    <div class="store-settings-grid">
+      <label>اسم المؤسسة
+        <input id="store-name-setting" type="text" placeholder="الأنسياب المتقدم">
+      </label>
+      <label>الوصف أسفل الاسم
+        <input id="store-tagline-setting" type="text" placeholder="أدوات ولوازم الغاز والرحلات والكشتات">
+      </label>
+      <label>مسار/رابط الشعار
+        <input id="store-logo-setting" type="text" placeholder="assets/images/logo.png">
+      </label>
+      <label>صورة أول شريحة في الشريط
+        <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_product_adv.png">
+      </label>
+    </div>
+    <img id="store-hero-preview" class="store-settings-preview" src="assets/images/wide_cinematic_outdoor_camping_product_adv.png" alt="معاينة">
+    <div class="store-settings-actions">
+      <button type="button" onclick="saveStoreSettings()" style="background:#1f5f9f;color:#fff">حفظ</button>
+      <button type="button" onclick="closeStoreSettings()" style="background:#edf2f7;color:#243b53">إلغاء</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  function read(){try{return JSON.parse(localStorage.getItem("ansiyab_store_settings")||"{}")||{}}catch(e){return {}}}
+  function apply(){
+    const s=read(), name=s.name||"الأنسياب المتقدم", tag=s.tagline||"أدوات ولوازم الغاز والرحلات والكشتات";
+    document.querySelectorAll(".site-brand-text strong").forEach(x=>x.textContent=name);
+    document.querySelectorAll(".site-brand-text small").forEach(x=>x.textContent=tag);
+    document.querySelectorAll(".site-brand-logo img").forEach(x=>{if(s.logo)x.src=s.logo});
+  }
+  window.openStoreSettings=function(){
+    const s=read();
+    document.getElementById("store-name-setting").value=s.name||"الأنسياب المتقدم";
+    document.getElementById("store-tagline-setting").value=s.tagline||"أدوات ولوازم الغاز والرحلات والكشتات";
+    document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.png";
+    document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_product_adv.png";
+    document.getElementById("store-hero-preview").src=document.getElementById("store-hero-setting").value;
+    document.getElementById("store-settings").classList.add("open");
+  };
+  window.closeStoreSettings=function(){document.getElementById("store-settings").classList.remove("open")};
+  window.saveStoreSettings=function(){
+    localStorage.setItem("ansiyab_store_settings",JSON.stringify({
+      name:document.getElementById("store-name-setting").value.trim()||"الأنسياب المتقدم",
+      tagline:document.getElementById("store-tagline-setting").value.trim()||"أدوات ولوازم الغاز والرحلات والكشتات",
+      logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.png",
+      hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_product_adv.png"
+    }));
+    closeStoreSettings(); location.reload();
+  };
+  document.addEventListener("DOMContentLoaded",apply);
+  document.addEventListener("input",function(e){
+    if(e.target.id==="store-hero-setting") document.getElementById("store-hero-preview").src=e.target.value;
+  });
+})();
+</script>
+
+<div class="category-manager-overlay" id="category-manager-overlay" onclick="categoryManagerBackdrop(event)">
+  <div class="category-manager-modal">
+    <div class="category-manager-head">
+      <h3>🗂️ إدارة الأقسام الرئيسية والفرعية</h3>
+      <button type="button" class="category-manager-close" onclick="closeCategoryManager()">×</button>
+    </div>
+    <div class="category-manager-body">
+      <aside class="category-manager-list" id="cm-category-list"></aside>
+      <section class="category-manager-detail" id="cm-detail">
+        <div class="cm-empty">اختر قسمًا رئيسيًا أو فرعيًا من القائمة لبدء التعديل.</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script id="category-manager-final-js">
+(function(){
+  let cmSelected = null;
+
+  function cmEsc(v){
+    return String(v ?? '').replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c];
+    });
+  }
+  function cmCatImg(cat){
+    try{
+      const map = JSON.parse(localStorage.getItem('ansiyab_cat_images') || '{}') || {};
+      return (cat && cat.image) || map[cat && cat.name] || 'assets/images/logo.png';
+    }catch(e){
+      return (cat && cat.image) || 'assets/images/logo.png';
+    }
+  }
+  function cmMeta(main, sub){
+    try{
+      const map = JSON.parse(localStorage.getItem('ansiyab_subcategory_meta_v1') || '{}') || {};
+      return map[main + '||' + sub] || {};
+    }catch(e){ return {}; }
+  }
+  function cmSaveMeta(main, sub, meta){
+    let map={};
+    try{ map=JSON.parse(localStorage.getItem('ansiyab_subcategory_meta_v1') || '{}') || {}; }catch(e){}
+    map[main + '||' + sub] = meta;
+    localStorage.setItem('ansiyab_subcategory_meta_v1', JSON.stringify(map));
+  }
+  function cmDeleteMeta(main, sub){
+    let map={};
+    try{ map=JSON.parse(localStorage.getItem('ansiyab_subcategory_meta_v1') || '{}') || {}; }catch(e){}
+    delete map[main + '||' + sub];
+    localStorage.setItem('ansiyab_subcategory_meta_v1', JSON.stringify(map));
+  }
+  function cmCategories(){
+    try{
+      const v=JSON.parse(localStorage.getItem('ansiyab_categories_v1') || '[]');
+      return Array.isArray(v) ? v : [];
+    }catch(e){return []}
+  }
+  function cmProducts(){
+    try{
+      const v=JSON.parse(localStorage.getItem('ansiyab_products_v7') || localStorage.getItem('ansiyab_products') || '[]');
+      return Array.isArray(v) ? v : [];
+    }catch(e){return []}
+  }
+  function cmSetCategories(v){localStorage.setItem('ansiyab_categories_v1', JSON.stringify(v))}
+  function cmSetProducts(v){
+    localStorage.setItem('ansiyab_products_v7', JSON.stringify(v));
+    localStorage.setItem('ansiyab_products', JSON.stringify(v));
+  }
+  function cmFindCat(name){
+    const cats=cmCategories();
+    const norm=(window.normalizeCategoryName || function(x){return String(x||'').trim()})(name);
+    return cats.findIndex(c => (window.normalizeCategoryName ? normalizeCategoryName(c.name) : String(c.name||'').trim()) === norm);
+  }
+
+  window.openCategoryManager=function(){
+    if(localStorage.getItem('isAdmin') !== 'true'){
+      alert('هذه الوظيفة متاحة للمشرف فقط.');
+      return;
+    }
+    document.getElementById('category-manager-overlay').classList.add('open');
+    cmSelected=null;
+    cmRenderList();
+    document.getElementById('cm-detail').innerHTML='<div class="cm-empty">اختر قسمًا رئيسيًا أو فرعيًا من القائمة لبدء التعديل.</div>';
+  };
+  window.closeCategoryManager=function(){
+    document.getElementById('category-manager-overlay').classList.remove('open');
+  };
+  window.categoryManagerBackdrop=function(e){
+    if(e.target.id==='category-manager-overlay') closeCategoryManager();
+  };
+
+  function cmRenderList(){
+    const list=document.getElementById('cm-category-list');
+    const cats=cmCategories();
+    if(!cats.length){
+      list.innerHTML='<div class="cm-empty">لا توجد أقسام.</div>'; return;
+    }
+    list.innerHTML=cats.map((cat,i)=>{
+      const subs=Array.isArray(cat.subCats)?cat.subCats:[];
+      return `<div class="cm-main" id="cm-main-${i}">
+        <div class="cm-main-title" onclick="cmToggleMain(${i})">
+          <span>📁 ${cmEsc(cat.name)}</span><span>${subs.length} فرعي ▾</span>
+        </div>
+        <div class="cm-subs">
+          <button type="button" class="cm-sub" onclick="cmSelectMain(${i})">✏️ تعديل القسم الرئيسي</button>
+          ${subs.map((s,j)=>`<button type="button" class="cm-sub" onclick="cmSelectSub(${i},${j})">└ 📁 ${cmEsc(s)}</button>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  window.cmToggleMain=function(i){
+    const el=document.getElementById('cm-main-'+i);
+    if(el) el.classList.toggle('open');
+  };
+  window.cmSelectMain=function(i){
+    const cats=cmCategories();
+    if(!cats[i]) return;
+    document.querySelectorAll('.cm-main').forEach(x=>x.classList.remove('open'));
+    const el=document.getElementById('cm-main-'+i); if(el) el.classList.add('open');
+    cmSelected={type:'main',cat:i};
+    cmRenderMain(i);
+  };
+  window.cmSelectSub=function(i,j){
+    const cats=cmCategories();
+    if(!cats[i] || !cats[i].subCats || !cats[i].subCats[j]) return;
+    document.querySelectorAll('.cm-main').forEach(x=>x.classList.remove('open'));
+    const el=document.getElementById('cm-main-'+i); if(el) el.classList.add('open');
+    cmSelected={type:'sub',cat:i,sub:j};
+    cmRenderSub(i,j);
+  };
+
+  function cmRenderMain(i){
+    const cats=cmCategories(), cat=cats[i], products=cmProducts();
+    const count=products.filter(p => normalizeCategoryName(p.mainCat)===normalizeCategoryName(cat.name)).length;
+    document.getElementById('cm-detail').innerHTML=`
+      <div class="cm-breadcrumb">الأقسام ← القسم الرئيسي</div>
+      <h3 class="cm-title">تعديل: ${cmEsc(cat.name)}</h3>
+      <div class="cm-form">
+        <div class="cm-field"><label>اسم القسم</label><input id="cm-main-name" value="${cmEsc(cat.name)}"></div>
+        <div class="cm-field"><label>رابط/مسار الصورة</label><input id="cm-main-image" value="${cmEsc(cmCatImg(cat))}">
+          <img class="cm-preview" id="cm-main-preview" src="${cmEsc(cmCatImg(cat))}" alt="معاينة"></div>
+        <div class="cm-field"><label>الوصف المختصر</label><input id="cm-main-short" value="${cmEsc(cat.shortDescription||cat.description||'')}"></div>
+        <div class="cm-field"><label>المعلومات العامة</label><textarea id="cm-main-info">${cmEsc(cat.generalInfo||cat.info||'')}</textarea></div>
+        <div class="cm-field"><label>ترتيب الظهور</label><input id="cm-main-order" type="number" min="1" value="${Number(cat.order)||i+1}"></div>
+        <div class="cm-info">هذا القسم مرتبط بـ <strong>${count}</strong> منتج. يمكن تغيير الاسم والصورة والمعلومات. الحذف يحتاج تأكيدًا وسيُمنع إذا بقيت منتجات مرتبطة به.</div>
+        <div class="cm-actions">
+          <button type="button" class="cm-btn cm-save" onclick="cmSaveMain(${i})">💾 حفظ التعديلات</button>
+          <button type="button" class="cm-btn cm-delete" onclick="cmDeleteMain(${i})">🗑️ حذف القسم</button>
+        </div>
+      </div>`;
+    const inp=document.getElementById('cm-main-image');
+    if(inp) inp.addEventListener('input',()=>document.getElementById('cm-main-preview').src=inp.value||'assets/images/logo.png');
+  }
+
+  function cmRenderSub(i,j){
+    const cats=cmCategories(), cat=cats[i], sub=cat.subCats[j], meta=cmMeta(cat.name,sub);
+    const products=cmProducts().filter(p =>
+      normalizeCategoryName(p.mainCat)===normalizeCategoryName(cat.name) &&
+      normalizeCategoryName(p.subCat)===normalizeCategoryName(sub)
+    );
+    const opts=cats.map((c,ci)=>`
+      <option value="${ci}" ${ci===i?'selected':''}>${cmEsc(c.name)}</option>`).join('');
+    const subOpts=(cat.subCats||[]).map((s,si)=>`
+      <option value="${si}" ${si===j?'selected':''}>${cmEsc(s)}</option>`).join('');
+    document.getElementById('cm-detail').innerHTML=`
+      <div class="cm-breadcrumb">الأقسام ← ${cmEsc(cat.name)} ← قسم فرعي</div>
+      <h3 class="cm-title">تعديل: ${cmEsc(sub)}</h3>
+      <div class="cm-form">
+        <div class="cm-field"><label>القسم الرئيسي</label>
+          <select id="cm-sub-parent" onchange="cmChangeSubParent(${i},${j},this.value)">${opts}</select></div>
+        <div class="cm-field"><label>اسم القسم الفرعي</label><input id="cm-sub-name" value="${cmEsc(sub)}"></div>
+        <div class="cm-field"><label>رابط/مسار الصورة</label><input id="cm-sub-image" value="${cmEsc(meta.image||'')}">
+          <img class="cm-preview" id="cm-sub-preview" src="${cmEsc(meta.image||'assets/images/logo.png')}" alt="معاينة"></div>
+        <div class="cm-field"><label>الوصف المختصر</label><input id="cm-sub-short" value="${cmEsc(meta.shortDescription||meta.description||'')}"></div>
+        <div class="cm-field"><label>المعلومات العامة</label><textarea id="cm-sub-info">${cmEsc(meta.generalInfo||meta.info||'')}</textarea></div>
+        <div class="cm-field"><label>ترتيب الظهور</label><input id="cm-sub-order" type="number" min="1" value="${Number(meta.order)||j+1}"></div>
+        <div class="cm-info">عدد المنتجات في هذا القسم الفرعي: <strong>${products.length}</strong>. ويمكنك نقل المنتجات منه أو إليه من قائمة المنتجات أدناه.</div>
+        <div class="cm-actions">
+          <button type="button" class="cm-btn cm-save" onclick="cmSaveSub(${i},${j})">💾 حفظ التعديلات</button>
+          <button type="button" class="cm-btn cm-delete" onclick="cmDeleteSub(${i},${j})">🗑️ حذف القسم</button>
+        </div>
+      </div>
+      ${products.length ? `<div class="cm-products-box">
+        <div class="cm-products-head">نقل منتجات هذا القسم (${products.length})</div>
+        ${products.map(p=>{
+          const pi=cmProducts().findIndex(x=>String(x.id)===String(p.id));
+          return `<div class="cm-product-row">
+            <strong>${cmEsc(p.name||'منتج بدون اسم')}</strong>
+            <div>
+              <select onchange="cmMoveProduct(${pi},this.value)">
+                <option value="">نقل المنتج إلى...</option>
+                ${cats.map((c,ci)=>`<optgroup label="${cmEsc(c.name)}">${(c.subCats||[]).map(s=>`<option value="${ci}||${cmEsc(s)}">${cmEsc(s)}</option>`).join('')}</optgroup>`).join('')}
+              </select>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>` : ''}`;
+    const inp=document.getElementById('cm-sub-image');
+    if(inp) inp.addEventListener('input',()=>document.getElementById('cm-sub-preview').src=inp.value||'assets/images/logo.png');
+  }
+
+  window.cmChangeSubParent=function(oldI,j,newI){
+    newI=Number(newI);
+    const cats=cmCategories();
+    if(!cats[newI]) return;
+    // نعيد رسم القسم الجديد فقط، مع اختيار أول قسم فرعي مؤقتًا.
+    cmSelected={type:'sub',cat:newI,sub:0};
+    cmRenderSub(newI,0);
+  };
+
+  window.cmSaveMain=function(i){
+    const cats=cmCategories(), old=cats[i];
+    if(!old) return;
+    const newName=document.getElementById('cm-main-name').value.trim();
+    if(!newName){alert('يرجى كتابة اسم القسم.');return}
+    const oldName=old.name;
+    old.name=newName;
+    old.image=document.getElementById('cm-main-image').value.trim();
+    old.shortDescription=document.getElementById('cm-main-short').value.trim();
+    old.generalInfo=document.getElementById('cm-main-info').value.trim();
+    old.order=Number(document.getElementById('cm-main-order').value)||i+1;
+
+    const products=cmProducts();
+    products.forEach(p=>{
+      if(normalizeCategoryName(p.mainCat)===normalizeCategoryName(oldName)) p.mainCat=newName;
+    });
+    cmSetCategories(cats); cmSetProducts(products);
+
+    // تحديث مفتاح صور القسم إذا كان الاسم قد تغير.
+    try{
+      const map=JSON.parse(localStorage.getItem('ansiyab_cat_images')||'{}')||{};
+      if(map[oldName]){map[newName]=map[oldName];delete map[oldName]}
+      if(old.image) map[newName]=old.image;
+      localStorage.setItem('ansiyab_cat_images',JSON.stringify(map));
+    }catch(e){}
+    alert('تم حفظ القسم الرئيسي وتحديث المنتجات المرتبطة به.');
+    cmRenderList(); cmSelectMain(i);
+    if(typeof buildCategoryAccordion==='function') buildCategoryAccordion();
+  };
+
+  window.cmDeleteMain=function(i){
+    const cats=cmCategories(), cat=cats[i];
+    if(!cat) return;
+    const products=cmProducts();
+    const count=products.filter(p=>normalizeCategoryName(p.mainCat)===normalizeCategoryName(cat.name)).length;
+    if(count>0){
+      alert(`لا يمكن حذف القسم «${cat.name}» لأن لديه ${count} منتجًا مرتبطًا به.\nانقل المنتجات إلى قسم آخر أولًا ثم أعد الحذف.`);
+      return;
+    }
+    if(!confirm(`هل أنت متأكد من حذف القسم الرئيسي «${cat.name}» وجميع أقسامه الفرعية؟`)) return;
+    cats.splice(i,1);
+    cmSetCategories(cats);
+    alert('تم حذف القسم.');
+    cmRenderList();
+    document.getElementById('cm-detail').innerHTML='<div class="cm-empty">تم الحذف. اختر قسمًا آخر.</div>';
+    if(typeof buildCategoryAccordion==='function') buildCategoryAccordion();
+  };
+
+  window.cmSaveSub=function(i,j){
+    const cats=cmCategories(), cat=cats[i], oldSub=cat && cat.subCats && cat.subCats[j];
+    if(!oldSub) return;
+    const newSub=document.getElementById('cm-sub-name').value.trim();
+    if(!newSub){alert('يرجى كتابة اسم القسم الفرعي.');return}
+    const mainName=cat.name;
+    const image=document.getElementById('cm-sub-image').value.trim();
+    const meta={
+      image:image,
+      shortDescription:document.getElementById('cm-sub-short').value.trim(),
+      generalInfo:document.getElementById('cm-sub-info').value.trim(),
+      order:Number(document.getElementById('cm-sub-order').value)||j+1
+    };
+    cat.subCats[j]=newSub;
+    const products=cmProducts();
+    products.forEach(p=>{
+      if(normalizeCategoryName(p.mainCat)===normalizeCategoryName(mainName) &&
+         normalizeCategoryName(p.subCat)===normalizeCategoryName(oldSub)) p.subCat=newSub;
+    });
+    cmDeleteMeta(mainName,oldSub);
+    cmSaveMeta(mainName,newSub,meta);
+    cmSetCategories(cats); cmSetProducts(products);
+    alert('تم حفظ القسم الفرعي وتحديث المنتجات المرتبطة به.');
+    cmRenderList(); cmSelectSub(i,j);
+    if(typeof buildCategoryAccordion==='function') buildCategoryAccordion();
+  };
+
+  window.cmDeleteSub=function(i,j){
+    const cats=cmCategories(), cat=cats[i], sub=cat && cat.subCats && cat.subCats[j];
+    if(!sub) return;
+    const products=cmProducts().filter(p =>
+      normalizeCategoryName(p.mainCat)===normalizeCategoryName(cat.name) &&
+      normalizeCategoryName(p.subCat)===normalizeCategoryName(sub)
+    );
+    if(products.length){
+      alert(`لا يمكن حذف القسم الفرعي «${sub}» لأن لديه ${products.length} منتجًا.\nانقل المنتجات إلى قسم فرعي آخر أولًا ثم أعد الحذف.`);
+      return;
+    }
+    if(!confirm(`هل أنت متأكد من حذف القسم الفرعي «${sub}»؟`)) return;
+    cat.subCats.splice(j,1);
+    cmDeleteMeta(cat.name,sub);
+    cmSetCategories(cats);
+    alert('تم حذف القسم الفرعي.');
+    cmRenderList();
+    cmSelectMain(i);
+    if(typeof buildCategoryAccordion==='function') buildCategoryAccordion();
+  };
+
+  window.cmMoveProduct=function(productIndex,target){
+    if(!target) return;
+    const parts=String(target).split('||');
+    const ci=Number(parts[0]), sub=parts.slice(1).join('||');
+    const cats=cmCategories(), products=cmProducts(), p=products[productIndex];
+    if(!p || !cats[ci] || !sub) return;
+    const from=`${p.mainCat||''} / ${p.subCat||''}`;
+    const to=`${cats[ci].name} / ${sub}`;
+    if(!confirm(`نقل المنتج «${p.name||''}» من:\n${from}\nإلى:\n${to}\n\nهل تريد المتابعة؟`)) return;
+    p.mainCat=cats[ci].name;
+    p.subCat=sub;
+    cmSetProducts(products);
+    alert('تم نقل المنتج بنجاح.');
+    cmRenderList();
+    // إعادة فتح القسم الهدف
+    cmSelectSub(ci,(cats[ci].subCats||[]).findIndex(s=>normalizeCategoryName(s)===normalizeCategoryName(sub)));
+    if(typeof renderProducts==='function'){
+      const currentTitle=document.getElementById('current-view-title')?.innerText||'جميع المنتجات';
+      if(typeof getCurrentVisibleProducts==='function') renderProducts(getCurrentVisibleProducts(),currentTitle);
+    }
+  };
+})();
+</script>
 </body>
 </html>
+
+<style id="category-manager-final-css">
+/* مدير الأقسام: زر واحد في الشريط العلوي */
+.category-manager-top-btn{
+  display:none;
+  align-items:center;
+  gap:7px;
+  border:0;
+  border-radius:10px;
+  padding:9px 13px;
+  background:linear-gradient(135deg,#7c3aed,#5b21b6);
+  color:#fff;
+  font-family:inherit;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(91,33,182,.18);
+}
+body.admin-mode .category-manager-top-btn{display:inline-flex!important}
+.category-manager-top-btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+
+.category-manager-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:210000;
+  background:rgba(7,24,43,.62);
+  padding:18px;
+  align-items:center;
+  justify-content:center;
+}
+.category-manager-overlay.open{display:flex}
+.category-manager-modal{
+  width:min(900px,97vw);
+  max-height:94vh;
+  overflow:hidden;
+  background:#fff;
+  border-radius:20px;
+  direction:rtl;
+  box-shadow:0 28px 80px rgba(0,0,0,.3);
+  display:flex;
+  flex-direction:column;
+}
+.category-manager-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 20px;
+  background:linear-gradient(135deg,#173b63,#245d92);
+  color:#fff;
+}
+.category-manager-head h3{margin:0;font-size:18px}
+.category-manager-close{
+  border:0;background:rgba(255,255,255,.16);color:#fff;
+  width:36px;height:36px;border-radius:10px;font-size:20px;cursor:pointer
+}
+.category-manager-body{
+  display:grid;
+  grid-template-columns:300px minmax(0,1fr);
+  min-height:0;
+  flex:1;
+}
+.category-manager-list{
+  overflow:auto;
+  border-left:1px solid #e7edf3;
+  padding:12px;
+  background:#f7fafc;
+}
+.cm-main{
+  background:#fff;border:1px solid #e2e8f0;border-radius:11px;
+  margin-bottom:8px;overflow:hidden;
+}
+.cm-main-title{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 12px;cursor:pointer;font-weight:800;color:#173b63;
+}
+.cm-main-title:hover{background:#edf6ff}
+.cm-subs{display:none;padding:0 8px 8px}
+.cm-main.open .cm-subs{display:block}
+.cm-sub{
+  display:block;width:100%;text-align:right;border:0;background:#f8fafc;
+  padding:8px 10px;border-radius:8px;margin-top:4px;cursor:pointer;
+  font-family:inherit;color:#475569
+}
+.cm-sub:hover,.cm-sub.active{background:#dbeafe;color:#174a78;font-weight:800}
+.category-manager-detail{overflow:auto;padding:20px}
+.cm-empty{color:#64748b;text-align:center;padding:50px 15px}
+.cm-breadcrumb{font-size:12px;color:#64748b;margin-bottom:10px}
+.cm-title{margin:0 0 15px;color:#173b63}
+.cm-form{display:grid;gap:12px}
+.cm-field label{display:block;font-weight:800;color:#334155;font-size:13px;margin-bottom:5px}
+.cm-field input,.cm-field textarea{
+  width:100%;border:1px solid #d7e0e9;border-radius:10px;padding:10px;
+  font-family:inherit;outline:none;background:#fff
+}
+.cm-field textarea{min-height:105px;resize:vertical}
+.cm-preview{
+  width:180px;height:120px;object-fit:contain;border-radius:12px;
+  border:1px dashed #cbd5e1;background:#f8fafc;margin-top:5px
+}
+.cm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+.cm-btn{
+  border:0;border-radius:10px;padding:10px 15px;font-family:inherit;
+  font-weight:800;cursor:pointer
+}
+.cm-save{background:#1f6fb2;color:#fff}
+.cm-delete{background:#fee2e2;color:#b91c1c}
+.cm-move{background:#fef3c7;color:#92400e}
+.cm-info{
+  padding:10px 12px;border-radius:10px;background:#eff6ff;
+  color:#1e4f7b;font-size:13px;line-height:1.7
+}
+.cm-products-box{
+  margin-top:14px;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden
+}
+.cm-products-head{padding:10px 12px;background:#f8fafc;font-weight:800}
+.cm-product-row{
+  display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:10px;
+  padding:10px 12px;border-top:1px solid #edf2f7;align-items:center
+}
+.cm-product-row strong{font-size:13px}
+.cm-product-row select{
+  width:100%;padding:8px;border:1px solid #d7e0e9;border-radius:8px;
+  font-family:inherit;background:#fff
+}
+.cm-subselect{margin-top:5px}
+@media(max-width:760px){
+  .category-manager-overlay{padding:8px}
+  .category-manager-body{grid-template-columns:1fr}
+  .category-manager-list{max-height:35vh;border-left:0;border-bottom:1px solid #e7edf3}
+  .category-manager-detail{padding:14px}
+  .cm-product-row{grid-template-columns:1fr}
+  .cm-preview{width:140px;height:100px}
+}
+</style>
