@@ -37,7 +37,7 @@
     .btn-admin {
       background-color: #1b365d; color: #fff; border: none; padding: 8px 14px;
       border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer;
-      font-family: 'Cairo', sans-serif; transition: 0.2s;
+      font-family: 'Cairo', sans-serif; transition: 0.2s; display: inline-block !important;
     }
     .btn-admin:hover { background-color: #2c5282; }
 
@@ -68,7 +68,7 @@
 
     .cat-edit-badge {
       position: absolute; top: 10px; left: 10px; background: #edf2f7; border: 1px solid #cbd5e0;
-      border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer; z-index: 10;
+      border-radius: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; z-index: 10;
     }
 
     .products-container { margin-top: 20px; }
@@ -93,7 +93,7 @@
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
 
     .prod-actions-top { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 5; }
-    .btn-action { background: rgba(255,255,255,0.9); border: 1px solid #cbd5e0; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 12px; }
+    .btn-action { background: rgba(255,255,255,0.9); border: 1px solid #cbd5e0; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 12px; display: inline-block !important; }
 
     .prod-img-wrapper { position: relative; cursor: pointer; }
     .prod-img { width: 100%; height: 160px; object-fit: contain; background: #f8fafc; border-radius: 6px; margin-bottom: 10px; }
@@ -121,8 +121,6 @@
     }
     .btn-add-cart:hover { background: #2c5282; }
 
-    .admin-only { display: none !important; }
-
     .modal-backdrop {
       display: none; position: fixed; top:0; left:0; width:100%; height:100%;
       background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
@@ -145,8 +143,8 @@
 </head>
 <body>
 
-  <!-- عنصر إدخال الملفات لرفع شعار القسم -->
-  <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;" onchange="handleCatFileUpload(event)">
+  <!-- عنصر إدخال الملفات الديناميكي لرفع صور الأقسام -->
+  <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;">
 
   <header>
     <a href="#" class="logo-container">
@@ -155,8 +153,8 @@
     </a>
     
     <div class="header-actions">
-      <button class="btn-admin admin-only" onclick="addMainCategory()">+ قسم جديد</button>
-      <button class="btn-admin admin-only" onclick="openAddModal()">+ إضافة منتج</button>
+      <button class="btn-admin" onclick="addMainCategory()">+ قسم جديد</button>
+      <button class="btn-admin" onclick="openAddModal()">+ إضافة منتج</button>
       
       <button class="cart-btn-header" onclick="location.href='cart.html'">
         <span>قائمة الطلبات</span>
@@ -271,7 +269,6 @@
 
     let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
     let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
-    let activeCategoryNameForImage = null;
     let currentSelectedCategory = null;
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products')) || [
@@ -299,19 +296,7 @@
       populateCategorySelect();
       renderProducts(products);
       updateCartBadge();
-      checkAdminStatus();
     });
-
-    function checkAdminStatus() {
-      const isAdmin = localStorage.getItem("isAdmin") === "true";
-      document.querySelectorAll('.admin-only').forEach(el => {
-        if (isAdmin) {
-          el.style.setProperty('display', 'inline-block', 'important');
-        } else {
-          el.style.setProperty('display', 'none', 'important');
-        }
-      });
-    }
 
     function saveCategories() {
       localStorage.setItem('ansiyab_categories', JSON.stringify(categoriesData));
@@ -321,14 +306,18 @@
 
     function saveProducts() {
       localStorage.setItem('ansiyab_products', JSON.stringify(products));
-      renderProducts(currentSelectedCategory ? products.filter(p => p.category === currentSelectedCategory) : products);
+      if (currentSelectedCategory) {
+        renderProducts(products.filter(p => p.category && p.category.trim() === currentSelectedCategory.trim()));
+      } else {
+        renderProducts(products);
+      }
     }
 
     function addMainCategory() {
       const name = prompt("أدخل اسم القسم الرئيسي الجديد:");
       if (name && name.trim()) {
         const trimmed = name.trim();
-        if (!categoriesData.some(c => c.name === trimmed)) {
+        if (!categoriesData.some(c => c.name.trim() === trimmed)) {
           categoriesData.push({ id: Date.now(), name: trimmed, subcategories: [] });
           saveCategories();
         } else {
@@ -354,36 +343,39 @@
         }
 
         card.innerHTML = `
-          <span class="cat-edit-badge admin-only" onclick="event.stopPropagation(); triggerCategoryFile('${cat.name.replace(/'/g, "\\'")}')" title="تغيير صورة القسم">📷</span>
+          <span class="cat-edit-badge" title="تغيير صورة القسم">📷</span>
           <img src="${imgSrc}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
           <h4>${cat.name}</h4>
           ${subTagsHTML}
         `;
+
+        // إضافة حدث النقر بزر تغيير الصورة بشكل آمن لمنع التضارب والـ SyntaxError
+        const editBadge = card.querySelector('.cat-edit-badge');
+        editBadge.onclick = (e) => {
+          e.stopPropagation();
+          triggerCategoryFile(cat.name);
+        };
+
         container.appendChild(card);
       });
-
-      checkAdminStatus();
     }
 
     function triggerCategoryFile(catName) {
-      activeCategoryNameForImage = catName;
       const fileInput = document.getElementById('global-cat-file-input');
       fileInput.value = "";
+      fileInput.onchange = function(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            categoryImages[catName] = e.target.result;
+            localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
+            renderCategoriesGrid();
+          };
+          reader.readAsDataURL(file);
+        }
+      };
       fileInput.click();
-    }
-
-    function handleCatFileUpload(event) {
-      const file = event.target.files[0];
-      if (file && activeCategoryNameForImage !== null) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          categoryImages[activeCategoryNameForImage] = e.target.result;
-          localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
-          renderCategoriesGrid();
-          activeCategoryNameForImage = null;
-        };
-        reader.readAsDataURL(file);
-      }
     }
 
     function populateCategorySelect() {
@@ -404,7 +396,7 @@
       const selectedCatName = catSelect.value;
       
       subSelect.innerHTML = '';
-      const catObj = categoriesData.find(c => c.name === selectedCatName);
+      const catObj = categoriesData.find(c => c.name.trim() === selectedCatName.trim());
       
       if (catObj && catObj.subcategories && catObj.subcategories.length > 0) {
         catObj.subcategories.forEach(sub => {
@@ -425,7 +417,7 @@
       currentSelectedCategory = catName;
       document.getElementById('current-category-name').innerText = catName;
       
-      const catObj = categoriesData.find(c => c.name === catName);
+      const catObj = categoriesData.find(c => c.name.trim() === catName.trim());
       const chipsContainer = document.getElementById('sub-filter-chips');
       chipsContainer.innerHTML = '';
 
@@ -447,7 +439,7 @@
           chip.onclick = () => {
             document.querySelectorAll('.sub-chip').forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
-            const filtered = products.filter(p => p.category && p.category.trim() === catName.trim() && p.subcat === sub);
+            const filtered = products.filter(p => p.category && p.category.trim() === catName.trim() && p.subcat && p.subcat.trim() === sub.trim());
             renderProducts(filtered);
           };
           chipsContainer.appendChild(chip);
@@ -456,6 +448,7 @@
 
       const filtered = products.filter(p => p.category && p.category.trim() === catName.trim());
       renderProducts(filtered);
+      window.scrollTo({ top: 300, behavior: 'smooth' });
     }
 
     function resetCategoryFilter() {
@@ -482,9 +475,9 @@
         const imgCount = p.images ? p.images.length : 1;
 
         card.innerHTML = `
-          <div class="prod-actions-top admin-only">
-            <button class="btn-action admin-only" onclick="editProduct(${p.id})">✏️</button>
-            <button class="btn-action admin-only" onclick="deleteProduct(${p.id})">🗑️</button>
+          <div class="prod-actions-top">
+            <button class="btn-action" onclick="editProduct(${p.id})">✏️</button>
+            <button class="btn-action" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
 
           <div class="prod-img-wrapper" onclick="openGallery(${p.id})" title="عرض صور المنتج">
@@ -503,7 +496,7 @@
           <div class="order-box">
             <div class="stock-row">
               <span>المتوفر: ${p.stock || 0}</span>
-              <button class="btn-action admin-only" onclick="updateStock(${p.id})" style="background:#e2e8f0;">تحديث المخزن 🔄</button>
+              <button class="btn-action" onclick="updateStock(${p.id})" style="background:#e2e8f0;">تحديث المخزن 🔄</button>
             </div>
             <div class="qty-row">
               <label style="font-size:11px; font-weight:700;">الطلبية:</label>
@@ -523,12 +516,10 @@
         `;
         grid.appendChild(card);
       });
-
-      checkAdminStatus();
     }
 
     function openGallery(prodId) {
-      const p = products.find(item => item.id === prodId);
+      const p = products.find(item => item.id == prodId);
       if (!p || !p.images || p.images.length === 0) return;
 
       document.getElementById('galleryModalTitle').innerText = p.name;
@@ -569,7 +560,7 @@
     }
 
     function editProduct(id) {
-      const p = products.find(prod => prod.id === id);
+      const p = products.find(prod => prod.id == id);
       if (!p) return;
 
       document.getElementById('modalTitle').innerText = "تعديل بيانات وصور المنتج";
@@ -601,7 +592,7 @@
       const fileInput = document.getElementById('edit-prod-files');
 
       const applySave = (newImagesList) => {
-        if (id) {
+        if (id !== "") {
           const p = products.find(prod => prod.id == id);
           if (p) {
             p.name = name;
@@ -648,13 +639,13 @@
 
     function deleteProduct(id) {
       if (confirm("هل أنت تأكد من رغبتك في حذف هذا المنتج؟")) {
-        products = products.filter(p => p.id !== id);
+        products = products.filter(p => p.id != id);
         saveProducts();
       }
     }
 
     function updateStock(id) {
-      const p = products.find(prod => prod.id === id);
+      const p = products.find(prod => prod.id == id);
       if (!p) return;
       const newStock = prompt("أدخل كمية المخزن الجديدة:", p.stock);
       if (newStock !== null) {
@@ -664,7 +655,7 @@
     }
 
     function addToCart(prodId) {
-      const p = products.find(item => item.id === prodId);
+      const p = products.find(item => item.id == prodId);
       const qty = parseInt(document.getElementById(`qty-${prodId}`).value) || 1;
       const unit = document.getElementById(`unit-${prodId}`).value;
 
