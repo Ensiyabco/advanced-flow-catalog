@@ -284,7 +284,34 @@
     footer { background:#102f50; margin-top:30px; border-top:3px solid var(--accent); padding:34px 20px; }
     @media(max-width:992px){ .main-categories-grid{grid-template-columns:repeat(3,1fr);} .nav-links a{padding:8px 9px;} }
     @media(max-width:700px){ header{flex-wrap:wrap;gap:10px;} .logo-text{font-size:13px;} header>div{width:100%;justify-content:space-between;} .nav-links{overflow:auto;} .hero-banner{padding:58px 16px 70px;border-radius:0 0 24px 24px;} .main-categories-grid{grid-template-columns:repeat(2,1fr);gap:12px;padding:0 14px;} .main-cat-card{min-height:175px;} .cat-img-box{height:115px;} .section-title-container{padding:0 14px;} }
-  </style>
+  
+/* ===== بانر متحرك بالصور الفعلية من الكتالوج ===== */
+.hero-slider{position:relative!important;overflow:hidden!important;min-height:440px!important;padding:0!important;text-align:right!important;border-radius:0 0 30px 30px!important;background:#173b63!important}
+.hero-slides{position:absolute;inset:0}
+.hero-slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .7s ease}
+.hero-slide.active{opacity:1;visibility:visible}
+.hero-slide-bg{position:absolute;inset:0;background-position:center;background-size:cover;background-repeat:no-repeat;background-color:#173b63}
+.hero-slide-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,31,53,.92) 0%,rgba(10,31,53,.62) 42%,rgba(10,31,53,.18) 78%,rgba(10,31,53,.32) 100%)}
+.hero-slide-content{position:relative;z-index:3;max-width:720px;padding:85px 9%;color:#fff}
+.hero-slide-content .kicker{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:800;margin-bottom:12px}
+.hero-slide-content h1{color:#fff!important;margin:0;font-size:clamp(29px,4vw,52px);font-weight:900;line-height:1.25}
+.hero-slide-content h2{color:#f7b733!important;margin:5px 0 12px;font-size:clamp(24px,3.3vw,42px);font-weight:900;line-height:1.2}
+.hero-slide-content p{color:rgba(255,255,255,.92);font-size:15px;line-height:1.9;margin:0 0 22px;max-width:610px}
+.hero-slide-content .shop-now{display:inline-flex;align-items:center;gap:10px;background:#f7b733;color:#173b63;text-decoration:none;border-radius:13px;padding:12px 22px;font-weight:900;box-shadow:0 10px 25px rgba(0,0,0,.16);transition:.2s}
+.hero-slide-content .shop-now:hover{transform:translateY(-2px);background:#ffca4d}
+.hero-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:44px;height:44px;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(255,255,255,.92);color:#173b63;font-size:34px;line-height:34px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.13)}
+.hero-prev{left:22px}.hero-next{right:22px}
+.hero-dots{position:absolute;z-index:6;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:7px}
+.hero-dot{width:9px;height:9px;border:0;border-radius:50%;background:rgba(255,255,255,.55);padding:0;cursor:pointer}
+.hero-dot.active{background:#f7b733;transform:scale(1.25)}
+@media(max-width:700px){
+ .hero-slider{min-height:390px!important;border-radius:0 0 20px 20px!important}
+ .hero-slide-content{padding:68px 24px 70px;text-align:center;margin:auto}
+ .hero-slide-content p{margin-left:auto;margin-right:auto;font-size:12px}
+ .hero-arrow{width:36px;height:36px;font-size:28px}.hero-prev{left:9px}.hero-next{right:9px}
+}
+
+</style>
 </head>
 <body>
 
@@ -307,13 +334,12 @@
     </div>
   </header>
 
-  <div class="hero-banner">
-    <h1>أفضل أدوات الغاز والرحلات... جودة تعتمد عليها</h1>
-    <p>نوفر كل ما تحتاجه للغاز، الرحلات، الشواء، ولوازم الكشتات بأفضل المواصفات</p>
-    <div class="search-box-container">
-      <input type="text" placeholder="ابحث عن منتج أو قسم في الكتالوج..." id="search-input" onkeypress="handleHomeSearch(event)">
-    </div>
-  </div>
+  <section class="hero-banner hero-slider" id="hero-slider" aria-label="منتجات مميزة">
+  <div class="hero-slides" id="hero-slides"></div>
+  <button class="hero-arrow hero-prev" id="hero-prev" type="button" aria-label="السابق">‹</button>
+  <button class="hero-arrow hero-next" id="hero-next" type="button" aria-label="التالي">›</button>
+  <div class="hero-dots" id="hero-dots"></div>
+</section>
 
   <section style="max-width:1180px;margin:-18px auto 36px;padding:0 20px;position:relative;z-index:3;">
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
@@ -514,7 +540,93 @@
       // تم ربط رقم الواتساب المباشر هنا
       window.open(`https://wa.me/966506645562?text=${encodeURIComponent(message)}`);
     }
-  </script>
+  
+// ===== شريط متحرك: صور المنتجات الحقيقية من الكتالوج =====
+(function(){
+  const FALLBACK="assets/images/hero-reference.png";
+  let items=[], index=0, timer=null;
+
+  function parse(key,fallback){
+    try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch(e){return fallback}
+  }
+  function esc(v){const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML}
+  function collect(){
+    const products=parse("ansiyab_products",[]);
+    const cats=parse("ansiyab_categories",[]);
+    const catImages=parse("ansiyab_cat_images",{});
+    const arr=[];
+    if(Array.isArray(products)){
+      products.forEach(p=>{
+        const imgs=Array.isArray(p.images)?p.images:(p.img?[p.img]:[]);
+        const img=imgs.find(x=>typeof x==="string"&&x.trim());
+        if(img) arr.push({
+          img,title:p.name||"منتج مميز",sub:"جودة تعتمد عليها",
+          desc:"اكتشف المنتج واستعرض التفاصيل ثم أضفه إلى قائمة الطلب.",
+          href:"products.html?cat="+encodeURIComponent(p.mainCat||"")+
+               "&sub="+encodeURIComponent(p.subCat||"")
+        });
+      });
+    }
+    if(Array.isArray(cats)){
+      cats.forEach(c=>{
+        const img=catImages && catImages[c.name];
+        if(img) arr.push({
+          img,title:c.name,sub:"من الأنسياب المتقدم",
+          desc:"تصفح القسم والأقسام الفرعية والمنتجات التابعة له.",
+          href:"products.html?cat="+encodeURIComponent(c.name||"")
+        });
+      });
+    }
+    if(!arr.length) arr.push({
+      img:FALLBACK,title:"أفضل أدوات الغاز والرحلات...",sub:"جودة تعتمد عليها",
+      desc:"نوفر كل ما تحتاجه للغاز والرحلات والشواء ولوازم الكشتات.",
+      href:"products.html"
+    });
+    const seen=new Set();
+    return arr.filter(x=>{const k=x.img+"|"+x.title;if(seen.has(k))return false;seen.add(k);return true}).slice(0,12);
+  }
+
+  function render(){
+    const root=document.getElementById("hero-slides"), dots=document.getElementById("hero-dots");
+    if(!root||!dots)return;
+    root.innerHTML="";dots.innerHTML="";
+    items.forEach((item,i)=>{
+      const slide=document.createElement("article");
+      slide.className="hero-slide"+(i===0?" active":"");
+      slide.innerHTML=`
+        <div class="hero-slide-bg"></div><div class="hero-slide-overlay"></div>
+        <div class="hero-slide-content">
+          <span class="kicker">الأنسياب المتقدم</span>
+          <h1>${esc(item.title)}</h1><h2>${esc(item.sub)}</h2>
+          <p>${esc(item.desc)}</p>
+          <a class="shop-now" href="${item.href}">تسوق الآن <span>←</span></a>
+        </div>`;
+      const bg=slide.querySelector(".hero-slide-bg");
+      bg.style.backgroundImage=`url("${String(item.img).replace(/"/g,'&quot;')}")`;
+      root.appendChild(slide);
+      const dot=document.createElement("button");dot.type="button";dot.className="hero-dot"+(i===0?" active":"");
+      dot.setAttribute("aria-label","الشريحة "+(i+1));dot.onclick=()=>{go(i);start()};dots.appendChild(dot);
+    });
+  }
+  function go(i){
+    if(!items.length)return;
+    index=(i+items.length)%items.length;
+    document.querySelectorAll(".hero-slide").forEach((x,n)=>x.classList.toggle("active",n===index));
+    document.querySelectorAll(".hero-dot").forEach((x,n)=>x.classList.toggle("active",n===index));
+  }
+  function start(){clearInterval(timer);if(items.length>1)timer=setInterval(()=>go(index+1),6000)}
+  document.addEventListener("DOMContentLoaded",()=>{
+    items=collect();render();
+    document.getElementById("hero-next")?.addEventListener("click",()=>{go(index+1);start()});
+    document.getElementById("hero-prev")?.addEventListener("click",()=>{go(index-1);start()});
+    const hero=document.getElementById("hero-slider");
+    hero?.addEventListener("mouseenter",()=>clearInterval(timer));
+    hero?.addEventListener("mouseleave",start);
+    start();
+  });
+})();
+
+</script>
 
 </body>
 </html>
