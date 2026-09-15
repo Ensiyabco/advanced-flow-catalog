@@ -1244,7 +1244,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       }
     ]);
 
-    let cart = readStorageArray('ansiyab_cart', []);
+    let cart = readStorageArray('ansiyab_cart', []).map(item => ({...item, qty: item.qty ?? item.quantity ?? 1, unitType: item.unitType ?? item.unit ?? 'حبة'}));
     let modalImagesBase64 = [];
     let currentLightboxImages = [];
     let currentLightboxIndex = 0;
