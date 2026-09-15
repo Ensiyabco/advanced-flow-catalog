@@ -819,11 +819,14 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
     }
 
     document.addEventListener("keydown", function(e) {
-      if (e.ctrlKey && e.altKey && (e.key.toLowerCase() === "a" || e.key === "ش")) {
+      const key = String(e.key || "").toLowerCase();
+      const code = String(e.code || "").toLowerCase();
+      if (e.ctrlKey && e.altKey && (key === "a" || key === "ش" || code === "keya")) {
         e.preventDefault();
+        e.stopPropagation();
         toggleAdminMode();
       }
-    });
+    }, true);
 
     const targetPhoneNumber = "966506645562";
     const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23edf2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23a0aec0' font-size='16'>صورة المنتج</text></svg>";
@@ -1168,7 +1171,7 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
       document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
       if (bodyEl) bodyEl.classList.add('active');
 
-      const cat = categories.find(c => c.name === mainCatName);
+      const cat = categories.find(c => String(c.name).trim() === String(mainCatName).trim());
       const subs = (cat && Array.isArray(cat.subCats)) ? cat.subCats : [];
 
       // عند الضغط على القسم الرئيسي نعرض الأقسام الفرعية أولاً.
@@ -1186,25 +1189,33 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
 
     function renderSubcategoryView(mainCatName, subCats) {
       const titleEl = document.getElementById('current-view-title');
-      const grid = document.getElementById('products-grid');
-      const countEl = document.getElementById('products-count');
+      const grid = document.getElementById('products-grid-container');
+      const countEl = document.getElementById('current-view-count');
       if (!grid) return;
 
       if (titleEl) titleEl.innerText = `قسم: ${mainCatName}`;
       if (countEl) countEl.innerText = `${subCats.length} قسم فرعي`;
 
-      const chips = document.getElementById('sub-filter-chips');
-      if (chips) chips.innerHTML = '';
-
       grid.innerHTML = `
-        <div style="grid-column:1/-1;background:#fff;border:1px solid #e6edf4;border-radius:14px;padding:12px 16px;color:#64748b;font-size:12px;font-weight:700;margin-bottom:2px">
-          الرئيسية &nbsp;›&nbsp; ${mainCatName} &nbsp;›&nbsp; اختر القسم الفرعي
+        <div class="inner-breadcrumb" style="grid-column:1/-1">
+          <button type="button" onclick="resetCategoryFilter()">الرئيسية</button>
+          <span>›</span>
+          <span>${mainCatName}</span>
+          <span style="margin-right:auto;color:#94a3b8">اختر القسم الفرعي</span>
         </div>
+
         <div class="subcat-view-grid" style="grid-column:1/-1">
           ${subCats.map(sub => {
-            const count = products.filter(p => p.mainCat === mainCatName && p.subCat === sub).length;
+            const count = products.filter(p =>
+              String(p.mainCat || '').trim() === String(mainCatName).trim() &&
+              String(p.subCat || '').trim() === String(sub).trim()
+            ).length;
+
+            const safeMain = String(mainCatName).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const safeSub = String(sub).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
             return `
-              <div class="subcat-view-card" onclick="filterProductsBySub('${mainCatName.replace(/'/g, "\'")}','${sub.replace(/'/g, "\'")}')">
+              <div class="subcat-view-card" onclick="filterProductsBySub('${safeMain}','${safeSub}', event)">
                 <div class="subcat-view-icon">📂</div>
                 <div class="subcat-view-name">${sub}</div>
                 <div class="subcat-view-count">${count} منتج</div>
@@ -1529,10 +1540,20 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+      // استعادة وضع المشرف بعد إعادة تحميل الصفحة.
+      document.body.classList.toggle("admin-mode", adminMode);
       buildCategoryAccordion();
       renderProducts(products, "جميع المنتجات");
       updateCartBadge();
+      updateAdminIndicator();
     });
+
+    function updateAdminIndicator() {
+      const indicators = document.querySelectorAll(".admin-mode-indicator");
+      indicators.forEach(el => {
+        el.textContent = adminMode ? "وضع المشرف مفعل" : "";
+      });
+    }
   </script>
 </body>
 </html>
