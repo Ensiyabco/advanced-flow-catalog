@@ -1175,10 +1175,14 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
       const subs = (cat && Array.isArray(cat.subCats)) ? cat.subCats : [];
 
       // عند الضغط على القسم الرئيسي نعرض الأقسام الفرعية أولاً.
+      history.replaceState(null, "", `products.html?cat=${encodeURIComponent(mainCatName)}`);
+
       if (subs.length > 0) {
         renderSubcategoryView(mainCatName, subs);
       } else {
-        const filtered = products.filter(p => p.mainCat === mainCatName);
+        const filtered = products.filter(p =>
+          String(p.mainCat || '').trim() === String(mainCatName || '').trim()
+        );
         renderProducts(filtered, `قسم: ${mainCatName}`);
       }
 
@@ -1236,8 +1240,12 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
         if (bodyEl) bodyEl.classList.add('active');
       }
 
-      const filtered = products.filter(p => p.mainCat === mainCat && p.subCat === subCat);
+      const filtered = products.filter(p =>
+        String(p.mainCat || '').trim() === String(mainCat || '').trim() &&
+        String(p.subCat || '').trim() === String(subCat || '').trim()
+      );
       renderProducts(filtered, `${mainCat} ➔ ${subCat}`);
+      history.replaceState(null, "", `products.html?cat=${encodeURIComponent(mainCat)}&sub=${encodeURIComponent(subCat)}`);
     }
 
     function quickUpdateStock(prodId) {
@@ -1539,6 +1547,42 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
       document.getElementById(modalId).style.display = 'none';
     }
 
+
+    function openCategoryFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const catName = (params.get('cat') || '').trim();
+      const subName = (params.get('sub') || '').trim();
+      const search = (params.get('search') || '').trim();
+
+      if (search) {
+        const q = search.toLowerCase();
+        const filtered = products.filter(p =>
+          String(p.name || '').toLowerCase().includes(q) ||
+          String(p.mainCat || '').toLowerCase().includes(q) ||
+          String(p.subCat || '').toLowerCase().includes(q)
+        );
+        renderProducts(filtered, `نتائج البحث: ${search}`);
+        return;
+      }
+
+      if (!catName) return;
+
+      const idx = categories.findIndex(c => String(c.name || '').trim() === catName);
+      if (idx === -1) return;
+
+      // افتح القسم الرئيسي، وإذا كان له قسم فرعي محدد افتحه مباشرة.
+      clickMainCategoryByIndex(idx);
+
+      if (subName) {
+        setTimeout(() => {
+          const cat = categories[idx];
+          if (cat && Array.isArray(cat.subCats) && cat.subCats.includes(subName)) {
+            filterProductsBySub(cat.name, subName);
+          }
+        }, 0);
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       // استعادة وضع المشرف بعد إعادة تحميل الصفحة.
       document.body.classList.toggle("admin-mode", adminMode);
@@ -1546,6 +1590,9 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
       renderProducts(products, "جميع المنتجات");
       updateCartBadge();
       updateAdminIndicator();
+
+      // إذا وصلنا من الصفحة الرئيسية إلى قسم محدد، افتح القسم بدل عرض كل المنتجات.
+      openCategoryFromUrl();
     });
 
     function updateAdminIndicator() {
