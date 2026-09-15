@@ -48,17 +48,24 @@
       border-right: 4px solid #2b6cb0; padding-right: 10px; display: flex; justify-content: space-between; align-items: center;
     }
     .categories-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin-bottom: 30px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; margin-bottom: 30px;
     }
     .category-card {
-      background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;
-      text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+      position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
     }
     .category-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
-    .category-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 12px; background: #f8fafc; border-radius: 8px; padding: 5px; border: 1px solid #edf2f7; }
-    .category-card h4 { font-size: 14px; font-weight: 800; color: #1b365d; margin: 0; }
+    .category-card img { width: 65px; height: 65px; object-fit: contain; margin-bottom: 10px; background: #f8fafc; border-radius: 8px; padding: 5px; border: 1px solid #edf2f7; }
+    .category-card h4 { font-size: 14px; font-weight: 800; color: #1b365d; margin: 0 0 8px 0; }
     
+    .subcats-list {
+      display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 5px; max-height: 60px; overflow: hidden;
+    }
+    .subcat-tag {
+      background: #edf2f7; color: #4a5568; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700;
+    }
+
     .cat-edit-badge {
       position: absolute; top: 10px; left: 10px; background: #edf2f7; border: 1px solid #cbd5e0;
       border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer; z-index: 10;
@@ -67,8 +74,15 @@
     .products-container { margin-top: 20px; }
     .top-filter-bar {
       background: #fff; padding: 12px 20px; border-radius: 10px; border: 1px solid #e2e8f0;
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
     }
+    .sub-filter-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; }
+    .sub-chip {
+      background: #fff; border: 1px solid #cbd5e0; padding: 4px 10px; border-radius: 15px;
+      font-size: 11px; font-weight: 700; cursor: pointer; color: #4a5568; transition: 0.2s;
+    }
+    .sub-chip:hover, .sub-chip.active { background: #2b6cb0; color: #fff; border-color: #2b6cb0; }
+
     .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
 
     .product-card {
@@ -88,6 +102,7 @@
       color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700;
     }
     .prod-title { font-size: 14px; font-weight: 800; color: #1b365d; margin: 0 0 8px 0; text-align: center; }
+    .prod-subcat-label { font-size: 11px; color: #718096; text-align: center; margin-bottom: 6px; font-weight: 700; }
 
     .specs-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; background: #f8fafc; }
     .specs-table th, .specs-table td { border: 1px solid #edf2f7; padding: 4px; text-align: center; }
@@ -130,7 +145,7 @@
 </head>
 <body>
 
-  <!-- عنصر إدخال الملفات المخصص لرفع شعار القسم -->
+  <!-- عنصر إدخال الملفات لرفع شعار القسم -->
   <input type="file" id="global-cat-file-input" accept="image/*" style="display: none;" onchange="handleCatFileUpload(event)">
 
   <header>
@@ -152,18 +167,24 @@
 
   <div class="main-layout">
     <div class="section-title-bar">
-      <span>تصفح الأقسام الرئيسية</span>
-      <button class="btn-admin admin-only" onclick="addMainCategory()" style="padding: 4px 10px; font-size: 12px;">+ قسم رئيسي</button>
+      <span>تصفح الأقسام الرئيسية والفرعية</span>
     </div>
     
     <div class="categories-grid" id="categories-grid"></div>
 
     <div class="products-container">
       <div class="top-filter-bar">
-        <span id="current-category-name" style="font-weight: 800; font-size: 15px; color: #1b365d;">جميع المنتجات</span>
-        <button onclick="resetCategoryFilter()" style="background: none; border: none; color: #2b6cb0; cursor: pointer; font-size: 12px; font-weight: 700; font-family: 'Cairo';">عرض الكل 🔄</button>
-        <span id="products-count" style="font-size: 12px; color: #718096; background: #edf2f7; padding: 3px 8px; border-radius: 12px; font-weight: 700;">0 منتج</span>
+        <div>
+          <span id="current-category-name" style="font-weight: 800; font-size: 15px; color: #1b365d;">جميع المنتجات</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button onclick="resetCategoryFilter()" style="background: none; border: none; color: #2b6cb0; cursor: pointer; font-size: 12px; font-weight: 700; font-family: 'Cairo';">عرض الكل 🔄</button>
+          <span id="products-count" style="font-size: 12px; color: #718096; background: #edf2f7; padding: 3px 8px; border-radius: 12px; font-weight: 700;">0 منتج</span>
+        </div>
       </div>
+
+      <!-- الأزرار الفرعية للتصفية السريعة داخل القسم -->
+      <div class="sub-filter-chips" id="sub-filter-chips"></div>
 
       <div class="products-grid" id="products-grid"></div>
     </div>
@@ -181,9 +202,16 @@
       </div>
 
       <div class="form-group">
-        <label>القسم التابع له:</label>
-        <select id="edit-prod-category">
-          <!-- يتم تعبئتها ديناميكياً بالأقسام -->
+        <label>القسم الرئيسي:</label>
+        <select id="edit-prod-category" onchange="updateSubcategoryDropdownOptions()">
+          <!-- يتم تعبئتها ديناميكياً -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>القسم الفرعي:</label>
+        <select id="edit-prod-subcat">
+          <!-- يتم تعبئتها ديناميكياً بناءً على القسم الرئيسي -->
         </select>
       </div>
       
@@ -232,7 +260,7 @@
       { id: 7, name: "ساعات ومنظمات غاز", subcategories: ["ساعات غاز منزليه", "ساعات غاز مطاعم", "ساعات غاز سفري", "ساعات غاز شبكات", "تحويلات غاز"] },
       { id: 8, name: "ليات غاز", subcategories: ["ليات غاز منزليه", "ليات غاز مطاعم", "ليات مواقد رحلات"] },
       { id: 9, name: "ولاعات وشعالات", subcategories: ["ولاعات غاز", "ولاعات بخور", "ولاعات سفري", "شعالات فحم", "قوالب اشعال", "سوائل اشعال"] },
-      { id: 10, name: "قطع غيار", subcategories: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطغ غيار عامه"] },
+      { id: 10, name: "قطع غيار", subcategories: ["قطع غيار مواقد", "قطع غيار دبات", "قطع غيار دوافير", "قطع غيار عامه"] },
       { id: 11, name: "قدور", subcategories: ["قدور منزليه", "قدور مطاعم", "قدور عسل", "صواني"] },
       { id: 12, name: "خضاضات وسطول", subcategories: ["خضاضات لبن", "سطول لبن", "مواعين سمن"] },
       { id: 13, name: "دوافير ودبات", subcategories: ["دبات غاز", "روس دوافير", "روس دوافير بلي", "دبات غاز سفري", "اكسسوارات دوافير"] },
@@ -244,16 +272,18 @@
     let categoriesData = JSON.parse(localStorage.getItem('ansiyab_categories')) || defaultCategories;
     let categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images')) || {};
     let activeCategoryNameForImage = null;
+    let currentSelectedCategory = null;
 
     let products = JSON.parse(localStorage.getItem('ansiyab_products')) || [
       {
         id: 1,
         name: "دافور غاز سفري متكامل",
         category: "دوافير ودبات",
+        subcat: "دبات غاز سفري",
         unit: "حبة",
         boxQty: 12,
         stock: 50,
-        images: ["assets/images/logo.png"]
+        images: ["https://i.imgur.com/7A26w6i.png"]
       }
     ];
 
@@ -261,8 +291,8 @@
 
     document.addEventListener('DOMContentLoaded', function() {
       products.forEach(p => {
-        if (!p.images) {
-          p.images = p.img ? [p.img] : ['assets/images/logo.png'];
+        if (!p.images || p.images.length === 0) {
+          p.images = p.img ? [p.img] : ['https://i.imgur.com/7A26w6i.png'];
         }
       });
       renderCategoriesGrid();
@@ -291,7 +321,7 @@
 
     function saveProducts() {
       localStorage.setItem('ansiyab_products', JSON.stringify(products));
-      renderProducts(products);
+      renderProducts(currentSelectedCategory ? products.filter(p => p.category === currentSelectedCategory) : products);
     }
 
     function addMainCategory() {
@@ -316,12 +346,18 @@
         card.className = 'category-card';
         card.onclick = () => filterByCategory(cat.name);
 
-        const imgSrc = categoryImages[cat.name] || 'assets/images/logo.png';
+        const imgSrc = categoryImages[cat.name] || 'https://i.imgur.com/7A26w6i.png';
+        
+        let subTagsHTML = '';
+        if (cat.subcategories && cat.subcategories.length > 0) {
+          subTagsHTML = `<div class="subcats-list">` + cat.subcategories.slice(0, 3).map(s => `<span class="subcat-tag">${s}</span>`).join('') + (cat.subcategories.length > 3 ? `<span class="subcat-tag">+${cat.subcategories.length - 3}</span>` : '') + `</div>`;
+        }
 
         card.innerHTML = `
           <span class="cat-edit-badge admin-only" onclick="event.stopPropagation(); triggerCategoryFile('${cat.name.replace(/'/g, "\\'")}')" title="تغيير صورة القسم">📷</span>
           <img src="${imgSrc}" onerror="this.src='https://i.imgur.com/7A26w6i.png'">
           <h4>${cat.name}</h4>
+          ${subTagsHTML}
         `;
         container.appendChild(card);
       });
@@ -359,16 +395,73 @@
         opt.textContent = cat.name;
         select.appendChild(opt);
       });
+      updateSubcategoryDropdownOptions();
+    }
+
+    function updateSubcategoryDropdownOptions() {
+      const catSelect = document.getElementById('edit-prod-category');
+      const subSelect = document.getElementById('edit-prod-subcat');
+      const selectedCatName = catSelect.value;
+      
+      subSelect.innerHTML = '';
+      const catObj = categoriesData.find(c => c.name === selectedCatName);
+      
+      if (catObj && catObj.subcategories && catObj.subcategories.length > 0) {
+        catObj.subcategories.forEach(sub => {
+          const opt = document.createElement('option');
+          opt.value = sub;
+          opt.textContent = sub;
+          subSelect.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.textContent = "لا توجد أقسام فرعية";
+        subSelect.appendChild(opt);
+      }
     }
 
     function filterByCategory(catName) {
+      currentSelectedCategory = catName;
       document.getElementById('current-category-name').innerText = catName;
-      const filtered = products.filter(p => p.category === catName);
+      
+      const catObj = categoriesData.find(c => c.name === catName);
+      const chipsContainer = document.getElementById('sub-filter-chips');
+      chipsContainer.innerHTML = '';
+
+      if (catObj && catObj.subcategories && catObj.subcategories.length > 0) {
+        const allChip = document.createElement('span');
+        allChip.className = 'sub-chip active';
+        allChip.innerText = 'الكل';
+        allChip.onclick = () => {
+          document.querySelectorAll('.sub-chip').forEach(c => c.classList.remove('active'));
+          allChip.classList.add('active');
+          renderProducts(products.filter(p => p.category && p.category.trim() === catName.trim()));
+        };
+        chipsContainer.appendChild(allChip);
+
+        catObj.subcategories.forEach(sub => {
+          const chip = document.createElement('span');
+          chip.className = 'sub-chip';
+          chip.innerText = sub;
+          chip.onclick = () => {
+            document.querySelectorAll('.sub-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            const filtered = products.filter(p => p.category && p.category.trim() === catName.trim() && p.subcat === sub);
+            renderProducts(filtered);
+          };
+          chipsContainer.appendChild(chip);
+        });
+      }
+
+      const filtered = products.filter(p => p.category && p.category.trim() === catName.trim());
       renderProducts(filtered);
     }
 
     function resetCategoryFilter() {
+      currentSelectedCategory = null;
       document.getElementById('current-category-name').innerText = "جميع المنتجات";
+      document.getElementById('sub-filter-chips').innerHTML = '';
       renderProducts(products);
     }
 
@@ -378,14 +471,14 @@
       document.getElementById('products-count').innerText = `${list.length} منتج`;
 
       if (list.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: #718096; font-weight:700; background:#fff; border-radius:10px; border:1px solid #e2e8f0;">لا توجد منتجات مسجلة في هذا القسم حالياً.</div>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 30px; color: #718096; font-weight:700; background:#fff; border-radius:10px; border:1px solid #e2e8f0;">لا توجد منتجات مسجلة في هذا التصنيف حالياً.</div>`;
         return;
       }
 
       list.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        const mainImg = (p.images && p.images.length > 0) ? p.images[0] : 'assets/images/logo.png';
+        const mainImg = (p.images && p.images.length > 0) ? p.images[0] : 'https://i.imgur.com/7A26w6i.png';
         const imgCount = p.images ? p.images.length : 1;
 
         card.innerHTML = `
@@ -400,15 +493,16 @@
           </div>
 
           <h4 class="prod-title">${p.name}</h4>
+          ${p.subcat ? `<div class="prod-subcat-label">${p.subcat}</div>` : ''}
 
           <table class="specs-table">
             <tr><th>الوحدة</th><th>شد الكرتون</th><th>المخزن</th></tr>
-            <tr><td>${p.unit || 'حبة'}</td><td>${p.boxQty}</td><td>${p.stock}</td></tr>
+            <tr><td>${p.unit || 'حبة'}</td><td>${p.boxQty || 1}</td><td>${p.stock || 0}</td></tr>
           </table>
 
           <div class="order-box">
             <div class="stock-row">
-              <span>المتوفر: ${p.stock}</span>
+              <span>المتوفر: ${p.stock || 0}</span>
               <button class="btn-action admin-only" onclick="updateStock(${p.id})" style="background:#e2e8f0;">تحديث المخزن 🔄</button>
             </div>
             <div class="qty-row">
@@ -483,6 +577,10 @@
       document.getElementById('edit-prod-name').value = p.name;
       populateCategorySelect();
       document.getElementById('edit-prod-category').value = p.category || categoriesData[0].name;
+      updateSubcategoryDropdownOptions();
+      if (p.subcat) {
+        document.getElementById('edit-prod-subcat').value = p.subcat;
+      }
       document.getElementById('edit-prod-stock').value = p.stock;
       document.getElementById('edit-prod-box').value = p.boxQty;
       document.getElementById('edit-prod-files').value = "";
@@ -497,6 +595,7 @@
       const id = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('edit-prod-name').value;
       const category = document.getElementById('edit-prod-category').value;
+      const subcat = document.getElementById('edit-prod-subcat').value;
       const stock = parseInt(document.getElementById('edit-prod-stock').value) || 0;
       const boxQty = parseInt(document.getElementById('edit-prod-box').value) || 1;
       const fileInput = document.getElementById('edit-prod-files');
@@ -507,6 +606,7 @@
           if (p) {
             p.name = name;
             p.category = category;
+            p.subcat = subcat;
             p.stock = stock;
             p.boxQty = boxQty;
             if (newImagesList && newImagesList.length > 0) {
@@ -518,10 +618,11 @@
             id: Date.now(),
             name: name || "منتج جديد",
             category: category,
+            subcat: subcat,
             unit: "حبة",
             boxQty: boxQty,
             stock: stock,
-            images: (newImagesList && newImagesList.length > 0) ? newImagesList : ["assets/images/logo.png"]
+            images: (newImagesList && newImagesList.length > 0) ? newImagesList : ["https://i.imgur.com/7A26w6i.png"]
           });
         }
         saveProducts();
