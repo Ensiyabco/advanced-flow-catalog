@@ -602,7 +602,28 @@
     body.admin-mode .admin-block { display: block !important; }
     .admin-mode-indicator { display:none; }
     body.admin-mode .admin-mode-indicator { display:inline-flex; align-items:center; gap:6px; }
-  </style>
+  
+/* ===== تحسين موحد للصفحات الداخلية ===== */
+:root{--modern-navy:#173b63;--modern-blue:#2b6cb0;--modern-teal:#0ea5a8;--modern-line:#e6edf4}
+body{background:linear-gradient(180deg,#f7fafc 0%,#eef5f8 100%) !important}
+header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--modern-line)!important;box-shadow:0 8px 28px rgba(23,59,99,.08)!important;backdrop-filter:blur(12px)}
+.main-layout{max-width:1280px!important}
+.category-accordion,.products-content{border-radius:18px!important;box-shadow:0 10px 30px rgba(23,59,99,.06)!important}
+.accordion-header{border-radius:12px!important;transition:.2s!important}
+.accordion-header:hover{background:#edf6fb!important;color:var(--modern-blue)!important}
+.accordion-header.active-header{background:linear-gradient(135deg,#eaf5fb,#f5fbfd)!important;color:var(--modern-navy)!important}
+.sub-cat-item{border-radius:10px!important;margin:4px 0!important;transition:.2s!important}
+.sub-cat-item:hover,.sub-cat-item.active-sub{background:#e9f7f7!important;color:#087f82!important}
+.product-card{border-radius:16px!important;border:1px solid var(--modern-line)!important;box-shadow:0 8px 24px rgba(23,59,99,.06)!important}
+.product-card:hover{transform:translateY(-5px)!important;box-shadow:0 16px 32px rgba(23,59,99,.11)!important}
+.prod-img{border-radius:12px!important}
+.subcat-view-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.subcat-view-card{background:#fff;border:1px solid var(--modern-line);border-radius:16px;padding:22px;text-align:center;cursor:pointer;box-shadow:0 7px 20px rgba(23,59,99,.05);transition:.2s}
+.subcat-view-card:hover{transform:translateY(-4px);border-color:#b9dbe7;box-shadow:0 14px 28px rgba(23,59,99,.09)}
+.subcat-view-icon{font-size:28px;margin-bottom:8px}.subcat-view-name{font-weight:800;color:var(--modern-navy);font-size:14px}.subcat-view-count{font-size:11px;color:#718096;margin-top:5px}
+@media(max-width:700px){header{padding:12px 14px!important}.main-layout{margin:16px auto!important;padding:0 10px!important}.subcat-view-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+</style>
 </head>
 <body>
 
@@ -1146,9 +1167,51 @@
       if (headerEl) headerEl.classList.add('active-header');
       document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
       if (bodyEl) bodyEl.classList.add('active');
-      const filtered = products.filter(p => p.mainCat === mainCatName);
-      renderProducts(filtered, `قسم: ${mainCatName}`);
-      setTimeout(() => document.querySelector('.products-content')?.scrollIntoView({behavior:'smooth', block:'start'}), 80);
+
+      const cat = categories.find(c => c.name === mainCatName);
+      const subs = (cat && Array.isArray(cat.subCats)) ? cat.subCats : [];
+
+      // عند الضغط على القسم الرئيسي نعرض الأقسام الفرعية أولاً.
+      if (subs.length > 0) {
+        renderSubcategoryView(mainCatName, subs);
+      } else {
+        const filtered = products.filter(p => p.mainCat === mainCatName);
+        renderProducts(filtered, `قسم: ${mainCatName}`);
+      }
+
+      setTimeout(() => document.querySelector('.products-content')?.scrollIntoView({
+        behavior:'smooth', block:'start'
+      }), 80);
+    }
+
+    function renderSubcategoryView(mainCatName, subCats) {
+      const titleEl = document.getElementById('current-view-title');
+      const grid = document.getElementById('products-grid');
+      const countEl = document.getElementById('products-count');
+      if (!grid) return;
+
+      if (titleEl) titleEl.innerText = `قسم: ${mainCatName}`;
+      if (countEl) countEl.innerText = `${subCats.length} قسم فرعي`;
+
+      const chips = document.getElementById('sub-filter-chips');
+      if (chips) chips.innerHTML = '';
+
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;background:#fff;border:1px solid #e6edf4;border-radius:14px;padding:12px 16px;color:#64748b;font-size:12px;font-weight:700;margin-bottom:2px">
+          الرئيسية &nbsp;›&nbsp; ${mainCatName} &nbsp;›&nbsp; اختر القسم الفرعي
+        </div>
+        <div class="subcat-view-grid" style="grid-column:1/-1">
+          ${subCats.map(sub => {
+            const count = products.filter(p => p.mainCat === mainCatName && p.subCat === sub).length;
+            return `
+              <div class="subcat-view-card" onclick="filterProductsBySub('${mainCatName.replace(/'/g, "\'")}','${sub.replace(/'/g, "\'")}')">
+                <div class="subcat-view-icon">📂</div>
+                <div class="subcat-view-name">${sub}</div>
+                <div class="subcat-view-count">${count} منتج</div>
+              </div>`;
+          }).join('')}
+        </div>
+      `;
     }
 
     function filterProductsBySub(mainCat, subCat, event) {
