@@ -595,6 +595,13 @@
 
     .lightbox-nav-btn.prev { right: -50px; }
     .lightbox-nav-btn.next { left: -50px; }
+
+    /* وضع المشرف: مخفي افتراضياً عن الزوار */
+    .admin-only { display: none !important; }
+    body.admin-mode .admin-only { display: inline-flex !important; }
+    body.admin-mode .admin-block { display: block !important; }
+    .admin-mode-indicator { display:none; }
+    body.admin-mode .admin-mode-indicator { display:inline-flex; align-items:center; gap:6px; }
   </style>
 </head>
 <body>
@@ -611,8 +618,9 @@
     </div>
 
     <div class="nav-tools">
-      <button class="add-cat-btn-nav" onclick="openAddCategoryModal()">+ قسم جديد</button>
-      <button class="admin-btn" onclick="openProductModal()">+ إضافة منتج</button>
+      <button class="add-cat-btn-nav admin-only" onclick="openAddCategoryModal()">+ قسم جديد</button>
+      <button class="admin-btn admin-only" onclick="openProductModal()">+ إضافة منتج</button>
+      <span class="admin-mode-indicator" style="color:#22543d;background:#c6f6d5;padding:6px 10px;border-radius:16px;font-size:11px;font-weight:700;">⚙️ وضع المشرف</span>
       <button class="cart-btn-trigger" onclick="openCartModal()">
         🛒 قائمة الطلبات <span class="cart-badge" id="cart-count">0</span>
       </button>
@@ -625,7 +633,7 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <h3>أقسام المنتجات</h3>
-        <button class="sidebar-action-btn" onclick="openAddCategoryModal()">+ قسم رئيسي</button>
+        <button class="sidebar-action-btn admin-only" onclick="openAddCategoryModal()">+ قسم رئيسي</button>
       </div>
       <div id="category-accordion"></div>
     </aside>
@@ -750,6 +758,52 @@
 
   <!-- JavaScript Code -->
   <script>
+    // ===== وضع المشرف =====
+    let adminMode = localStorage.getItem("isAdmin") === "true";
+
+    function setAdminMode(enabled) {
+      adminMode = !!enabled;
+      document.body.classList.toggle("admin-mode", adminMode);
+      buildCategoryAccordion();
+      const title = document.getElementById("current-view-title")?.innerText || "جميع المنتجات";
+      const list = getCurrentVisibleProducts();
+      renderProducts(list, title);
+    }
+
+    function getCurrentVisibleProducts() {
+      const title = document.getElementById("current-view-title")?.innerText || "جميع المنتجات";
+      if (title === "جميع المنتجات") return products;
+      if (title.startsWith("قسم: ")) {
+        const name = title.slice(5).trim();
+        return products.filter(p => p.mainCat === name);
+      }
+      const parts = title.split("➔").map(v => v.trim());
+      if (parts.length === 2) return products.filter(p => p.mainCat === parts[0] && p.subCat === parts[1]);
+      return products;
+    }
+
+    function toggleAdminMode() {
+      if (adminMode) {
+        localStorage.removeItem("isAdmin");
+        location.reload();
+        return;
+      }
+      const pass = prompt("الرجاء إدخال كلمة مرور مهام المشرف:");
+      if (pass === "admin123") {
+        localStorage.setItem("isAdmin", "true");
+        location.reload();
+      } else if (pass !== null) {
+        alert("كلمة المرور غير صحيحة!");
+      }
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.ctrlKey && e.altKey && (e.key.toLowerCase() === "a" || e.key === "ش")) {
+        e.preventDefault();
+        toggleAdminMode();
+      }
+    });
+
     const targetPhoneNumber = "966506645562";
     const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><rect width='200' height='200' fill='%23edf2f7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23a0aec0' font-size='16'>صورة المنتج</text></svg>";
 
@@ -810,11 +864,13 @@
     }
 
     function openAddCategoryModal() {
+      if (!adminMode) return;
       document.getElementById('new-main-cat-name').value = '';
       document.getElementById('category-modal').style.display = 'flex';
     }
 
     function saveNewMainCategory() {
+      if (!adminMode) return;
       const name = document.getElementById('new-main-cat-name').value.trim();
       if (!name) return alert("يرجى كتابة اسم القسم الرئيسي!");
       if (categories.some(c => c.name === name)) return alert("هذا القسم موجود بالفعل!");
@@ -827,6 +883,7 @@
     }
 
     function editMainCategory(index, event) {
+      if (!adminMode) return;
       if (event) event.stopPropagation();
       const cat = categories[index];
       if (!cat) return;
@@ -843,11 +900,12 @@
       });
       saveCategoriesData();
       saveProductsData();
-      buildCategoryAccordion();
+      setAdminMode(adminMode);
       renderProducts(products, "جميع المنتجات");
     }
 
     function deleteMainCategory(index, event) {
+      if (!adminMode) return;
       if (event) event.stopPropagation();
       const cat = categories[index];
       if (!cat) return;
@@ -863,6 +921,7 @@
     }
 
     function editSubCategory(catIndex, subIndex, event) {
+      if (!adminMode) return;
       if (event) event.stopPropagation();
       const cat = categories[catIndex];
       if (!cat || !cat.subCats || cat.subCats[subIndex] === undefined) return;
@@ -883,6 +942,7 @@
     }
 
     function deleteSubCategory(catIndex, subIndex, event) {
+      if (!adminMode) return;
       if (event) event.stopPropagation();
       const cat = categories[catIndex];
       if (!cat || !cat.subCats || cat.subCats[subIndex] === undefined) return;
@@ -910,6 +970,7 @@
     }
 
     function openAddSubCategoryModal(mainCatName, event) {
+      if (!adminMode) return;
       if (event) event.stopPropagation(); // منع فتح/إغلاق الأكورديون عند الضغط على زر إضافة قسم فرعي
       document.getElementById('target-main-cat-name').value = mainCatName;
       document.getElementById('display-main-cat-name').value = mainCatName;
@@ -918,6 +979,7 @@
     }
 
     function saveNewSubCategory() {
+      if (!adminMode) return;
       const mainCatName = document.getElementById('target-main-cat-name').value;
       const subName = document.getElementById('new-sub-cat-name').value.trim();
       if (!subName) return alert("يرجى كتابة اسم القسم الفرعي!");
@@ -964,7 +1026,7 @@
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-          <div class="product-admin-overlay">
+          <div class="product-admin-overlay admin-only">
             <button class="action-icon-btn" style="background:#2b6cb0; color:white;" onclick="editProduct(${p.id})">✏️</button>
             <button class="action-icon-btn" style="background:#e53e3e; color:white;" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
@@ -1040,7 +1102,7 @@
             subHtml += `
               <div class="sub-cat-item" id="sub-item-${cIdx}-${sIdx}" onclick="filterProductsBySubIndex(${cIdx}, ${sIdx}, event)">
                 <span>📂 ${sub}</span>
-                <span class="subcat-admin-actions">
+                <span class="subcat-admin-actions admin-only">
                   <button class="subcat-admin-btn" title="تعديل القسم الفرعي" onclick="editSubCategory(${cIdx}, ${sIdx}, event)">✏️</button>
                   <button class="subcat-admin-btn" title="حذف القسم الفرعي" onclick="deleteSubCategory(${cIdx}, ${sIdx}, event)">🗑️</button>
                 </span>
@@ -1050,7 +1112,7 @@
         }
 
         subHtml += `
-          <div class="add-subcat-row">
+          <div class="add-subcat-row admin-only">
             <button class="add-subcat-btn" onclick="openAddSubCategoryModal(${JSON.stringify(cat.name)}, event)">+ إضافة قسم فرعي</button>
           </div>
         `;
@@ -1062,7 +1124,7 @@
           </div>
           <div class="accordion-body" id="acc-body-${cIdx}">
             ${subHtml}
-            <div class="category-admin-actions">
+            <div class="category-admin-actions admin-only">
               <button class="category-admin-btn" onclick="editMainCategory(${cIdx}, event)">✏️ تعديل القسم</button>
               <button class="category-admin-btn delete" onclick="deleteMainCategory(${cIdx}, event)">🗑️ حذف القسم</button>
             </div>
@@ -1079,20 +1141,14 @@
 
     function clickMainCategory(mainCatName, cIdx) {
       clearCategoryActiveStates();
-      
       const headerEl = document.getElementById(`header-cat-${cIdx}`);
-      if (headerEl) headerEl.classList.add('active-header');
-
       const bodyEl = document.getElementById(`acc-body-${cIdx}`);
-      if (bodyEl) {
-        const isOpen = bodyEl.classList.contains('active');
-        document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
-        if (!isOpen) bodyEl.classList.add('active');
-      }
-
-      // تصفية وعرض جميع منتجات هذا القسم الرئيسي بمختلف أقسامه الفرعية
+      if (headerEl) headerEl.classList.add('active-header');
+      document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
+      if (bodyEl) bodyEl.classList.add('active');
       const filtered = products.filter(p => p.mainCat === mainCatName);
       renderProducts(filtered, `قسم: ${mainCatName}`);
+      setTimeout(() => document.querySelector('.products-content')?.scrollIntoView({behavior:'smooth', block:'start'}), 80);
     }
 
     function filterProductsBySub(mainCat, subCat, event) {
@@ -1111,6 +1167,7 @@
     }
 
     function quickUpdateStock(prodId) {
+      if (!adminMode) return;
       const prod = products.find(p => p.id === prodId);
       if (!prod) return;
       const newStock = prompt(`تحديث الكمية المتاحة في المخزن لـ (${prod.name}):`, prod.stockQty !== undefined ? prod.stockQty : 0);
@@ -1131,6 +1188,7 @@
     }
 
     function openProductModal() {
+      if (!adminMode) return;
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "-1";
       document.getElementById('prod-name-input').value = "";
@@ -1192,6 +1250,7 @@
     }
 
     function editProduct(id) {
+      if (!adminMode) return;
       const prod = products.find(p => p.id === id);
       if (!prod) return;
       document.getElementById('product-modal-title').innerText = "تعديل المنتج";
@@ -1232,6 +1291,7 @@
     }
 
     function saveProduct() {
+      if (!adminMode) return;
       const editId = parseInt(document.getElementById('edit-prod-id').value);
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
@@ -1274,6 +1334,7 @@
     }
 
     function deleteProduct(id) {
+      if (!adminMode) return;
       if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
         products = products.filter(p => p.id !== id);
         saveProductsData();
