@@ -1171,11 +1171,13 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
       document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('active'));
       if (bodyEl) bodyEl.classList.add('active');
 
-      const cat = categories.find(c => String(c.name).trim() === String(mainCatName).trim());
+      const cat = categories[findCategoryIndexByName(mainCatName)];
       const subs = (cat && Array.isArray(cat.subCats)) ? cat.subCats : [];
 
       // عند الضغط على القسم الرئيسي نعرض الأقسام الفرعية أولاً.
-      history.replaceState(null, "", `products.html?cat=${encodeURIComponent(mainCatName)}`);
+      const resolvedIndex = findCategoryIndexByName(mainCatName);
+      const resolvedName = resolvedIndex >= 0 ? categories[resolvedIndex].name : mainCatName;
+      history.replaceState(null, "", `products.html?cat=${encodeURIComponent(resolvedName)}`);
 
       if (subs.length > 0) {
         renderSubcategoryView(mainCatName, subs);
@@ -1548,6 +1550,22 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
     }
 
 
+
+    function normalizeCategoryName(value) {
+      return String(value || "")
+        .trim()
+        .replace(/[أإآ]/g, "ا")
+        .replace(/ة/g, "ه")
+        .replace(/ى/g, "ي")
+        .replace(/[ًٌٍَُِّْـ]/g, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function findCategoryIndexByName(name) {
+      const target = normalizeCategoryName(name);
+      return categories.findIndex(c => normalizeCategoryName(c && c.name) === target);
+    }
+
     function openCategoryFromUrl() {
       const params = new URLSearchParams(window.location.search);
       const catName = (params.get('cat') || '').trim();
@@ -1567,10 +1585,14 @@ header{background:rgba(255,255,255,.95)!important;border-bottom:1px solid var(--
 
       if (!catName) return;
 
-      const idx = categories.findIndex(c => String(c.name || '').trim() === catName);
-      if (idx === -1) return;
+      const idx = findCategoryIndexByName(catName);
+      if (idx === -1) {
+        console.warn("لم يتم العثور على القسم:", catName);
+        return;
+      }
 
-      // افتح القسم الرئيسي، وإذا كان له قسم فرعي محدد افتحه مباشرة.
+      // استخدم الاسم المحفوظ فعلياً في بيانات الأقسام.
+      const storedName = categories[idx].name;
       clickMainCategoryByIndex(idx);
 
       if (subName) {
