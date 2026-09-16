@@ -50,12 +50,14 @@
     return true;
   }
 
-  async function push(){
+  async function push(overrides){
     if(!client) return false;
     const ok = await signIn();
     if(!ok) return false;
     const categories = local('ansiyab_categories_v1', []);
-    const products = local('ansiyab_products_v7', local('ansiyab_products', []));
+    const supplied = overrides && Array.isArray(overrides.products) ? overrides.products : null;
+    const live = typeof window.ANSIYAB_CLOUD.getProducts === 'function' ? window.ANSIYAB_CLOUD.getProducts() : null;
+    const products = supplied || (Array.isArray(live) ? live : (window.ANSIYAB_CLOUD.state?.products || local('ansiyab_products_v7', local('ansiyab_products', []))));
     const settings = local('ansiyab_store_settings', {});
     const categoryImages = local('ansiyab_cat_images', {});
     const subCategoryMeta = local('ansiyab_subcategory_meta_v1', {});
