@@ -553,6 +553,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       const logoSrc = getStoreLogoSrc();
       try { categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images') || '{}') || {}; } catch(e) { categoryImages = {}; }
       const cloud = window.ANSIYAB_CLOUD?.state;
+      const cloudImages = cloud?.store_settings?._categoryImages;
+      if (cloudImages && typeof cloudImages === 'object' && !Array.isArray(cloudImages)) categoryImages = Object.assign({}, cloudImages, categoryImages);
       const cloudCats = Array.isArray(cloud?.categories) ? cloud.categories : [];
       const categoriesMap = cloudCats.length ? cloudCats : Object.keys(storeCategories).map(name => ({name, subCats: storeCategories[name]}));
 
