@@ -1849,8 +1849,10 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     function openProductModal() {
       if (!adminMode) return;
       productImagesJob++; productImagesPending = false; productImagesError = '';
+      document.getElementById('prod-files-input').disabled = false;
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "-1";
+      document.getElementById('prod-name-input').readOnly = false;
       document.getElementById('prod-name-input').value = "";
       document.getElementById('prod-unit-input').value = "حبة";
       document.getElementById('prod-box-input').value = "";
@@ -1890,10 +1892,11 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     let productImagesError = '';
     let productImagesJob = 0;
     async function encodeMultipleImages(input) {
+      if (productImagesPending || !input.files || !input.files.length) return;
+      input.disabled = true;
       const jobId = ++productImagesJob;
       productImagesPending = true;
       productImagesError = '';
-      modalImagesBase64 = [];
       const previewContainer = document.getElementById('modal-images-preview');
       previewContainer.textContent = 'جارٍ تجهيز الصور للحفظ…';
       try {
@@ -1917,9 +1920,9 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
           image.src = url;
         })));
         if (jobId !== productImagesJob) return;
-        modalImagesBase64 = images;
+        modalImagesBase64 = [...new Set([...modalImagesBase64, ...images])];
         previewContainer.innerHTML = '';
-        images.forEach(src => {
+        modalImagesBase64.forEach(src => {
           const img = document.createElement('img');
           img.src = src;
           img.style.cssText = 'width:40px;height:40px;object-fit:contain;border:1px solid #cbd5e0;border-radius:4px';
@@ -1930,18 +1933,21 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         productImagesError = error.message || 'تعذر تجهيز الصور.';
         previewContainer.textContent = productImagesError;
       } finally {
-        if (jobId === productImagesJob) productImagesPending = false;
+        if (jobId === productImagesJob) { productImagesPending = false; input.disabled = false; }
       }
     }
 
     function editProduct(id) {
       if (!adminMode) return;
       productImagesJob++; productImagesPending = false; productImagesError = '';
+      document.getElementById('prod-files-input').disabled = false;
       const prod = products.find(p => p.id === id);
       if (!prod) return;
       document.getElementById('product-modal-title').innerText = "تعديل المنتج";
       document.getElementById('edit-prod-id').value = prod.id;
+      document.getElementById('prod-name-input').readOnly = true;
       document.getElementById('prod-name-input').value = prod.name;
+      document.getElementById('prod-files-input').value = '';
       
       const mainSelect = document.getElementById('prod-main-cat-select');
       mainSelect.innerHTML = '';
@@ -2012,7 +2018,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       } else {
         const prod = products.find(p => p.id === editId);
         if (prod) {
-          prod.name = name;
+          // Keep the original name for the lifetime of this product.
           prod.mainCat = mainCat;
           prod.subCat = subCat;
           prod.unit = unit;
@@ -2168,7 +2174,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function closeModal(modalId) {
-      if (modalId === 'product-modal') { productImagesJob++; productImagesPending = false; productImagesError = ''; }
+      if (modalId === 'product-modal') { productImagesJob++; productImagesPending = false; productImagesError = '';
+      document.getElementById('prod-files-input').disabled = false; }
       document.getElementById(modalId).style.display = 'none';
     }
 
@@ -2619,7 +2626,7 @@ function clearCatalogSearch() {
   note.style.cssText = 'font-size:13px;line-height:1.8;color:#173b63;margin:8px 0';
   note.textContent = 'سيُقرأ اسم المنتج من أول صورة تختارها تلقائيًا، ويمكنك تعديله قبل الحفظ.';
   files.parentElement.appendChild(note);
-  let library, job = null, edits = 0;
+  let library, job = null, edits = 0, firstImageRead = false;
   name.addEventListener('input', () => { edits++; });
 
   function loadLibrary() {
@@ -2733,9 +2740,15 @@ function clearCatalogSearch() {
   }
 
   files.addEventListener('change', async () => {
+    if (document.getElementById('edit-prod-id').value !== '-1') {
+      note.textContent = 'ستُضاف الصور إلى المنتج مع الاحتفاظ باسمه الأصلي.';
+      return;
+    }
+    if (firstImageRead || name.value.trim()) return;
     cancel();
     const file = files.files && files.files[0];
     if (!file) { note.textContent = 'اختر صورة لقراءة اسم المنتج.'; return; }
+    firstImageRead = true;
     const current = {worker: null, timer: null};
     job = current;
     const initialValue = name.value, initialEdits = edits;
@@ -2796,9 +2809,12 @@ function clearCatalogSearch() {
     window[action] = function(...args) {
       if (action !== 'closeModal' || args[0] === 'product-modal') {
         cancel();
+        firstImageRead = false;
         note.textContent = 'سيُقرأ الاسم من أول صورة تختارها تلقائيًا، ويمكنك تعديله قبل الحفظ.';
       }
-      return original.apply(this, args);
+      const result = original.apply(this, args);
+      if (action === 'editProduct') note.textContent = 'اسم المنتج محفوظ ولا يتغير عند إضافة الصور. لتغيير الاسم احذف المنتج وأنشئه من جديد.';
+      return result;
     };
   }
 })();
