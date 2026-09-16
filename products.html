@@ -2633,7 +2633,30 @@ function clearCatalogSearch() {
           start = -1;
         }
       }
-      return [ [footer - .18, footer - .075], [.745, .845] ].map(([top, bottom]) => {
+      // Locate the lowest substantial dark text line above the blue footer.
+      // Captions vary vertically between product templates.
+      const groups = [];
+      for (let y = Math.floor(probe.height * Math.max(.60, footer - .25));
+           y < Math.floor(probe.height * (footer - .012)); y++) {
+        let count = 0;
+        for (let x = 9; x < 591; x++) {
+          const i = (y * 600 + x) * 4;
+          const hi = Math.max(p[i], p[i+1], p[i+2]);
+          const lo = Math.min(p[i], p[i+1], p[i+2]);
+          if (hi < 135 && hi - lo < 32) count++;
+        }
+        if (count < 8) continue;
+        let group = groups[groups.length - 1];
+        if (!group || y - group.end > Math.max(4, probe.height * .015)) {
+          group = {start:y, end:y, ink:0}; groups.push(group);
+        }
+        group.end = y; group.ink += count;
+      }
+      const line = groups.filter(g => g.end - g.start >= 4 && g.ink >= 100).pop();
+      const regions = line ? [[Math.max(0, line.start / probe.height - .012),
+        Math.min(footer - .006, (line.end + 1) / probe.height + .012)]] : [];
+      if (!regions.length) return [];
+      return regions.map(([top, bottom]) => {
         const crop = canvas(full.width * .97, full.height * (bottom - top));
         const cc = crop.getContext('2d', {willReadFrequently: true});
         cc.drawImage(full, full.width * .015, Math.max(0, full.height * top),
@@ -2673,6 +2696,10 @@ function clearCatalogSearch() {
     try {
       const crops = await prepare(file);
       if (!active()) return;
+      if (!crops.length) {
+        note.textContent = 'لم تظهر كتابة واضحة لاسم المنتج فوق الشريط الأزرق. اكتب الاسم يدويًا.';
+        return;
+      }
       const engine = await loadLibrary();
       if (!active()) return;
       const worker = await engine.createWorker('ara', 1);
@@ -2722,7 +2749,6 @@ function clearCatalogSearch() {
     };
   }
 })();
-
 </script>
 </body>
 </html>
