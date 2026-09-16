@@ -1891,6 +1891,67 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     let productImagesPending = false;
     let productImagesError = '';
     let productImagesJob = 0;
+
+    function renderProductImageEditor() {
+      const container = document.getElementById('modal-images-preview');
+      container.replaceChildren();
+      modalImagesBase64.forEach((src, index) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display:flex;flex-direction:column;gap:5px;align-items:center;padding:5px;border:1px solid #cbd5e0;border-radius:6px';
+        const image = document.createElement('img');
+        image.src = src;
+        image.alt = 'صورة المنتج ' + (index + 1);
+        image.style.cssText = 'width:80px;height:70px;object-fit:contain';
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'حذف الصورة ×';
+        remove.setAttribute('aria-label', 'حذف صورة المنتج ' + (index + 1));
+        remove.style.cssText = 'background:#fff5f5;color:#b91c1c;border:1px solid #fecaca;border-radius:5px;padding:5px;cursor:pointer;font-family:inherit';
+        remove.disabled = productImagesPending || productSavePending;
+        remove.addEventListener('click', () => removeProductImage(index));
+        item.append(image, remove);
+        container.appendChild(item);
+      });
+      const hint = document.createElement('p');
+      hint.style.cssText = 'width:100%;font-size:12px;color:#475569';
+      hint.textContent = modalImagesBase64.length
+        ? 'حذف الصورة يُعتمد بعد الضغط على حفظ. اسم المنتج يبقى كما هو.'
+        : 'لا توجد صور. أضف صورة، أو احفظ المنتج بصورة افتراضية.';
+      container.appendChild(hint);
+    }
+
+    function removeProductImage(index) {
+      if (!adminMode || productImagesPending || productSavePending) return;
+      if (!Number.isInteger(index) || index < 0 || index >= modalImagesBase64.length) return;
+      modalImagesBase64 = modalImagesBase64.filter((_, i) => i !== index);
+      document.getElementById('prod-files-input').value = '';
+      document.dispatchEvent(new Event('product-image-removed'));
+      renderProductImageEditor();
+    }
+
+    async function persistProductList(nextProducts) {
+      const cloud = window.ANSIYAB_CLOUD;
+      if (!cloud?.client || !cloud.signIn) throw new Error('خدمة الحفظ السحابي غير متاحة.');
+      if (!(await cloud.signIn())) throw new Error('يلزم تسجيل الدخول لتأكيد العملية.');
+      // Update the product column only; category images/settings are untouched.
+      const {data, error} = await cloud.client.from('catalog_state')
+        .update({products: nextProducts, updated_at: new Date().toISOString()})
+        .eq('id', 'main').select('id,products,updated_at').single();
+      if (error) throw new Error(error.message || 'رفضت خدمة الحفظ العملية.');
+      if (!data || !Array.isArray(data.products)) throw new Error('لم يصل تأكيد الحفظ من Supabase.');
+      cloud.state = Object.assign({}, cloud.state || {}, data);
+      cloud.loaded = true;
+      return data.products;
+    }
+
+    function cacheConfirmedProducts() {
+      const encoded = JSON.stringify(products);
+      for (const key of ['ansiyab_products_v7', 'ansiyab_products']) {
+        try { localStorage.setItem(key, encoded); }
+        catch (error) { console.warn('Cloud saved; local cache unavailable', error.name); }
+      }
+    }
+
     async function encodeMultipleImages(input) {
       if (productImagesPending || !input.files || !input.files.length) return;
       input.disabled = true;
@@ -1921,19 +1982,16 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         })));
         if (jobId !== productImagesJob) return;
         modalImagesBase64 = [...new Set([...modalImagesBase64, ...images])];
-        previewContainer.innerHTML = '';
-        modalImagesBase64.forEach(src => {
-          const img = document.createElement('img');
-          img.src = src;
-          img.style.cssText = 'width:40px;height:40px;object-fit:contain;border:1px solid #cbd5e0;border-radius:4px';
-          previewContainer.appendChild(img);
-        });
+        renderProductImageEditor();
       } catch (error) {
         if (jobId !== productImagesJob) return;
         productImagesError = error.message || 'تعذر تجهيز الصور.';
         previewContainer.textContent = productImagesError;
       } finally {
-        if (jobId === productImagesJob) { productImagesPending = false; input.disabled = false; }
+        if (jobId === productImagesJob) {
+          productImagesPending = false; input.disabled = false;
+          if (!productImagesError) renderProductImageEditor();
+        }
       }
     }
 
@@ -1966,19 +2024,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       document.getElementById('prod-stock-input').value = prod.stockQty !== undefined && prod.stockQty !== null ? prod.stockQty : '';
       
       modalImagesBase64 = prod.images ? [...prod.images] : [];
-      const previewContainer = document.getElementById('modal-images-preview');
-      previewContainer.innerHTML = '';
-      modalImagesBase64.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.style.width = '40px';
-        img.style.height = '40px';
-        img.style.objectFit = 'contain';
-        img.style.border = '1px solid #cbd5e0';
-        img.style.borderRadius = '4px';
-        previewContainer.appendChild(img);
-      });
-      
+      renderProductImageEditor();
+
       document.getElementById('product-modal').style.display = 'flex';
     }
 
@@ -2037,25 +2084,9 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       controls.forEach(control => { control.disabled = true; });
       let saved = false;
       try {
-        // Preserve section images/meta in the local payload before the product cloud upsert.
-        // Product saves must never replace the section settings.
-        try {
-          localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages || {}));
-          localStorage.setItem('ansiyab_subcategory_meta_v1', JSON.stringify(subCategoryMeta || {}));
-        } catch (cacheError) {
-          console.warn('Section settings remain in memory; local cache unavailable', cacheError);
-        }
-        if (!window.ANSIYAB_CLOUD?.push) throw new Error('خدمة الحفظ السحابي غير متاحة. أعد المحاولة عند الاتصال بالإنترنت.');
-        const ok = await window.ANSIYAB_CLOUD.push({products: nextProducts});
-        if (!ok) throw new Error('لم يتأكد الحفظ في Supabase. تحقق من تسجيل الدخول والاتصال ثم أعد المحاولة.');
-        products = nextProducts;
+        products = await persistProductList(nextProducts);
         saved = true;
-        // Local cache is optional: the confirmed cloud record is authoritative.
-        const encoded = JSON.stringify(products);
-        for (const key of ['ansiyab_products_v7', 'ansiyab_products']) {
-          try { localStorage.setItem(key, encoded); }
-          catch (cacheError) { console.warn('Cloud saved; local cache unavailable', cacheError.name); }
-        }
+        cacheConfirmedProducts();
       } catch (error) {
         alert('تعذر حفظ المنتج: ' + (error.message || error));
       } finally {
@@ -2069,12 +2100,22 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       }
     }
 
-    function deleteProduct(id) {
-      if (!adminMode) return;
-      if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
-        products = products.filter(p => p.id !== id);
-        saveProductsData();
-        renderProducts(products);
+    async function deleteProduct(id) {
+      if (!adminMode || productSavePending) return;
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+      if (!confirm('هل أنت متأكد من حذف المنتج «' + product.name + '»؟')) return;
+      productSavePending = true;
+      try {
+        const nextProducts = products.filter(p => p.id !== id);
+        products = await persistProductList(nextProducts);
+        cacheConfirmedProducts();
+        renderProducts(getCurrentVisibleProducts(), document.getElementById('current-view-title')?.innerText || 'جميع المنتجات');
+        alert('تم حذف المنتج من Supabase.');
+      } catch (error) {
+        alert('لم يُحذف المنتج: ' + (error.message || error));
+      } finally {
+        productSavePending = false;
       }
     }
 
@@ -2579,7 +2620,7 @@ function clearCatalogSearch() {
     const data = ev && ev.detail ? ev.detail : null;
     if (data) {
       if (Array.isArray(data.categories) && data.categories.length) { try { categories = data.categories; } catch(e) {} }
-      if (Array.isArray(data.products) && data.products.length) { try { products = data.products; } catch(e) {} }
+      if (Array.isArray(data.products)) { try { products = data.products; } catch(e) {} }
       try {
         const rawMeta=localStorage.getItem('ansiyab_subcategory_meta_v1');
         if(rawMeta) subCategoryMeta=JSON.parse(rawMeta)||{};
@@ -2684,6 +2725,7 @@ function clearCatalogSearch() {
     clearTimeout(previous.timer);
     if (previous.worker) Promise.resolve(previous.worker.terminate()).catch(() => {});
   }
+  document.addEventListener('product-image-removed', () => { cancel(); });
   function canvas(w, h) {
     const result = document.createElement('canvas');
     result.width = Math.max(1, Math.round(w));
