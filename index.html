@@ -591,9 +591,11 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         try {
           const value = reader.result;
           categoryImages[cat] = value;
-          localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
+          try { localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages)); } catch (cacheError) {
+            console.warn('تم تجاوز مساحة التخزين المحلية؛ سيُحفظ في Supabase مباشرة.', cacheError);
+          }
           if (window.ANSIYAB_CLOUD?.push) {
-            const ok = await window.ANSIYAB_CLOUD.push();
+            const ok = await window.ANSIYAB_CLOUD.push({categoryImages});
             if (!ok) throw new Error('لم يتأكد الحفظ في Supabase.');
           }
           buildHomeCategories();
