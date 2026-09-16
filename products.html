@@ -1827,13 +1827,28 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function saveProductsData() {
-      localStorage.setItem('ansiyab_products_v7', JSON.stringify(products));
-      localStorage.setItem('ansiyab_products', JSON.stringify(products));
+      const encoded = JSON.stringify(products);
+      const oldCurrent = localStorage.getItem('ansiyab_products_v7');
+      const oldLegacy = localStorage.getItem('ansiyab_products');
+      // Write both compatibility keys atomically from the caller's perspective.
+      try {
+        localStorage.setItem('ansiyab_products_v7', encoded);
+        localStorage.setItem('ansiyab_products', encoded);
+      } catch (error) {
+        try {
+          if (oldCurrent === null) localStorage.removeItem('ansiyab_products_v7');
+          else localStorage.setItem('ansiyab_products_v7', oldCurrent);
+          if (oldLegacy === null) localStorage.removeItem('ansiyab_products');
+          else localStorage.setItem('ansiyab_products', oldLegacy);
+        } catch (restoreError) { console.error('Product cache restore failed', restoreError); }
+        throw error;
+      }
       if (window.ANSIYAB_CLOUD?.push) window.ANSIYAB_CLOUD.push();
     }
 
     function openProductModal() {
       if (!adminMode) return;
+      productImagesJob++; productImagesPending = false; productImagesError = '';
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "-1";
       document.getElementById('prod-name-input').value = "";
@@ -1871,31 +1886,57 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       }
     }
 
-    function encodeMultipleImages(input) {
+    let productImagesPending = false;
+    let productImagesError = '';
+    let productImagesJob = 0;
+    async function encodeMultipleImages(input) {
+      const jobId = ++productImagesJob;
+      productImagesPending = true;
+      productImagesError = '';
       modalImagesBase64 = [];
       const previewContainer = document.getElementById('modal-images-preview');
-      previewContainer.innerHTML = '';
-      if (input.files) {
-        Array.from(input.files).forEach(file => {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            modalImagesBase64.push(e.target.result);
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.width = '40px';
-            img.style.height = '40px';
-            img.style.objectFit = 'contain';
-            img.style.border = '1px solid #cbd5e0';
-            img.style.borderRadius = '4px';
-            previewContainer.appendChild(img);
+      previewContainer.textContent = 'جارٍ تجهيز الصور للحفظ…';
+      try {
+        const images = await Promise.all(Array.from(input.files || []).map(file => new Promise((resolve, reject) => {
+          const url = URL.createObjectURL(file);
+          const image = new Image();
+          image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر فتح إحدى الصور. أعد اختيار الصور.')); };
+          image.onload = () => {
+            try {
+              const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
+              const canvas = document.createElement('canvas');
+              canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+              canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+              resolve(canvas.toDataURL('image/jpeg', 0.86));
+            } catch (error) { reject(error); }
+            finally { URL.revokeObjectURL(url); }
           };
-          reader.readAsDataURL(file);
+          image.src = url;
+        })));
+        if (jobId !== productImagesJob) return;
+        modalImagesBase64 = images;
+        previewContainer.innerHTML = '';
+        images.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.style.cssText = 'width:40px;height:40px;object-fit:contain;border:1px solid #cbd5e0;border-radius:4px';
+          previewContainer.appendChild(img);
         });
+      } catch (error) {
+        if (jobId !== productImagesJob) return;
+        productImagesError = error.message || 'تعذر تجهيز الصور.';
+        previewContainer.textContent = productImagesError;
+      } finally {
+        if (jobId === productImagesJob) productImagesPending = false;
       }
     }
 
     function editProduct(id) {
       if (!adminMode) return;
+      productImagesJob++; productImagesPending = false; productImagesError = '';
       const prod = products.find(p => p.id === id);
       if (!prod) return;
       document.getElementById('product-modal-title').innerText = "تعديل المنتج";
@@ -1936,7 +1977,10 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function saveProduct() {
-      if (!adminMode) return;
+      if (!adminMode) return alert('يرجى الدخول إلى وضع المشرف لحفظ المنتج.');
+      if (productImagesPending) return alert('انتظر لحظة حتى ينتهي تجهيز الصور، ثم اضغط حفظ.');
+      if (productImagesError) return alert(productImagesError);
+      const previousProducts = JSON.parse(JSON.stringify(products));
       const editId = parseInt(document.getElementById('edit-prod-id').value);
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
@@ -1978,7 +2022,15 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         }
       }
       
-      saveProductsData();
+      try {
+        saveProductsData();
+      } catch (error) {
+        products = previousProducts;
+        alert((error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+          ? 'مساحة تخزين المتصفح غير كافية. لم يُحفظ المنتج؛ بقيت بياناته في النافذة. جرّب صورة واحدة أصغر، ولا تمسح بيانات الموقع.'
+          : 'تعذر حفظ المنتج: ' + (error.message || error));
+        return;
+      }
       closeModal('product-modal');
       renderProducts(products);
     }
@@ -2116,6 +2168,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function closeModal(modalId) {
+      if (modalId === 'product-modal') { productImagesJob++; productImagesPending = false; productImagesError = ''; }
       document.getElementById(modalId).style.display = 'none';
     }
 
