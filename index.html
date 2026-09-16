@@ -545,11 +545,12 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       return logoImg ? logoImg.src : 'assets/images/logo.png';
     }
 
+    let categoryImages = {};
+
     function buildHomeCategories() {
       const grid = document.getElementById('home-categories-grid');
       grid.innerHTML = '';
       const logoSrc = getStoreLogoSrc();
-      let categoryImages = {};
       try { categoryImages = JSON.parse(localStorage.getItem('ansiyab_cat_images') || '{}') || {}; } catch(e) { categoryImages = {}; }
       const cloud = window.ANSIYAB_CLOUD?.state;
       const cloudCats = Array.isArray(cloud?.categories) ? cloud.categories : [];
