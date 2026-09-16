@@ -2031,6 +2031,14 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
     let productSavePending = false;
     if (window.ANSIYAB_CLOUD) window.ANSIYAB_CLOUD.getProducts = () => products;
+    function productNameKey(value) {
+      return String(value || '').normalize('NFKC')
+        .replace(/[\u064B-\u065F\u0670\u0640\u200E\u200F\u061C]/g, '')
+        .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي')
+        .replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 0x0660))
+        .replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
     async function saveProduct() {
       if (productSavePending) return;
       if (!adminMode) return alert('يرجى الدخول إلى وضع المشرف لحفظ المنتج.');
@@ -2051,6 +2059,13 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       if (stockRaw !== '' && (!Number.isInteger(stockQty) || stockQty < 0)) return alert("كمية المخزون يجب أن تكون فارغة أو صفرًا أو رقمًا صحيحًا موجبًا.");
       
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
+      if (editId === -1) {
+        const duplicate = products.find(product => productNameKey(product.name) === productNameKey(name));
+        if (duplicate) {
+          alert('يوجد منتج محفوظ بهذا الاسم: «' + duplicate.name + '». لم تُضف نسخة أخرى. لإضافة صور أو تغيير الكمية، افتح تعديل المنتج الموجود.');
+          return;
+        }
+      }
       if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
 
       if (editId === -1) {
