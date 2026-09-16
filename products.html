@@ -1105,7 +1105,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
   <!-- JavaScript Code -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="supabase-bridge.js"></script>
+  <script src="supabase-bridge.js?v=cloud-save-2"></script>
   <script>
     // ===== وضع المشرف =====
     let adminMode = localStorage.getItem("isAdmin") === "true";
@@ -1982,11 +1982,14 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       document.getElementById('product-modal').style.display = 'flex';
     }
 
-    function saveProduct() {
+    let productSavePending = false;
+    if (window.ANSIYAB_CLOUD) window.ANSIYAB_CLOUD.getProducts = () => products;
+    async function saveProduct() {
+      if (productSavePending) return;
       if (!adminMode) return alert('يرجى الدخول إلى وضع المشرف لحفظ المنتج.');
       if (productImagesPending) return alert('انتظر لحظة حتى ينتهي تجهيز الصور، ثم اضغط حفظ.');
       if (productImagesError) return alert(productImagesError);
-      const previousProducts = JSON.parse(JSON.stringify(products));
+      const nextProducts = JSON.parse(JSON.stringify(products));
       const editId = parseInt(document.getElementById('edit-prod-id').value);
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
@@ -2004,8 +2007,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
 
       if (editId === -1) {
-        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-        products.push({
+        const newId = nextProducts.length > 0 ? Math.max(...nextProducts.map(p => p.id)) + 1 : 1;
+        nextProducts.push({
           id: newId,
           name: name,
           mainCat: mainCat,
@@ -2016,7 +2019,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
           images: modalImagesBase64
         });
       } else {
-        const prod = products.find(p => p.id === editId);
+        const prod = nextProducts.find(p => p.id === editId);
         if (prod) {
           // Keep the original name for the lifetime of this product.
           prod.mainCat = mainCat;
@@ -2028,17 +2031,34 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         }
       }
       
+      productSavePending = true;
+      const controls = Array.from(document.querySelectorAll('#product-modal input, #product-modal select, #product-modal button'));
+      const priorDisabled = controls.map(control => control.disabled);
+      controls.forEach(control => { control.disabled = true; });
+      let saved = false;
       try {
-        saveProductsData();
+        if (!window.ANSIYAB_CLOUD?.push) throw new Error('خدمة الحفظ السحابي غير متاحة. أعد المحاولة عند الاتصال بالإنترنت.');
+        const ok = await window.ANSIYAB_CLOUD.push({products: nextProducts});
+        if (!ok) throw new Error('لم يتأكد الحفظ في Supabase. تحقق من تسجيل الدخول والاتصال ثم أعد المحاولة.');
+        products = nextProducts;
+        saved = true;
+        // Local cache is optional: the confirmed cloud record is authoritative.
+        const encoded = JSON.stringify(products);
+        for (const key of ['ansiyab_products_v7', 'ansiyab_products']) {
+          try { localStorage.setItem(key, encoded); }
+          catch (cacheError) { console.warn('Cloud saved; local cache unavailable', cacheError.name); }
+        }
       } catch (error) {
-        products = previousProducts;
-        alert((error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
-          ? 'مساحة تخزين المتصفح غير كافية. لم يُحفظ المنتج؛ بقيت بياناته في النافذة. جرّب صورة واحدة أصغر، ولا تمسح بيانات الموقع.'
-          : 'تعذر حفظ المنتج: ' + (error.message || error));
-        return;
+        alert('تعذر حفظ المنتج: ' + (error.message || error));
+      } finally {
+        productSavePending = false;
+        controls.forEach((control, index) => { control.disabled = priorDisabled[index]; });
       }
-      closeModal('product-modal');
-      renderProducts(products);
+      if (saved) {
+        closeModal('product-modal');
+        renderProducts(products);
+        alert('تم حفظ المنتج وصوره في Supabase بنجاح.');
+      }
     }
 
     function deleteProduct(id) {
