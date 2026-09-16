@@ -562,14 +562,46 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         card.onclick = () => {
           window.location.href = `products.html?cat=${encodeURIComponent(cat)}`;
         };
+        const canEdit = localStorage.getItem("isAdmin") === "true";
         card.innerHTML = `
-          <div class="cat-img-box">
+          <div class="cat-img-box" style="position:relative">
             <img src="${categoryImages[cat] || logoSrc}" alt="${cat}" onerror="this.src=logoSrc">
+            ${canEdit ? `<button type="button" title="تغيير صورة القسم" aria-label="تغيير صورة قسم ${cat}" class="home-cat-camera" style="position:absolute;top:8px;left:8px;z-index:2;border:0;border-radius:8px;background:#173b63;color:#fff;width:34px;height:34px;font-size:18px;cursor:pointer">📷</button>
+            <input type="file" accept="image/*" class="home-cat-file" style="display:none">` : '' }
           </div>
           <h3>${cat}</h3>
         `;
+        if (canEdit) {
+          const camera = card.querySelector('.home-cat-camera');
+          const picker = card.querySelector('.home-cat-file');
+          camera.addEventListener('click', e => { e.stopPropagation(); picker.click(); });
+          picker.addEventListener('click', e => e.stopPropagation());
+          picker.addEventListener('change', e => { e.stopPropagation(); updateHomeCategoryImage(cat, picker.files?.[0]); });
+        }
         grid.appendChild(card);
       });
+    }
+
+    async function updateHomeCategoryImage(cat, file) {
+      if (!file) return;
+      if (!/^image\//.test(file.type)) return alert('اختر ملف صورة صالحًا.');
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const value = reader.result;
+          categoryImages[cat] = value;
+          localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
+          if (window.ANSIYAB_CLOUD?.push) {
+            const ok = await window.ANSIYAB_CLOUD.push();
+            if (!ok) throw new Error('لم يتأكد الحفظ في Supabase.');
+          }
+          buildHomeCategories();
+          alert('تم حفظ صورة القسم الرئيسي.');
+        } catch (error) {
+          alert('تعذر حفظ صورة القسم: ' + (error.message || error));
+        }
+      };
+      reader.readAsDataURL(file);
     }
 
     function handleHomeSearch(e) {
