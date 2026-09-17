@@ -2093,7 +2093,7 @@ const uploadSourceFiles = new Map();
       if (!prod) return;
       document.getElementById('product-modal-title').innerText = "تعديل المنتج";
       document.getElementById('edit-prod-id').value = prod.id;
-      document.getElementById('prod-name-input').readOnly = true;
+      document.getElementById('prod-name-input').readOnly = false;
       document.getElementById('prod-name-input').value = prod.name;
       document.getElementById('prod-files-input').value = '';
       
@@ -2149,10 +2149,11 @@ const uploadSourceFiles = new Map();
       if (stockRaw !== '' && (!Number.isInteger(stockQty) || stockQty < 0)) return alert("كمية المخزون يجب أن تكون فارغة أو صفرًا أو رقمًا صحيحًا موجبًا.");
       
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
-      if (editId === -1) {
-        const duplicate = products.find(product => productNameKey(product.name) === productNameKey(name));
+      const originalProduct = products.find(product => product.id === editId);
+      if (editId === -1 || productNameKey(originalProduct?.name) !== productNameKey(name)) {
+        const duplicate = products.find(product => product.id !== editId && productNameKey(product.name) === productNameKey(name));
         if (duplicate) {
-          alert('يوجد منتج محفوظ بهذا الاسم: «' + duplicate.name + '». لم تُضف نسخة أخرى. لإضافة صور أو تغيير الكمية، افتح تعديل المنتج الموجود.');
+          alert('يوجد منتج محفوظ بهذا الاسم: «' + duplicate.name + '». لم يُحفظ التغيير. اختر اسمًا مختلفًا أو عدّل المنتج الموجود.');
           return;
         }
       }
@@ -2173,7 +2174,8 @@ const uploadSourceFiles = new Map();
       } else {
         const prod = nextProducts.find(p => p.id === editId);
         if (prod) {
-          // Keep the original name for the lifetime of this product.
+          // Manual corrections are allowed; later uploads never overwrite the name.
+          prod.name = name;
           prod.mainCat = mainCat;
           prod.subCat = subCat;
           prod.unit = unit;
@@ -2991,7 +2993,7 @@ function clearCatalogSearch() {
         note.textContent = 'سيُقرأ الاسم من أول صورة تختارها تلقائيًا، ويمكنك تعديله قبل الحفظ.';
       }
       const result = original.apply(this, args);
-      if (action === 'editProduct') note.textContent = 'اسم المنتج محفوظ ولا يتغير عند إضافة الصور. لتغيير الاسم احذف المنتج وأنشئه من جديد.';
+      if (action === 'editProduct') note.textContent = 'يمكنك تصحيح اسم المنتج يدويًا ثم حفظه. إضافة الصور لا تغيّر الاسم تلقائيًا.';
       return result;
     };
   }
