@@ -659,7 +659,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       openCartModal();
     }
 
-    function sendCartToWhatsApp() {
+    async function sendCartToWhatsApp() {
+      if (!(await checkOrderAvailability(cart))) return;
       if (cart.length === 0) {
         alert('قائمة الطلب فارغة!');
         return;
@@ -672,7 +673,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       message += "\nشكراً لكم.";
 
       // تم ربط رقم الواتساب المباشر هنا
-      window.open(`https://wa.me/966506645562?text=${encodeURIComponent(message)}`);
+      window.location.assign(`https://wa.me/966506645562?text=${encodeURIComponent(message)}`);
     }
   
 // ===== شريط متحرك: صور المنتجات الحقيقية من الكتالوج =====
@@ -833,6 +834,26 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     if(e.target.id==="store-hero-setting") document.getElementById("store-hero-preview").src=e.target.value;
   });
 })();
+</script>
+
+<script>
+async function checkOrderAvailability(items) {
+  try {
+    const client=window.ANSIYAB_CLOUD?.client;
+    if(!client) throw new Error('unavailable');
+    const {data,error}=await client.from('catalog_state').select('products').eq('id','main').single();
+    if(error || !Array.isArray(data?.products)) throw new Error('unavailable');
+    const unavailable=items.filter(item=>{
+      const product=data.products.find(p=>String(p.id)===String(item.id));
+      return !product || product.orderEnabled===false;
+    });
+    if(unavailable.length) {
+      alert('تعذر إرسال الطلب. احذف المنتجات التالية من قائمة الطلبات لأنها غير متاحة حاليًا:\n'+unavailable.map(p=>p.name).join('\n'));
+      return false;
+    }
+    return true;
+  } catch(error) { alert('تعذر التحقق من توفر المنتجات. تحقق من الاتصال وحاول مجددًا.'); return false; }
+}
 </script>
 </body>
 </html>
