@@ -481,6 +481,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     let cart = (JSON.parse(localStorage.getItem('ansiyab_cart')) || []).map(item => ({...item, quantity: item.qty ?? item.quantity ?? 1, unit: item.unitType ?? item.unit ?? 'حبة'}));
 
     document.addEventListener('DOMContentLoaded', async function() {
+      buildHomeCategories();
       try { if (window.ANSIYAB_CLOUD?.load) await window.ANSIYAB_CLOUD.load(); } catch (e) { console.warn("تعذر تحميل البيانات السحابية، سيتم استخدام النسخة المحلية.", e); }
       buildHomeCategories();
       updateCartBadge();
@@ -685,7 +686,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
   function esc(v){const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML}
   function collect(){
     const cloud = window.ANSIYAB_CLOUD?.state;
-    const products=(Array.isArray(cloud?.products)&&cloud.products.length)?cloud.products:parse("ansiyab_products",[]);
+    const products=[]; // Home uses category banners without downloading product images.
     const cats=(Array.isArray(cloud?.categories)&&cloud.categories.length)?cloud.categories:parse("ansiyab_categories",[]);
     const catImages=(cloud?.store_settings?._categoryImages)||parse("ansiyab_cat_images",{})||{};
     const arr=[{
