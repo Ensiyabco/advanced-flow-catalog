@@ -1060,7 +1060,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       </div>
       <div class="form-group">
         <label>شد الكرتون / التعبئة (الكمية داخل الكرتون أو العلبة)</label>
-        <input type="number" id="prod-box-input" value="" min="1" placeholder="أدخل شد الكرتون">
+        <input type="text" id="prod-box-input" value="" inputmode="numeric" autocomplete="off" placeholder="أدخل شد الكرتون مثل 50 أو ٥٠">
       </div>
       <div class="form-group">
         <label>كمية المخزن المتاحة</label>
@@ -2085,11 +2085,11 @@ const uploadSourceFiles = new Map();
     }
 
     function editProduct(id) {
-      if (!adminMode) return;
+      if (!adminMode || productSavePending) return;
       uploadSourceFiles.clear();
       productImagesJob++; productImagesPending = false; productImagesError = '';
       document.getElementById('prod-files-input').disabled = false;
-      const prod = products.find(p => p.id === id);
+      const prod = products.find(p => String(p.id) === String(id));
       if (!prod) return;
       document.getElementById('product-modal-title').innerText = "تعديل المنتج";
       document.getElementById('edit-prod-id').value = prod.id;
@@ -2110,7 +2110,9 @@ const uploadSourceFiles = new Map();
       updateSubCatDropdown();
       document.getElementById('prod-sub-cat-select').value = prod.subCat;
       document.getElementById('prod-unit-input').value = prod.unit || 'حبة';
-      document.getElementById('prod-box-input').value = prod.boxQty || 1;
+      document.getElementById('prod-box-input').disabled = false;
+      document.getElementById('prod-box-input').readOnly = false;
+      document.getElementById('prod-box-input').value = prod.boxQty ?? 1;
       document.getElementById('prod-stock-input').value = prod.stockQty !== undefined && prod.stockQty !== null ? prod.stockQty : '';
       
       modalImagesBase64 = prod.images ? [...prod.images] : [];
@@ -2129,13 +2131,22 @@ const uploadSourceFiles = new Map();
         .replace(/\s+/g, ' ').trim().toLowerCase();
     }
 
+    function parsePackQuantity(raw) {
+      const normalized = String(raw).trim()
+        .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06F0));
+      if (!/^[0-9]+$/.test(normalized)) return NaN;
+      const value = Number(normalized);
+      return Number.isSafeInteger(value) && value >= 1 ? value : NaN;
+    }
+
     async function saveProduct() {
       if (productSavePending) return;
       if (!adminMode) return alert('يرجى الدخول إلى وضع المشرف لحفظ المنتج.');
       if (productImagesPending) return alert('انتظر لحظة حتى ينتهي تجهيز الصور، ثم اضغط حفظ.');
       if (productImagesError) return alert(productImagesError);
       const nextProducts = JSON.parse(JSON.stringify(products));
-      const editId = parseInt(document.getElementById('edit-prod-id').value);
+      const editId = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('prod-name-input').value.trim();
       const mainCat = document.getElementById('prod-main-cat-select').value;
       const subCat = document.getElementById('prod-sub-cat-select').value;
@@ -2143,15 +2154,15 @@ const uploadSourceFiles = new Map();
       const boxRaw = document.getElementById('prod-box-input').value.trim();
       const stockRaw = document.getElementById('prod-stock-input').value.trim();
       if (boxRaw === '') return alert("الرجاء إدخال شد الكرتون / التعبئة.");
-      const boxQty = parseInt(boxRaw, 10);
+      const boxQty = parsePackQuantity(boxRaw);
       const stockQty = stockRaw === '' ? null : parseInt(stockRaw, 10);
       if (!Number.isInteger(boxQty) || boxQty < 1) return alert("شد الكرتون يجب أن يكون رقمًا صحيحًا أكبر من صفر.");
       if (stockRaw !== '' && (!Number.isInteger(stockQty) || stockQty < 0)) return alert("كمية المخزون يجب أن تكون فارغة أو صفرًا أو رقمًا صحيحًا موجبًا.");
       
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
-      const originalProduct = products.find(product => product.id === editId);
-      if (editId === -1 || productNameKey(originalProduct?.name) !== productNameKey(name)) {
-        const duplicate = products.find(product => product.id !== editId && productNameKey(product.name) === productNameKey(name));
+      const originalProduct = products.find(product => String(product.id) === editId);
+      if (editId === '-1' || productNameKey(originalProduct?.name) !== productNameKey(name)) {
+        const duplicate = products.find(product => String(product.id) !== editId && productNameKey(product.name) === productNameKey(name));
         if (duplicate) {
           alert('يوجد منتج محفوظ بهذا الاسم: «' + duplicate.name + '». لم يُحفظ التغيير. اختر اسمًا مختلفًا أو عدّل المنتج الموجود.');
           return;
@@ -2159,7 +2170,7 @@ const uploadSourceFiles = new Map();
       }
       if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
 
-      if (editId === -1) {
+      if (editId === '-1') {
         const newId = nextProducts.length > 0 ? Math.max(...nextProducts.map(p => p.id)) + 1 : 1;
         nextProducts.push({
           id: newId,
@@ -2172,7 +2183,8 @@ const uploadSourceFiles = new Map();
           images: modalImagesBase64
         });
       } else {
-        const prod = nextProducts.find(p => p.id === editId);
+        const prod = nextProducts.find(p => String(p.id) === editId);
+        if (!prod) return alert('تعذر العثور على المنتج المطلوب تعديله. أغلق النافذة وأعد فتح المنتج.');
         if (prod) {
           // Manual corrections are allowed; later uploads never overwrite the name.
           prod.name = name;
@@ -2999,6 +3011,21 @@ function clearCatalogSearch() {
   }
 })();
 </script>
+
+<button id="products-back-to-top" type="button" aria-label="الصعود إلى أعلى الصفحة" title="أعلى الصفحة" hidden
+ style="position:fixed;bottom:24px;left:24px;z-index:900;background:#173b63;color:white;border:2px solid white;border-radius:50%;width:50px;height:50px;font-size:26px;cursor:pointer;box-shadow:0 3px 12px #0003">↑</button>
+<script id="products-back-to-top-script">
+(() => {
+  const button = document.getElementById('products-back-to-top');
+  function update() { button.hidden = window.scrollY < 300; }
+  window.addEventListener('scroll', update, {passive:true});
+  button.addEventListener('click', () => window.scrollTo({
+    top:0, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+  }));
+  update();
+})();
+</script>
+
 </body>
 </html>
 
