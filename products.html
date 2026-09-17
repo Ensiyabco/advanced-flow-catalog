@@ -1848,6 +1848,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
     function openProductModal() {
       if (!adminMode) return;
+      uploadSourceFiles.clear();
       productImagesJob++; productImagesPending = false; productImagesError = '';
       document.getElementById('prod-files-input').disabled = false;
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
@@ -1923,6 +1924,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     function removeProductImage(index) {
       if (!adminMode || productImagesPending || productSavePending) return;
       if (!Number.isInteger(index) || index < 0 || index >= modalImagesBase64.length) return;
+      uploadSourceFiles.delete(modalImagesBase64[index]);
       modalImagesBase64 = modalImagesBase64.filter((_, i) => i !== index);
       document.getElementById('prod-files-input').value = '';
       document.dispatchEvent(new Event('product-image-removed'));
@@ -1952,6 +1954,88 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       }
     }
 
+const uploadSourceFiles = new Map();
+    const localImageMarker = (() => {
+      let token = '', queue = [], working = false;
+      const fragment = new URLSearchParams(location.hash.slice(1));
+      const paired = fragment.get('image-marker');
+      if (paired && /^[A-Za-z0-9_-]{30,80}$/.test(paired)) {
+        token = paired;
+        try { sessionStorage.setItem('image-marker-token', token); } catch (_) {}
+        history.replaceState(null, '', location.pathname + location.search);
+      } else {
+        try { token = sessionStorage.getItem('image-marker-token') || ''; } catch (_) {}
+      }
+      let label, retry;
+      function ui() {
+        if (label) return;
+        const box = document.createElement('div');
+        box.style.cssText = 'padding:10px 16px;background:#eff6ff;color:#173b63;direction:rtl;font:14px Tajawal,sans-serif';
+        label = document.createElement('span');
+        label.setAttribute('role', 'status');
+        retry = document.createElement('button');
+        retry.type = 'button'; retry.textContent = 'إعادة محاولة تمييز الصور';
+        retry.style.cssText = 'margin:0 10px;padding:5px 10px;cursor:pointer';
+        retry.hidden = true;
+        retry.addEventListener('click', flush);
+        box.append(label, retry);
+        document.body.prepend(box);
+      }
+      function show(text) { ui(); label.textContent = text; retry.hidden = !queue.length; }
+      async function request(route, body) {
+        const response = await fetch('http://127.0.0.1:18769/' + route, {
+          method:'POST', headers:{'Content-Type':'application/json','X-Marker-Token':token},
+          body:JSON.stringify(body), signal:AbortSignal.timeout(20000)
+        });
+        if (!response.ok) throw new Error('تعذر الاتصال بالأداة المحلية');
+        return response.json();
+      }
+      async function flush() {
+        if (working || !queue.length) return;
+        working = true;
+        try {
+          while (queue.length) {
+            const batch = queue.slice(0, 100);
+            const receipts = [];
+            for (const item of batch) {
+              if (!item.receipt) {
+                const bytes = await item.file.arrayBuffer();
+                const digest = await crypto.subtle.digest('SHA-256', bytes);
+                item.receipt = {name:item.file.name,size:item.file.size,
+                  sha256:Array.from(new Uint8Array(digest), x=>x.toString(16).padStart(2,'0')).join('')};
+              }
+              receipts.push(item.receipt);
+            }
+            const result = await request('mark', {files:receipts});
+            if (!Array.isArray(result.results) || result.results.length !== batch.length) throw new Error('استجابة غير مكتملة');
+            const failed = [];
+            result.results.forEach((r,i) => { if (!r.ok) failed.push(batch[i]); });
+            queue.splice(0, batch.length, ...failed);
+            if (failed.length) {
+              const reason = result.results.find(r=>!r.ok)?.error || '';
+              show('حُفظ المنتج؛ بقيت ' + failed.length + ' صورة بلا علامة: ' + reason);
+              return;
+            }
+          }
+          show('✅ تم تمييز الصور المحفوظة داخل مجلد جهازك. اضغط F5 في المجلد لتحديث الأسماء.');
+        } catch (_) {
+          show('حُفظ المنتج في الموقع، لكن لم تُميّز الصور على جهازك. أبقِ الأداة المحلية مفتوحة واسمح باتصالها إن طلب المتصفح، ثم أعد المحاولة قبل إغلاق الصفحة.');
+        } finally { working = false; }
+      }
+      if (token) {
+        show('جارٍ الاتصال بأداة تمييز الصور المحلية…');
+        request('status', {}).then(()=>show('✅ الأداة متصلة؛ ستُميّز الصور بعد نجاح حفظ المنتج.'))
+          .catch(()=>show('أداة تمييز الصور غير متصلة. شغّل mark_uploaded.py واستخدم صفحة الموقع التي تفتحها الأداة.'));
+      }
+      return {confirmed(files) {
+        if (!token || !files.length) return;
+        for (const file of files) {
+          if (!file.name.startsWith('✅ ') && !queue.some(x=>x.file.name===file.name && x.file.size===file.size)) queue.push({file});
+        }
+        flush();
+      }};
+    })();
+
     async function encodeMultipleImages(input) {
       if (productImagesPending || !input.files || !input.files.length) return;
       input.disabled = true;
@@ -1974,14 +2058,19 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
               const ctx = canvas.getContext('2d');
               ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
               ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-              resolve(canvas.toDataURL('image/jpeg', 0.86));
+              resolve({src:canvas.toDataURL('image/jpeg', 0.86), file});
             } catch (error) { reject(error); }
             finally { URL.revokeObjectURL(url); }
           };
           image.src = url;
         })));
         if (jobId !== productImagesJob) return;
-        modalImagesBase64 = [...new Set([...modalImagesBase64, ...images])];
+        for (const item of images) {
+          const originals = uploadSourceFiles.get(item.src) || [];
+          originals.push(item.file);
+          uploadSourceFiles.set(item.src, originals);
+        }
+        modalImagesBase64 = [...new Set([...modalImagesBase64, ...images.map(item => item.src)])];
         renderProductImageEditor();
       } catch (error) {
         if (jobId !== productImagesJob) return;
@@ -1997,6 +2086,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
     function editProduct(id) {
       if (!adminMode) return;
+      uploadSourceFiles.clear();
       productImagesJob++; productImagesPending = false; productImagesError = '';
       document.getElementById('prod-files-input').disabled = false;
       const prod = products.find(p => p.id === id);
@@ -2093,6 +2183,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         }
       }
       
+      const markerFiles = modalImagesBase64.flatMap(src => uploadSourceFiles.get(src) || []);
       productSavePending = true;
       const controls = Array.from(document.querySelectorAll('#product-modal input, #product-modal select, #product-modal button'));
       const priorDisabled = controls.map(control => control.disabled);
@@ -2101,6 +2192,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       try {
         products = await persistProductList(nextProducts);
         saved = true;
+        localImageMarker.confirmed(markerFiles);
+        uploadSourceFiles.clear();
         cacheConfirmedProducts();
       } catch (error) {
         alert('تعذر حفظ المنتج: ' + (error.message || error));
