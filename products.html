@@ -1039,6 +1039,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       <div class="form-group">
         <label>اسم المنتج</label>
         <input type="text" id="prod-name-input">
+<label style="margin-top:10px"><input type="checkbox" id="prod-order-enabled" style="width:auto"> السماح بطلب هذا المنتج</label>
       </div>
       <div class="form-group">
         <label>القسم الرئيسي</label>
@@ -1573,7 +1574,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
               <option value="كرتون" ${defaultUnit === 'كرتون' ? 'selected' : ''}>كرتون</option>
             </select>
           </div>
-          <button class="add-to-cart-btn" onclick="addToCart(${p.id})">إضافة لقائمة الطلب 🛒</button>
+          <button class="add-to-cart-btn" ${p.orderEnabled === false ? 'disabled style="background:#718096;cursor:not-allowed"' : ''} onclick="addToCart(${p.id})">${p.orderEnabled === false ? 'الطلب موقوف مؤقتًا' : 'إضافة لقائمة الطلب 🛒'}</button>
         `;
         grid.appendChild(card);
       });
@@ -1856,6 +1857,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       document.getElementById('edit-prod-id').value = "-1";
       document.getElementById('prod-name-input').readOnly = false;
       document.getElementById('prod-name-input').value = "";
+      document.getElementById("prod-order-enabled").checked = true;
       document.getElementById('prod-unit-input').value = "حبة";
       document.getElementById('prod-box-input').value = "";
       document.getElementById('prod-stock-input').value = "";
@@ -2101,6 +2103,7 @@ const uploadSourceFiles = new Map();
       document.getElementById('edit-prod-id').value = prod.id;
       document.getElementById('prod-name-input').readOnly = false;
       document.getElementById('prod-name-input').value = prod.name;
+      document.getElementById('prod-order-enabled').checked = prod.orderEnabled !== false;
       document.getElementById('prod-files-input').value = '';
       
       const mainSelect = document.getElementById('prod-main-cat-select');
@@ -2186,6 +2189,7 @@ const uploadSourceFiles = new Map();
           unit: unit,
           boxQty: boxQty,
           stockQty: stockQty,
+          orderEnabled: document.getElementById('prod-order-enabled').checked,
           images: modalImagesBase64
         });
       } else {
@@ -2194,6 +2198,7 @@ const uploadSourceFiles = new Map();
         if (prod) {
           // Manual corrections are allowed; later uploads never overwrite the name.
           prod.name = name;
+          prod.orderEnabled = document.getElementById('prod-order-enabled').checked;
           prod.mainCat = mainCat;
           prod.subCat = subCat;
           prod.unit = unit;
@@ -2280,6 +2285,7 @@ const uploadSourceFiles = new Map();
     }
 
     function addToCart(prodId) {
+      if (products.find(item => String(item.id) === String(prodId))?.orderEnabled === false) return alert('طلب هذا المنتج موقوف مؤقتًا.');
       const p = products.find(item => item.id === prodId);
       if (!p) return;
       const qtyEl = document.getElementById(`qty-${prodId}`);
@@ -2359,7 +2365,8 @@ const uploadSourceFiles = new Map();
       openCartModal();
     }
 
-    function sendCartToWhatsApp() {
+    async function sendCartToWhatsApp() {
+      if (!(await checkOrderAvailability(cart))) return;
       if (cart.length === 0) return alert("قائمة الطلب فارغة!");
       let text = "السلام عليكم، أرغب في طلب المنتجات التالية من متجر الأنسياب المتقدم:\n\n";
       cart.forEach((item, i) => {
@@ -2367,7 +2374,7 @@ const uploadSourceFiles = new Map();
       });
       text += "\nشكراً لكم.";
       const encoded = encodeURIComponent(text);
-      window.open(`https://wa.me/${targetPhoneNumber}?text=${encoded}`, '_blank');
+      window.location.assign(`https://wa.me/${targetPhoneNumber}?text=${encoded}`);
     }
 
     function closeModal(modalId) {
@@ -3042,7 +3049,42 @@ function clearCatalogSearch() {
 })();
 </script>
 
-</body>
+
+<script>
+async function checkOrderAvailability(items) {
+  try {
+    const client=window.ANSIYAB_CLOUD?.client;
+    if(!client) throw new Error('unavailable');
+    const {data,error}=await client.from('catalog_state').select('products').eq('id','main').single();
+    if(error || !Array.isArray(data?.products)) throw new Error('unavailable');
+    const unavailable=items.filter(item=>{
+      const product=data.products.find(p=>String(p.id)===String(item.id));
+      return !product || product.orderEnabled===false;
+    });
+    if(unavailable.length) {
+      alert('تعذر إرسال الطلب. احذف المنتجات التالية من قائمة الطلبات لأنها غير متاحة حاليًا:\n'+unavailable.map(p=>p.name).join('\n'));
+      return false;
+    }
+    return true;
+  } catch(error) { alert('تعذر التحقق من توفر المنتجات. تحقق من الاتصال وحاول مجددًا.'); return false; }
+}
+</script>
+<style>
+@media(min-width:821px){
+.main-container>.sidebar{position:sticky;top:var(--catalog-header-height,90px);align-self:flex-start;max-height:calc(100dvh - var(--catalog-header-height,90px) - 16px);overflow-y:auto}
+}
+@media(max-width:820px){
+.main-container>.sidebar{position:sticky;top:var(--catalog-header-height,90px);z-index:90;max-height:30dvh;overflow-y:auto}
+}
+</style>
+<script>
+(() => {
+ const header=document.querySelector('header');
+ const update=()=>document.documentElement.style.setProperty('--catalog-header-height',((header?.getBoundingClientRect().height||70)+12)+'px');
+ if(header && typeof ResizeObserver!=='undefined') new ResizeObserver(update).observe(header);
+ window.addEventListener('resize',update);update();
+})();
+</script></body>
 </html>
 
 
