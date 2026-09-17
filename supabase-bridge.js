@@ -11,19 +11,24 @@
   }
   function saveLocal(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
 
+  const homePage = /\/$|\/index\.html$/.test(location.pathname);
+  const readColumns = homePage ? 'id,categories,store_settings,updated_at' : 'id,categories,products,store_settings,updated_at';
+
   async function load(){
     if(!client) return null;
     if(window.ANSIYAB_CLOUD.loading) return window.ANSIYAB_CLOUD.loading;
     window.ANSIYAB_CLOUD.loading = (async()=>{
-      const {data, error} = await client.from('catalog_state').select('id,categories,products,store_settings,updated_at').eq('id','main').maybeSingle();
+      const {data, error} = await client.from('catalog_state').select(readColumns).eq('id','main').maybeSingle();
       if(error){ console.warn('Supabase read failed:', error.message); return null; }
       if(!data){ return null; }
       const hasCloudData = (Array.isArray(data.categories) && data.categories.length) || (Array.isArray(data.products) && data.products.length);
       if(hasCloudData){
         window.ANSIYAB_CLOUD.state = data;
         saveLocal('ansiyab_categories_v1', data.categories || []);
-        saveLocal('ansiyab_products_v7', data.products || []);
-        saveLocal('ansiyab_products', data.products || []);
+        if (Array.isArray(data.products)) {
+          saveLocal('ansiyab_products_v7', data.products);
+          saveLocal('ansiyab_products', data.products);
+        }
         const s = data.store_settings || {};
         if(s._categoryImages) saveLocal('ansiyab_cat_images', s._categoryImages);
         if(s._subCategoryMeta) saveLocal('ansiyab_subcategory_meta_v1', s._subCategoryMeta);
@@ -62,9 +67,10 @@
     const categoryImages = overrides && overrides.categoryImages && typeof overrides.categoryImages === 'object' ? overrides.categoryImages : local('ansiyab_cat_images', {});
     const subCategoryMeta = local('ansiyab_subcategory_meta_v1', {});
     const storeSettings = Object.assign({}, settings, {_categoryImages: categoryImages, _subCategoryMeta: subCategoryMeta});
-    const {data, error} = await client.from('catalog_state').upsert({
-      id:'main', categories, products, store_settings: storeSettings, updated_at:new Date().toISOString()
-    }, {onConflict:'id'}).select('id,categories,products,store_settings,updated_at').single();
+    const payload = {categories, store_settings:storeSettings, updated_at:new Date().toISOString()};
+    if (!homePage || supplied) payload.products=products;
+    const {data,error}=await client.from('catalog_state').update(payload)
+      .eq('id','main').select(readColumns).single();
     if(error){ alert('تعذر حفظ البيانات في Supabase:\n' + error.message); return false; }
     window.ANSIYAB_CLOUD.state = data;
     window.ANSIYAB_CLOUD.loaded = true;
