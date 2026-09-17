@@ -1938,12 +1938,17 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       // Update the product column only; category images/settings are untouched.
       const {data, error} = await cloud.client.from('catalog_state')
         .update({products: nextProducts, updated_at: new Date().toISOString()})
-        .eq('id', 'main').select('id,products,updated_at').single();
-      if (error) throw new Error(error.message || 'رفضت خدمة الحفظ العملية.');
-      if (!data || !Array.isArray(data.products)) throw new Error('لم يصل تأكيد الحفظ من Supabase.');
-      cloud.state = Object.assign({}, cloud.state || {}, data);
+        .eq('id', 'main').select('id,updated_at').single();
+      if (error) {
+        if (error.code === '57014' || /statement timeout/i.test(error.message || '')) {
+          throw new Error('انتهت مهلة قاعدة البيانات وأُلغيت عملية الحفظ. بيانات المنتج ما زالت في النافذة؛ انتظر قليلًا ثم أعد الحفظ. إذا تكرر الخطأ يلزم فحص قاعدة البيانات.');
+        }
+        throw new Error(error.message || 'رفضت خدمة الحفظ العملية.');
+      }
+      if (!data || data.id !== 'main') throw new Error('لم يصل تأكيد الحفظ من Supabase.');
+      cloud.state = Object.assign({}, cloud.state || {}, data, {products: nextProducts});
       cloud.loaded = true;
-      return data.products;
+      return nextProducts;
     }
 
     function cacheConfirmedProducts() {
