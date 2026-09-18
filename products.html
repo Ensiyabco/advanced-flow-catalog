@@ -3253,24 +3253,11 @@ function buildTopCategoryNav() {
     detail.append(panel);(position<5?host:morePanel).append(detail);
   });
   host.querySelectorAll('details').forEach(detail=>{
-    let leaveTimer;
     const closeSiblings=()=>Array.from(detail.parentElement.children).forEach(sibling=>{
       if(sibling!==detail&&sibling.tagName==='DETAILS')sibling.open=false;
     });
     detail.addEventListener('toggle',()=>{if(detail.open)closeSiblings();});
-    detail.addEventListener('pointerenter',event=>{
-      if(event.pointerType!=='mouse'||!window.matchMedia('(min-width:821px) and (hover:hover)').matches)return;
-      clearTimeout(leaveTimer);closeSiblings();detail.open=true;
-    });
-    detail.addEventListener('pointerleave',event=>{
-      if(event.pointerType!=='mouse'||!window.matchMedia('(min-width:821px) and (hover:hover)').matches)return;
-      leaveTimer=setTimeout(()=>{
-        if(!detail.contains(document.activeElement)) {
-          detail.open=false;
-          detail.querySelectorAll('details[open]').forEach(child=>child.open=false);
-        }
-      },180);
-    });
+
   });
 }
 (() => {
