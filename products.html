@@ -925,6 +925,36 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 .subcategory-back{display:none}
 @media(max-width:560px){.catalog-search{flex-wrap:wrap}.catalog-search input{flex-basis:65%}.catalog-search button{padding:13px 12px}}
 </style>
+
+<style id="simple-category-menu">
+/* Sidebar presentation; existing category filtering and sticky position are retained. */
+.main-container > .sidebar {
+  background:#fff!important;border:1px solid #e5edf4!important;
+  border-radius:16px!important;padding:14px!important;box-shadow:0 5px 18px rgba(23,59,99,.04)!important;
+  scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent;
+}
+.sidebar .sidebar-header {padding:4px 6px 12px;border-bottom:1px solid #e5edf4;margin-bottom:12px}
+.sidebar #header-all {
+  display:flex;align-items:center;justify-content:center;min-height:50px;
+  background:#ef3d43!important;color:#fff!important;border:0!important;border-radius:9px!important;
+  font-size:16px;font-weight:800;padding:12px 8px!important;margin-bottom:10px!important;
+}
+.sidebar #header-all:hover {background:#d92c33!important;color:#fff!important}
+.sidebar .accordion-item {margin:0!important;border:0!important;border-bottom:1px solid #e8eef5!important;border-radius:0!important;overflow:visible}
+.sidebar .accordion-item > .accordion-header {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  min-height:54px;padding:13px 10px!important;border:0!important;border-radius:0!important;
+  background:#fff!important;color:#435d7b!important;font-size:16px;font-weight:700;line-height:1.6;
+}
+.sidebar .accordion-item > .accordion-header > span:first-child {flex:1;min-width:0}
+.sidebar .accordion-item > .accordion-header > span:last-child {flex:0 0 auto;font-size:20px;color:#486584}
+.sidebar .accordion-item > .accordion-header:hover,
+.sidebar .accordion-item > .accordion-header.active-header {background:#f0f6fc!important;color:#173b63!important}
+.sidebar .accordion-body {padding:4px 8px 10px!important;background:#f8fafc!important}
+.sidebar .sub-cat-item {padding:10px 8px!important;font-size:14px;line-height:1.5}
+.sidebar .subcat-custom-icon {display:none}
+.sidebar .accordion-header:focus-visible {outline:3px solid #3182ce;outline-offset:-3px}
+</style>
 </head>
 <body>
 
@@ -1589,7 +1619,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       allItem.className = 'accordion-header active-header';
       allItem.id = 'header-all';
       allItem.style.marginBottom = '8px';
-      allItem.innerHTML = '<span>عرض جميع المنتجات</span> <span class="all-products-icon">▦</span>';
+      allItem.innerHTML = '<span>عرض كل المنتجات</span>';
       allItem.onclick = () => {
         clearCategoryActiveStates();
         allItem.classList.add('active-header');
@@ -1640,7 +1670,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         item.innerHTML = `
           <div class="accordion-header" id="header-cat-${originalIndex}"
                onclick="clickMainCategoryByIndex(${originalIndex})">
-            <span>📁 ${escapeHtml(cat.name)}</span>
+            <span>${escapeHtml(cat.name)}</span>
             <span>▾</span>
           </div>
 
