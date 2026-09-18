@@ -2227,9 +2227,20 @@ const uploadSourceFiles = new Map();
         controls.forEach((control, index) => { control.disabled = priorDisabled[index]; });
       }
       if (saved) {
-        closeModal('product-modal');
         renderProducts(products);
-        alert('تم حفظ المنتج وصوره في Supabase بنجاح.');
+        if (editId === '-1') {
+          // Reuse the wrapped opener to reset image jobs and OCR for the next product.
+          window.openProductModal();
+          document.getElementById('prod-main-cat-select').value = mainCat;
+          updateSubCatDropdown();
+          document.getElementById('prod-sub-cat-select').value = subCat;
+          document.getElementById('product-modal-title').innerText = 'تم الحفظ ✓ — إضافة منتج جديد';
+          document.querySelector('#product-modal .modal-content').scrollTop = 0;
+          document.getElementById('prod-name-input').focus();
+        } else {
+          closeModal('product-modal');
+          alert('تم حفظ المنتج وصوره في Supabase بنجاح.');
+        }
       }
     }
 
