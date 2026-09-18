@@ -1323,18 +1323,7 @@ body:not(.admin-mode) #products-grid-container .stock-control-bar{display:none}
       return `${mainName}|||${subName}`;
     }
 
-    let products = readStorageArray('ansiyab_products_v7', [
-      {
-        id: 1,
-        name: "دافور غاز سفري متكامل",
-        mainCat: "دوافير ودبات",
-        subCat: "دبات غاز سفري",
-        unit: "حبة",
-        boxQty: 12,
-        stockQty: 50,
-        images: [placeholderImg]
-      }
-    ]);
+    let products = readStorageArray('ansiyab_products_v7', []);
 
     let cart = readStorageArray('ansiyab_cart', []).map(item => ({...item, qty: item.qty ?? item.quantity ?? 1, unitType: item.unitType ?? item.unit ?? 'حبة'}));
     let modalImagesBase64 = [];
@@ -2569,24 +2558,55 @@ function clearCatalogSearch() {
       }
     }
 
-    document.addEventListener("DOMContentLoaded", async function() {
-      // اعرض النسخة المحلية فورًا حتى لا تبقى الصفحة فارغة أثناء انتظار السحابة.
+    function applyCatalogData(data) {
+      if (!data || !Array.isArray(data.products)) return false;
+      products = data.products;
+      if (Array.isArray(data.categories)) categories = data.categories;
+      // Render independently of menu rebuilding so a menu error cannot leave stale cards.
+      renderProducts(products, "جميع المنتجات");
+      buildCategoryAccordion();
+      openCategoryFromUrl();
+      return true;
+    }
+
+    async function initializeCatalog() {
       document.body.classList.toggle("admin-mode", adminMode);
       buildCategoryAccordion();
-      renderProducts(products, "جميع المنتجات");
-      try { if (window.ANSIYAB_CLOUD?.load) await window.ANSIYAB_CLOUD.load(); } catch (e) { console.warn("تعذر تحميل البيانات السحابية، سيتم استخدام النسخة المحلية.", e); }
-      if (window.ANSIYAB_CLOUD?.state) {
-        const st = window.ANSIYAB_CLOUD.state;
-        if (Array.isArray(st.categories) && st.categories.length) categories = st.categories;
-        if (Array.isArray(st.products) && st.products.length) products = st.products;
-      }
-      document.body.classList.toggle("admin-mode", adminMode);
-      buildCategoryAccordion();
-      renderProducts(products, "جميع المنتجات");
       updateCartBadge();
       updateAdminIndicator();
-      openCategoryFromUrl();
-    });
+      const grid = document.getElementById('products-grid-container');
+      if (products.length) {
+        renderProducts(products, "جميع المنتجات");
+        openCategoryFromUrl();
+      } else {
+        document.getElementById('current-view-count').textContent = 'جارٍ التحميل…';
+        grid.innerHTML = '<p role="status" style="grid-column:1/-1;text-align:center;padding:40px">جارٍ تحميل المنتجات…</p>';
+      }
+      try {
+        const cloud = window.ANSIYAB_CLOUD;
+        const data = cloud?.loaded && Array.isArray(cloud.state?.products)
+          ? cloud.state : await cloud?.load?.();
+        if (!applyCatalogData(data)) throw new Error('Catalog unavailable');
+      } catch (error) {
+        console.warn('تعذر تحميل المنتجات', error);
+        const notice = document.createElement('p');
+        notice.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px';
+        notice.setAttribute('role','status');
+        notice.textContent = products.length
+          ? 'تعذر تحديث المنتجات؛ المعروض هو آخر نسخة محفوظة. '
+          : 'تعذر تحميل المنتجات. تحقق من الاتصال ثم أعد المحاولة. ';
+        const retry = document.createElement('button');
+        retry.type = 'button'; retry.textContent = 'إعادة المحاولة';
+        retry.addEventListener('click', () => { notice.remove(); initializeCatalog(); });
+        notice.appendChild(retry);
+        if (!products.length) {
+          grid.innerHTML = '';
+          document.getElementById('current-view-count').textContent = 'لم يكتمل التحميل';
+        }
+        grid.prepend(notice);
+      }
+    }
+    document.addEventListener("DOMContentLoaded", initializeCatalog);
 
     window.syncCatalogToCloud = async function(){
       if (!adminMode) return;
@@ -2876,7 +2896,7 @@ function clearCatalogSearch() {
         if(rawImgs) categoryImages=JSON.parse(rawImgs)||{};
       } catch(e) {}
       if(typeof buildCategoryAccordion==='function') buildCategoryAccordion();
-      if(typeof renderProducts==='function') renderProducts(products, 'جميع المنتجات');
+      if(typeof applyCatalogData==='function') applyCatalogData(data);
     }
     if(document.getElementById('category-manager-overlay')?.classList.contains('open')) renderSelectors(mainIndex(),subIndex());
   });
