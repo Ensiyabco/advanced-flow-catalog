@@ -40,13 +40,11 @@ object LearningStore {
     }
 
     fun match(context: Context, message: String): String? {
-        val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val arr = JSONArray(p.getString(KEY_RULES, "[]"))
+        val arr = JSONArray(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_RULES, "[]"))
         for (i in arr.length() - 1 downTo 0) {
             val o = arr.getJSONObject(i)
             val trigger = o.optString("trigger")
-            if (trigger.isNotBlank() && message.contains(trigger, ignoreCase = true))
-                return o.optString("response")
+            if (trigger.isNotBlank() && message.contains(trigger, ignoreCase = true)) return o.optString("response")
         }
         return null
     }
