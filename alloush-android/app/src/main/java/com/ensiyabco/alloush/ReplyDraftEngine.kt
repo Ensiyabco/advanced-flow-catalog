@@ -9,7 +9,7 @@ object ReplyDraftEngine {
         val asksForPayment = listOf("رقم الحساب","الحساب","الآيبان","الايبان","تحويل","السداد")
             .any { text.contains(it, ignoreCase = true) }
         if (asksForPayment) return if (paymentDetails.isBlank())
-            "العميل طلب بيانات الدفع. أدخل بيانات الدفع أولًا في إعدادات علوش."
+            "المتصل طلب بيانات الدفع. أدخل بيانات الدفع أولًا في إعدادات علوش."
         else "حياك الله 🌹\nبيانات التحويل المعتمدة:\n" + paymentDetails
 
         return when {
