@@ -10,6 +10,6 @@ class AlloushNotificationListener : NotificationListenerService() {
         val sender = extras.getCharSequence("android.title")?.toString().orEmpty()
         val message = extras.getCharSequence("android.text")?.toString().orEmpty()
         if (sender.isBlank() || message.isBlank()) return
-        AlloushStore.saveIncoming(this, IncomingMessage(sender, message))
+        AlloushStore.saveIncoming(this, IncomingMessage(sender, message))\n        ContactMemory.addIncoming(this, sender, message)
     }
 }
