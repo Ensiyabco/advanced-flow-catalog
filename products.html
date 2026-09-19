@@ -3084,11 +3084,7 @@ function clearCatalogSearch() {
   }
 
   files.addEventListener('change', async () => {
-    if (document.getElementById('edit-prod-id').value !== '-1') {
-      note.textContent = 'ستُضاف الصور إلى المنتج مع الاحتفاظ باسمه الأصلي.';
-      return;
-    }
-    if (firstImageRead || name.value.trim()) return;
+    if (firstImageRead) return;
     cancel();
     const file = files.files && files.files[0];
     if (!file) { note.textContent = 'اختر صورة لقراءة اسم المنتج.'; return; }
@@ -3271,5 +3267,6 @@ function buildTopCategoryNav() {
 </script>
 </body>
 </html>
+
 
 
