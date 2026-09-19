@@ -39,7 +39,7 @@ class MainActivity : Activity() {
         })
 
         layout.addView(TextView(this).apply { text="علّم علوش"; textSize=20f; setPadding(0,28,0,8) })
-        val trigger=EditText(this).apply { hint="إذا قال العميل..." }
+        val trigger=EditText(this).apply { hint="إذا قال المتصل..." }
         val response=EditText(this).apply { hint="يكون الرد المقترح..." }
         layout.addView(trigger); layout.addView(response)
         layout.addView(Button(this).apply {
