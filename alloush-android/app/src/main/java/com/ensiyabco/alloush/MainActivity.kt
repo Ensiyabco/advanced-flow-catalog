@@ -17,8 +17,17 @@ class MainActivity : Activity() {
         layout.addView(TextView(this).apply { text="علوش — مساعد علي الشخصي والتجاري"; textSize=23f })
         layout.addView(TextView(this).apply {
             text = if (latest == null) "لا توجد رسالة WhatsApp بانتظار المراجعة."
-            else "آخر رسالة:\n"+latest.sender+"\n"+latest.text+"\n\nاقتراح علوش:\n"+
-                ReplyDraftEngine.draft(this@MainActivity, latest, AlloushStore.paymentDetails(this@MainActivity))
+            else run {
+                val d = ReplyDraftEngine.decision(this@MainActivity, latest, AlloushStore.paymentDetails(this@MainActivity))
+                "آخر رسالة:\n" + latest.sender + "\n" + latest.text +
+                    "\n\nقرار علوش: " + when(d.mode) {
+                        ReplyMode.KNOWN_AUTO -> "معروفة — جاهزة للرد"
+                        ReplyMode.UNKNOWN_WELCOME -> "غير معروفة — ترحيب فقط"
+                        ReplyMode.SENSITIVE_HOLD -> "حساسة — توقف"
+                    } +
+                    "\n\nالرد:\n" + d.text +
+                    "\n\nالسبب: " + d.reason
+            }
             textSize=17f; setPadding(0,20,0,20)
         })
 
@@ -62,7 +71,7 @@ class MainActivity : Activity() {
         }
 
         layout.addView(TextView(this).apply {
-            text="V1: علوش يتعلم القواعد التي تعتمدها ويقترح الردود، لكنه لا يرسل إلى WhatsApp من تلقاء نفسه."
+            text="V1: الحالات المعروفة يمكن اعتمادها للرد المباشر لاحقًا، وغير المعروفة تستخدم ترحيبًا آمنًا فقط. الإرسال الفعلي إلى WhatsApp لم يُفعّل بعد."
             setPadding(0,24,0,0)
         })
         setContentView(ScrollView(this).apply { addView(layout) })
