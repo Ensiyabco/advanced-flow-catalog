@@ -3238,7 +3238,8 @@ function buildTopCategoryNav() {
     const detail=document.createElement('details');detail.className='catalog-nav-category';
     const summary=document.createElement('summary');summary.textContent=cat.name;detail.append(summary);
     const panel=document.createElement('div');panel.className='catalog-nav-panel';
-    panel.append(button('عرض الكل في '+cat.name,()=>{
+    panel.append(button('استعراض الأقسام الفرعية',()=>clickMainCategory(cat.name,index)));
+    panel.append(button('عرض منتجات القسم',()=>{
       clearCategoryActiveStates();
       renderProducts(products.filter(p=>normalizeCategoryName(p.mainCat)===normalizeCategoryName(cat.name)),'قسم: '+cat.name);
       prependCategoryBreadcrumb(cat.name,'');
@@ -3267,6 +3268,7 @@ function buildTopCategoryNav() {
 </script>
 </body>
 </html>
+
 
 
 
