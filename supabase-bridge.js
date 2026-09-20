@@ -90,8 +90,21 @@
         try { if(typeof window.applyStoreSettings==='function') window.applyStoreSettings(); } catch(e){}
         try { if(typeof window.refreshHeroFromCloud==='function') window.refreshHeroFromCloud(); } catch(e){}
         try {
-          if(typeof window.getCurrentVisibleProducts==='function' && typeof window.renderProducts==='function')
-            window.renderProducts(window.getCurrentVisibleProducts(), document.getElementById('current-view-title')?.innerText || 'جميع المنتجات');
+          const params = new URLSearchParams(window.location.search);
+          const hasCatalogView =
+            params.has('cat') || params.has('sub') || params.has('search');
+
+          if (hasCatalogView && typeof window.openCategoryFromUrl === 'function') {
+            window.openCategoryFromUrl();
+          } else if (
+            typeof window.getCurrentVisibleProducts === 'function' &&
+            typeof window.renderProducts === 'function'
+          ) {
+            window.renderProducts(
+              window.getCurrentVisibleProducts(),
+              document.getElementById('current-view-title')?.innerText || 'جميع المنتجات'
+            );
+          }
         } catch(e){}
       }, 0);
     }
