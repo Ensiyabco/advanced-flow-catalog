@@ -2674,13 +2674,13 @@ function clearCatalogSearch() {
             const countEl = document.getElementById('current-view-count');
             countEl.textContent = `جارٍ تحسين الصور… متبقي ${remaining}`;
             while (remaining > 0) {
-              const { data: migrated, error: migrationError } = await cloud.client.functions.invoke('migrate-product-images', { body: { batchSize: 5 } });
+              const { data: migrated, error: migrationError } = await cloud.client.functions.invoke('migrate-product-images', { body: { batchSize: 3 } });
               if (migrationError || !migrated?.ok) {
                 console.warn('تعذر ترحيل دفعة الصور', migrationError || migrated);
                 countEl.textContent = `توقف تحسين الصور مؤقتًا — متبقي ${remaining}`;
                 break;
               }
-              remaining = Number(migrated.remaining || 0);
+              remaining = migrated.done ? 0 : Math.max(0, remaining - Number(migrated.uploaded || 0));
               countEl.textContent = remaining ? `جارٍ تحسين الصور… متبقي ${remaining}` : 'اكتمل تحسين الصور';
               if (migrated.done || migrated.uploaded === 0) break;
               await new Promise(resolve => setTimeout(resolve, 1200));
