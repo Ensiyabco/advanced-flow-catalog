@@ -1011,6 +1011,48 @@ body:not(.admin-mode) #products-grid-container .stock-control-bar{display:none}
 
 
 </style>
+
+<style id="catalog-header-2026">
+.catalog-contact-strip{background:linear-gradient(90deg,#073f82,#0757a5);color:#fff;font-size:12px;font-weight:700}
+.catalog-contact-inner{max-width:1400px;margin:auto;padding:7px 24px;display:flex;justify-content:space-between;align-items:center;gap:18px;direction:rtl}
+.catalog-contact-inner a{color:#fff;text-decoration:none}.catalog-contact-info,.catalog-promises{display:flex;align-items:center;gap:20px}
+.site-header-modern{position:relative!important;top:auto!important;padding:14px 24px!important;box-shadow:0 2px 12px rgba(23,59,99,.07)!important}
+.site-header-inner{max-width:1400px!important;display:grid!important;grid-template-columns:minmax(300px,1fr) minmax(360px,520px) minmax(250px,1fr)!important;gap:24px!important;min-height:72px!important}
+.site-brand-modern{order:initial!important;margin:0!important}.site-brand-logo{width:64px!important;height:64px!important;border:0!important;background:transparent!important}.site-brand-logo img{width:60px!important;height:60px!important}
+.site-brand-text strong{font-size:22px!important}.site-brand-text small{font-size:11px!important;color:#173b63!important}
+.header-catalog-search{height:48px;display:flex;border:2px solid #d8e4ef;border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 3px 10px rgba(23,59,99,.04)}
+.header-catalog-search input{flex:1;border:0;outline:0;padding:0 16px;font-family:inherit;font-size:13px;direction:rtl;min-width:0}
+.header-catalog-search button{width:58px;border:0;background:#ff6b17;color:#fff;font-size:25px;cursor:pointer}
+.header-shortcuts{display:flex;justify-content:flex-start;align-items:center;gap:4px;direction:rtl}
+.header-shortcut{position:relative;min-width:68px;padding:5px 12px;border:0;border-left:1px solid #e4ebf2;background:transparent;color:#123f78;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-size:20px;cursor:pointer}
+.header-shortcut span{font-size:11px;font-weight:800}.header-shortcut .cart-badge{position:absolute;top:-3px;right:7px}
+.admin-command-bar{background:#f4f9fd;border-top:1px solid #e6eef5;border-bottom:1px solid #dce8f2;box-shadow:0 3px 12px rgba(23,59,99,.05)}
+.admin-command-inner{max-width:1400px;margin:auto;padding:10px 24px;display:flex;gap:12px;align-items:center;justify-content:center;direction:rtl}
+.admin-command-inner button,.admin-command-inner .admin-mode-indicator{min-height:42px;border-radius:9px!important;padding:9px 18px!important;font-family:inherit;font-size:12px!important;font-weight:800!important;box-shadow:0 3px 8px rgba(23,59,99,.08)}
+.admin-command-inner .admin-mode-indicator{display:none;align-items:center;color:#fff!important;background:linear-gradient(135deg,#119c77,#078f73)!important}
+body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
+.admin-command-inner .category-manager-top-btn{background:#0c63c7!important;color:#fff!important;border:0!important}
+.admin-command-inner .admin-btn{background:#0a3978!important;color:#fff!important;border:0!important}
+.admin-command-inner .cloud-sync-btn{background:#fff!important;color:#173b63!important;border:1px solid #b9cde0!important}
+.admin-command-inner .store-settings-btn{background:#0c55a7!important;color:#fff!important;border:0!important}
+.admin-command-inner .cart-btn-trigger{background:#ff5b19!important;color:#fff!important;border:0!important}
+#catalog-top-nav{background:#fff!important;border-bottom:1px solid #e4edf4!important;box-shadow:0 3px 9px rgba(23,59,99,.04)!important}
+#catalog-top-links{max-width:1400px!important;margin:auto!important;padding:8px 24px!important;justify-content:center!important;gap:4px!important}
+.catalog-search{background:#eef7ff;padding:14px;border-radius:12px;display:flex!important;gap:10px!important}
+.catalog-search input{height:44px!important;border:1px solid #caddec!important;border-radius:9px!important;padding:0 14px!important}
+.catalog-search button{min-width:88px!important;border-radius:9px!important;font-weight:800!important}
+@media(max-width:900px){
+ .catalog-contact-inner{padding:6px 12px}.catalog-promises{display:none}.catalog-contact-info{width:100%;justify-content:space-between;gap:8px;font-size:10px}
+ .site-header-modern{padding:10px 12px!important}.site-header-inner{display:grid!important;grid-template-columns:1fr auto!important;grid-template-areas:"brand shortcuts" "search search"!important;gap:10px!important}
+ .site-brand-modern{grid-area:brand}.header-shortcuts{grid-area:shortcuts}.header-catalog-search{grid-area:search;height:44px}
+ .site-brand-logo{width:46px!important;height:46px!important}.site-brand-logo img{width:44px!important;height:44px!important}.site-brand-text strong{font-size:15px!important}.site-brand-text small{font-size:8px!important}
+ .header-shortcut{min-width:46px;padding:4px 7px}.header-shortcut span{display:none}
+ .admin-command-inner{padding:8px 10px;overflow-x:auto;justify-content:flex-start;white-space:nowrap}.admin-command-inner button,.admin-command-inner .admin-mode-indicator{flex:0 0 auto;min-height:38px;padding:7px 12px!important}
+ #catalog-top-links{padding:6px 10px!important;overflow-x:auto!important;justify-content:flex-start!important;white-space:nowrap!important}
+}
+@media(max-width:560px){.catalog-contact-info span:first-child{display:none}.site-brand-text small{display:block!important}.catalog-search{padding:9px}.catalog-search button{min-width:64px!important}}
+</style>
+
 </head>
 <body>
 
@@ -1025,40 +1067,43 @@ body:not(.admin-mode) #products-grid-container .stock-control-bar{display:none}
 
 
   <!-- Header -->
-  <header class="site-header-modern">
-  <div class="site-header-inner">
-    <a href="index.html" class="site-brand-modern" aria-label="الصفحة الرئيسية">
-      <span class="site-brand-logo">
-        <img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-        <span class="logo-fallback-mark">أ</span>
-      </span>
-      <span class="site-brand-text">
-        <strong>الأنسياب المتقدم</strong>
-        <small>أدوات ولوازم الغاز والرحلات والكشتات</small>
-      </span>
-    </a>
-
-    <div class="site-header-center">
-      <a href="index.html" class="home-link-modern">⌂ <span>الرئيسية</span></a>
-    </div>
-
-    <div class="nav-tools">
-      <button type="button" class="category-manager-top-btn admin-only" onclick="openCategoryManager()">🗂️ إدارة الأقسام</button>
-      <button class="admin-btn admin-only" onclick="openProductModal()">+ إضافة منتج</button>
-      <span class="admin-mode-indicator" style="color:#22543d;background:#c6f6d5;padding:6px 10px;border-radius:16px;font-size:11px;font-weight:700;">⚙️ وضع المشرف</span>
-      <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">☁️ مزامنة السحابة</button>
-      <button type="button" class="admin-only store-settings-btn" onclick="openStoreSettings()">⚙️ إعدادات المتجر</button>
-      <button class="cart-btn-trigger" onclick="openCartModal()">
-        🛒 قائمة الطلبات <span class="cart-badge" id="cart-count">0</span>
-      </button>
+  <div class="catalog-contact-strip">
+    <div class="catalog-contact-inner">
+      <div class="catalog-promises"><span>✓ أسعار منافسة</span><span>✓ خدمة عملاء</span></div>
+      <div class="catalog-contact-info"><span>◷ الدوام من 8 صباحًا إلى 10 مساءً</span><a href="https://wa.me/966506645562">واتساب 050 664 5562</a></div>
     </div>
   </div>
-</header>
-<nav id="catalog-top-nav" aria-label="أقسام المنتجات">
-<button type="button" id="catalog-menu-toggle" aria-expanded="false" aria-controls="catalog-top-links">☰ تصفّح أقسام المنتجات</button>
-<div id="catalog-top-links"></div>
-</nav>
+  <header class="site-header-modern">
+    <div class="site-header-inner">
+      <a href="index.html" class="site-brand-modern" aria-label="الصفحة الرئيسية">
+        <span class="site-brand-logo"><img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="logo-fallback-mark">أ</span></span>
+        <span class="site-brand-text"><strong>الأنسياب المتقدم</strong><small>أدوات ولوازم الغاز والرحلات والكشتات</small></span>
+      </a>
+      <form class="header-catalog-search" role="search" onsubmit="event.preventDefault();document.getElementById('catalog-search-input').value=this.elements.headerSearch.value;runCatalogSearch();">
+        <input name="headerSearch" type="search" aria-label="البحث في المنتجات" placeholder="ابحث عن منتج أو قسم…">
+        <button type="submit" aria-label="بحث">⌕</button>
+      </form>
+      <div class="header-shortcuts">
+        <a href="index.html" class="header-shortcut">⌂<span>الرئيسية</span></a>
+        <a href="https://wa.me/966506645562" class="header-shortcut">◉<span>الدعم</span></a>
+        <button class="header-shortcut cart-shortcut" type="button" onclick="openCartModal()">🛒<span>الطلبات</span><b class="cart-badge" id="cart-count">0</b></button>
+      </div>
+    </div>
+  </header>
+  <div class="admin-command-bar">
+    <div class="admin-command-inner">
+      <button class="cart-btn-trigger" onclick="openCartModal()">🛒 قائمة الطلبات <span class="cart-badge cart-count-mirror">0</span></button>
+      <button type="button" class="category-manager-top-btn admin-only" onclick="openCategoryManager()">▦ إدارة الأقسام</button>
+      <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
+      <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
+      <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
+      <button type="button" class="admin-only store-settings-btn" onclick="openStoreSettings()">⚙ إعدادات المتجر</button>
+    </div>
+  </div>
+  <nav id="catalog-top-nav" aria-label="أقسام المنتجات">
+    <button type="button" id="catalog-menu-toggle" aria-expanded="false" aria-controls="catalog-top-links">☰ تصفّح أقسام المنتجات</button>
+    <div id="catalog-top-links"></div>
+  </nav>
 
   <!-- Main Container -->
   <div class="main-container">
