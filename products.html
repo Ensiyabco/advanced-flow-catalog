@@ -2618,6 +2618,19 @@ function clearCatalogSearch() {
         const data = cloud?.loaded && Array.isArray(cloud.state?.products)
           ? cloud.state : await cloud?.load?.();
         if (!applyCatalogData(data)) throw new Error('Catalog unavailable');
+        // One-time safe migration: move legacy Base64 product images out of the JSON row.
+        if (adminMode && products.some(p => Array.isArray(p.images) && p.images.some(src => typeof src === 'string' && src.startsWith('data:image/')))) {
+          const { data: sessionData } = await cloud.client.auth.getSession();
+          if (sessionData?.session) {
+            document.getElementById('current-view-count').textContent = 'جارٍ تحسين الصور لأول مرة…';
+            const { data: migrated, error: migrationError } = await cloud.client.functions.invoke('migrate-product-images');
+            if (migrationError) console.warn('تعذر ترحيل الصور القديمة', migrationError);
+            else if (migrated?.ok) {
+              const fresh = await cloud.load();
+              applyCatalogData(fresh);
+            }
+          }
+        }
       } catch (error) {
         console.warn('تعذر تحميل المنتجات', error);
         const notice = document.createElement('p');
