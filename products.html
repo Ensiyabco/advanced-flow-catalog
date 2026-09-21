@@ -2153,14 +2153,14 @@ const uploadSourceFiles = new Map();
           image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر فتح إحدى الصور. أعد اختيار الصور.')); };
           image.onload = () => {
             try {
-              const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
+              const scale = Math.min(1, 1200 / Math.max(image.naturalWidth, image.naturalHeight));
               const canvas = document.createElement('canvas');
               canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
               canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
               const ctx = canvas.getContext('2d');
               ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
               ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-              resolve({src:canvas.toDataURL('image/jpeg', 0.86), file});
+              resolve({src:canvas.toDataURL('image/webp', 0.78), file});
             } catch (error) { reject(error); }
             finally { URL.revokeObjectURL(url); }
           };
@@ -2243,6 +2243,24 @@ const uploadSourceFiles = new Map();
       return Number.isSafeInteger(value) && value >= 1 ? value : NaN;
     }
 
+    async function uploadProductImagesToStorage(imageSources, productId) {
+      const cloud = window.ANSIYAB_CLOUD;
+      if (!cloud?.client) throw new Error('الاتصال بالسحابة غير متاح.');
+      const output = [];
+      for (let i = 0; i < imageSources.length; i++) {
+        const src = imageSources[i];
+        if (typeof src !== 'string' || !src.startsWith('data:image/')) { output.push(src); continue; }
+        const blob = await (await fetch(src)).blob();
+        const ext = blob.type === 'image/webp' ? 'webp' : (blob.type === 'image/png' ? 'png' : 'jpg');
+        const path = 'products/' + String(productId) + '/' + Date.now() + '-' + i + '-' + Math.random().toString(36).slice(2) + '.' + ext;
+        const { error } = await cloud.client.storage.from('product-images').upload(path, blob, {contentType: blob.type, cacheControl:'31536000', upsert:false});
+        if (error) throw error;
+        const { data } = cloud.client.storage.from('product-images').getPublicUrl(path);
+        output.push(data.publicUrl);
+      }
+      return output;
+    }
+
     async function saveProduct() {
       if (productSavePending) return;
       if (!adminMode) return alert('يرجى الدخول إلى وضع المشرف لحفظ المنتج.');
@@ -2272,9 +2290,16 @@ const uploadSourceFiles = new Map();
         }
       }
       if (modalImagesBase64.length === 0) modalImagesBase64 = [placeholderImg];
+      const targetProductId = editId === '-1' ? (nextProducts.length > 0 ? Math.max(...nextProducts.map(p => p.id)) + 1 : 1) : editId;
+      let storedImages;
+      try {
+        storedImages = await uploadProductImagesToStorage(modalImagesBase64, targetProductId);
+      } catch (error) {
+        return alert('تعذر رفع صور المنتج: ' + (error.message || error));
+      }
 
       if (editId === '-1') {
-        const newId = nextProducts.length > 0 ? Math.max(...nextProducts.map(p => p.id)) + 1 : 1;
+        const newId = targetProductId;
         nextProducts.push({
           id: newId,
           name: name,
@@ -2284,7 +2309,7 @@ const uploadSourceFiles = new Map();
           boxQty: boxQty,
           stockQty: stockQty,
           orderEnabled: document.getElementById('prod-order-enabled').checked,
-          images: modalImagesBase64
+          images: storedImages
         });
       } else {
         const prod = nextProducts.find(p => String(p.id) === editId);
@@ -2298,7 +2323,7 @@ const uploadSourceFiles = new Map();
           prod.unit = unit;
           prod.boxQty = boxQty;
           prod.stockQty = stockQty;
-          prod.images = modalImagesBase64;
+          prod.images = storedImages;
         }
       }
       
