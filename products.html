@@ -1322,7 +1322,7 @@ body:not(.admin-mode) #products-grid-container .stock-control-bar{display:none}
       return `${mainName}|||${subName}`;
     }
 
-    let products = readStorageArray('ansiyab_products_v7', []);
+    // The cloud catalog is the source of truth. Do not render a stale/demo local product while Supabase is loading.\n    let products = [];
 
     let cart = readStorageArray('ansiyab_cart', []).map(item => ({...item, qty: item.qty ?? item.quantity ?? 1, unitType: item.unitType ?? item.unit ?? 'حبة'}));
     let modalImagesBase64 = [];
