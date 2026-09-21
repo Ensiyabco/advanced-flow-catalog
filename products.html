@@ -1196,7 +1196,7 @@ body:not(.admin-mode) #products-grid-container .stock-control-bar{display:none}
   <!-- JavaScript Code -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="supabase-bridge.js?v=cloud-save-2"></script>
+  <script src="supabase-bridge.js?v=cloud-fast-1"></script>
   <script>
     // ===== وضع المشرف =====
     let adminMode = localStorage.getItem("isAdmin") === "true";
@@ -1599,9 +1599,11 @@ body:not(.admin-mode) #products-grid-container .stock-control-bar{display:none}
       const moreWrap=document.createElement('div');moreWrap.className='catalog-more-wrap';
       const more=document.createElement('button');more.type='button';more.className='catalog-more-button';
       moreWrap.appendChild(more);
+      const INITIAL_BATCH = 24;
+      const NEXT_BATCH = 24;
       function appendNext() {
         moreWrap.remove();
-        const batch=list.slice(shown);
+        const batch=list.slice(shown, shown + (shown === 0 ? INITIAL_BATCH : NEXT_BATCH));
         batch.forEach(p => {
         const mainImg = (p.images && p.images.length > 0) ? p.images[0] : placeholderImg;
         let thumbsHtml = '';
