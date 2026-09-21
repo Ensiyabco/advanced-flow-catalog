@@ -2668,7 +2668,11 @@ function clearCatalogSearch() {
         if (!applyCatalogData(data)) throw new Error('Catalog unavailable');
         // Safe resumable migration: small batches to avoid connection timeouts.
         if (adminMode && products.some(p => Array.isArray(p.images) && p.images.some(src => typeof src === 'string' && src.startsWith('data:image/')))) {
-          const { data: sessionData } = await cloud.client.auth.getSession();
+          let { data: sessionData } = await cloud.client.auth.getSession();
+          if (!sessionData?.session) {
+            const signedIn = await cloud.signIn();
+            if (signedIn) ({ data: sessionData } = await cloud.client.auth.getSession());
+          }
           if (sessionData?.session) {
             let remaining = products.reduce((n,p)=>n+(Array.isArray(p.images)?p.images.filter(src=>typeof src==='string'&&src.startsWith('data:image/')).length:0),0);
             const countEl = document.getElementById('current-view-count');
