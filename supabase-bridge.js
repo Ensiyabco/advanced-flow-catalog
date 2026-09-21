@@ -12,7 +12,7 @@
   function saveLocal(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
 
   const homePage = /\/$|\/index\.html$/.test(location.pathname);
-  const readColumns = homePage ? 'id,categories,store_settings,updated_at' : 'id,categories,products,store_settings,updated_at';
+  // Visitors and admins read the same cloud catalog; RLS still restricts writes to authenticated users.\n  const readColumns = 'id,categories,products,store_settings,updated_at';
 
   async function load(){
     if(!client) return null;
