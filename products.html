@@ -1245,6 +1245,9 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
   <script>
     // ===== وضع المشرف =====
     let adminMode = localStorage.getItem("isAdmin") === "true";
+    // Declare cloud catalog state before initialization so early startup cannot hit the temporal dead zone.
+    let products = [];
+
 
     function setAdminMode(enabled) {
       adminMode = !!enabled;
@@ -1367,7 +1370,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       return `${mainName}|||${subName}`;
     }
 
-    // The cloud catalog is the source of truth. Do not render a stale/demo local product while Supabase is loading.\n    let products = [];
+    // The cloud catalog is the source of truth. Do not render a stale/demo local product while Supabase is loading.
 
     let cart = readStorageArray('ansiyab_cart', []).map(item => ({...item, qty: item.qty ?? item.quantity ?? 1, unitType: item.unitType ?? item.unit ?? 'حبة'}));
     let modalImagesBase64 = [];
