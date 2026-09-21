@@ -2663,17 +2663,27 @@ function clearCatalogSearch() {
         const data = cloud?.loaded && Array.isArray(cloud.state?.products)
           ? cloud.state : await cloud?.load?.();
         if (!applyCatalogData(data)) throw new Error('Catalog unavailable');
-        // One-time safe migration: move legacy Base64 product images out of the JSON row.
+        // Safe resumable migration: small batches to avoid connection timeouts.
         if (adminMode && products.some(p => Array.isArray(p.images) && p.images.some(src => typeof src === 'string' && src.startsWith('data:image/')))) {
           const { data: sessionData } = await cloud.client.auth.getSession();
           if (sessionData?.session) {
-            document.getElementById('current-view-count').textContent = 'جارٍ تحسين الصور لأول مرة…';
-            const { data: migrated, error: migrationError } = await cloud.client.functions.invoke('migrate-product-images');
-            if (migrationError) console.warn('تعذر ترحيل الصور القديمة', migrationError);
-            else if (migrated?.ok) {
-              const fresh = await cloud.load();
-              applyCatalogData(fresh);
+            let remaining = products.reduce((n,p)=>n+(Array.isArray(p.images)?p.images.filter(src=>typeof src==='string'&&src.startsWith('data:image/')).length:0),0);
+            const countEl = document.getElementById('current-view-count');
+            countEl.textContent = `جارٍ تحسين الصور… متبقي ${remaining}`;
+            while (remaining > 0) {
+              const { data: migrated, error: migrationError } = await cloud.client.functions.invoke('migrate-product-images', { body: { batchSize: 5 } });
+              if (migrationError || !migrated?.ok) {
+                console.warn('تعذر ترحيل دفعة الصور', migrationError || migrated);
+                countEl.textContent = `توقف تحسين الصور مؤقتًا — متبقي ${remaining}`;
+                break;
+              }
+              remaining = Number(migrated.remaining || 0);
+              countEl.textContent = remaining ? `جارٍ تحسين الصور… متبقي ${remaining}` : 'اكتمل تحسين الصور';
+              if (migrated.done || migrated.uploaded === 0) break;
+              await new Promise(resolve => setTimeout(resolve, 1200));
             }
+            const fresh = await cloud.load();
+            applyCatalogData(fresh);
           }
         }
       } catch (error) {
