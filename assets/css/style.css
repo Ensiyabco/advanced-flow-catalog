@@ -176,3 +176,24 @@ body { background-color: var(--bg-light); color: var(--text-color); direction: r
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 168, 204, 0.35);
 }
+
+/* Mobile responsive header/navigation */
+html, body { width:100%; max-width:100%; overflow-x:hidden; }
+img, video, iframe { max-width:100%; }
+@media (max-width: 700px) {
+  .container { width:100%; max-width:100%; padding-left:16px; padding-right:16px; }
+  .site-header { position:relative; top:auto; padding:.75rem 0; }
+  .header-flex { flex-direction:column; align-items:stretch; gap:.8rem; }
+  .logo-area { justify-content:center; min-width:0; }
+  .logo-area > div { min-width:0; }
+  .logo-area h1 { font-size:1.15rem; white-space:normal; }
+  .logo-area p { font-size:.76rem; white-space:normal; }
+  .main-nav { width:100%; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; }
+  .main-nav a { min-width:0; padding:.55rem .2rem; text-align:center; font-size:.84rem; white-space:normal; overflow-wrap:anywhere; }
+  .hero { width:100%; padding:2.5rem 16px; }
+  .hero h2 { font-size:1.8rem; }
+  .categories,.featured,.about,.contact { width:100%; max-width:100%; padding:1.5rem 0; }
+  .grid { width:100%; grid-template-columns:minmax(0,1fr) !important; gap:1.25rem !important; padding:0 16px; }
+  .cat-card,.product-card { width:100%; min-width:0; }
+  .footer { width:100%; margin-top:2.5rem; }
+}
