@@ -2542,10 +2542,10 @@ const uploadSourceFiles = new Map();
     }
 
     function updateCartBadge() {
-      const badge = document.getElementById('cart-count');
-      if (!badge) return;
       const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-      badge.innerText = totalQty;
+      document.querySelectorAll('#cart-count, .cart-count-mirror').forEach(badge => {
+        badge.textContent = String(totalQty);
+      });
     }
 
     function readOrderQuantity(value) {
