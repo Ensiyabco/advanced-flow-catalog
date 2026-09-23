@@ -1058,7 +1058,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 
 <div class="ensiyabco-watermark" aria-hidden="true">
   <div class="ensiyabco-watermark-inner">
-    <img src="assets/images/ensiyabco-watermark.png" alt="">
+    <img src="assets/images/ensiyabco-watermark.webp" alt="">
     <div class="ensiyabco-watermark-name">الأنسياب المتقدم</div>
     <div class="ensiyabco-watermark-desc">أدوات ولوازم الغاز والرحلات والكشتات</div>
     <div class="ensiyabco-watermark-en">ENSIYABCO · ADVANCED FLOW</div>
@@ -1076,7 +1076,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
   <header class="site-header-modern">
     <div class="site-header-inner">
       <a href="index.html" class="site-brand-modern" aria-label="الصفحة الرئيسية">
-        <span class="site-brand-logo"><img src="assets/images/logo.png" alt="شعار الأنسياب المتقدم" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="logo-fallback-mark">أ</span></span>
+        <span class="site-brand-logo"><img src="assets/images/logo.webp" alt="شعار الأنسياب المتقدم" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="logo-fallback-mark">أ</span></span>
         <span class="site-brand-text"><strong>الأنسياب المتقدم</strong><small>أدوات ولوازم الغاز والرحلات والكشتات</small></span>
       </a>
       <form class="header-catalog-search" role="search" onsubmit="event.preventDefault();document.getElementById('catalog-search-input').value=this.elements.headerSearch.value;runCatalogSearch();">
@@ -2753,7 +2753,7 @@ function clearCatalogSearch() {
     <h3 id="category-modal-title">إضافة قسم رئيسي جديد</h3>
     <input type="hidden" id="category-edit-index" value="-1">
     <div class="cat-edit-layout">
-      <div class="cat-preview-wrap"><img id="main-cat-preview" src="assets/images/logo.png" alt="صورة القسم"></div>
+      <div class="cat-preview-wrap"><img id="main-cat-preview" src="assets/images/logo.webp" alt="صورة القسم" loading="lazy"></div>
       <div class="cat-edit-fields">
         <div class="form-group"><label>اسم القسم الرئيسي</label><input type="text" id="new-main-cat-name" placeholder="مثال: مواقد غاز"></div>
         <div class="form-group"><label>صورة القسم</label><input type="file" id="new-main-cat-image" accept="image/*" onchange="previewMainCategoryImage(this)"></div>
@@ -2775,7 +2775,7 @@ function clearCatalogSearch() {
     <h3>تعديل القسم الفرعي</h3>
     <input type="hidden" id="subcategory-edit-cat-index"><input type="hidden" id="subcategory-edit-index">
     <div class="cat-edit-layout">
-      <div class="cat-preview-wrap"><img id="edit-sub-preview" src="assets/images/logo.png" alt="صورة القسم الفرعي"></div>
+      <div class="cat-preview-wrap"><img id="edit-sub-preview" src="assets/images/logo.webp" alt="صورة القسم الفرعي" loading="lazy"></div>
       <div class="cat-edit-fields">
         <div class="form-group"><label>القسم الرئيسي</label><input type="text" id="edit-sub-main-name" readonly style="background:#edf2f7"></div>
         <div class="form-group"><label>اسم القسم الفرعي</label><input type="text" id="edit-sub-cat-name"></div>
@@ -2805,7 +2805,7 @@ function clearCatalogSearch() {
         <input id="store-tagline-setting" type="text" placeholder="أدوات ولوازم الغاز والرحلات والكشتات">
       </label>
       <label>مسار/رابط الشعار
-        <input id="store-logo-setting" type="text" placeholder="assets/images/logo.png">
+        <input id="store-logo-setting" type="text" placeholder="assets/images/logo.webp">
       </label>
       <label>صورة أول شريحة في الشريط
         <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp">
@@ -2831,7 +2831,7 @@ function clearCatalogSearch() {
     const s=read();
     document.getElementById("store-name-setting").value=s.name||"الأنسياب المتقدم";
     document.getElementById("store-tagline-setting").value=s.tagline||"أدوات ولوازم الغاز والرحلات والكشتات";
-    document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.png";
+    document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.webp";
     document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp";
     document.getElementById("store-hero-preview").src=document.getElementById("store-hero-setting").value;
     document.getElementById("store-settings").classList.add("open");
@@ -2841,7 +2841,7 @@ function clearCatalogSearch() {
     localStorage.setItem("ansiyab_store_settings",JSON.stringify({
       name:document.getElementById("store-name-setting").value.trim()||"الأنسياب المتقدم",
       tagline:document.getElementById("store-tagline-setting").value.trim()||"أدوات ولوازم الغاز والرحلات والكشتات",
-      logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.png",
+      logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.webp",
       hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp"
     }));
     if(window.ANSIYAB_CLOUD?.push) window.ANSIYAB_CLOUD.push();

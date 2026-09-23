@@ -390,7 +390,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 <body>
 <div class="ensiyabco-watermark" aria-hidden="true">
   <div class="ensiyabco-watermark-inner">
-    <img src="assets/images/ensiyabco-watermark.png" alt="">
+    <img src="assets/images/ensiyabco-watermark.webp" alt="">
     <div class="ensiyabco-watermark-name">الأنسياب المتقدم</div>
     <div class="ensiyabco-watermark-desc">أدوات ولوازم الغاز والرحلات والكشتات</div>
     <div class="ensiyabco-watermark-en">ENSIYABCO · ADVANCED FLOW</div>
@@ -399,7 +399,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
   <header>
     <a href="index.html" class="logo-container">
-      <img src="assets/images/logo.png" alt="شعار المتجر" id="logo-img" onerror="this.onerror=null;this.src='assets/images/logo.png'">
+      <img src="assets/images/logo.webp" alt="شعار المتجر" id="logo-img" onerror="this.onerror=null;this.src='assets/images/logo.webp'">
       <div class="logo-text">الأنسياب المتقدم | كتالوج ومعرض لعملاء الجملة</div>
     </a>
     <div style="display: flex; align-items: center; gap: 15px;">
@@ -543,7 +543,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
     function getStoreLogoSrc() {
       const logoImg = document.getElementById('logo-img');
-      return logoImg ? logoImg.src : 'assets/images/logo.png';
+      return logoImg ? logoImg.src : 'assets/images/logo.webp';
     }
 
     let categoryImages = {};
@@ -783,7 +783,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         <input id="store-tagline-setting" type="text" placeholder="أدوات ولوازم الغاز والرحلات والكشتات">
       </label>
       <label>مسار/رابط الشعار
-        <input id="store-logo-setting" type="text" placeholder="assets/images/logo.png">
+        <input id="store-logo-setting" type="text" placeholder="assets/images/logo.webp">
       </label>
       <label>صورة أول شريحة في الشريط
         <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp">
@@ -812,7 +812,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     const s=read();
     document.getElementById("store-name-setting").value=s.name||"الأنسياب المتقدم";
     document.getElementById("store-tagline-setting").value=s.tagline||"أدوات ولوازم الغاز والرحلات والكشتات";
-    document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.png";
+    document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.webp";
     document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp";
     document.getElementById("store-hero-preview").src=document.getElementById("store-hero-setting").value;
     document.getElementById("store-settings").classList.add("open");
@@ -822,7 +822,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     localStorage.setItem("ansiyab_store_settings",JSON.stringify({
       name:document.getElementById("store-name-setting").value.trim()||"الأنسياب المتقدم",
       tagline:document.getElementById("store-tagline-setting").value.trim()||"أدوات ولوازم الغاز والرحلات والكشتات",
-      logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.png",
+      logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.webp",
       hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp"
     }));
     if(window.ANSIYAB_CLOUD?.push) window.ANSIYAB_CLOUD.push();
