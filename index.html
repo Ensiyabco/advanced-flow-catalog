@@ -633,11 +633,11 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       } else {
         cart.forEach((item, index) => {
           const row = document.createElement('div');
-          row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #f1f5f9; font-size: 13px;";
+          row.style.cssText = "display: flex; flex-wrap:wrap; gap:10px; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #f1f5f9; font-size: 13px;";
           row.innerHTML = `
             <div style="font-weight: 700; color: #2d3748;">${index + 1}. ${item.name}</div>
             <div style="display:flex; align-items:center; gap:10px;">
-              <span style="color: #718096; font-weight: 600; font-size: 12px; background: #edf2f7; padding: 3px 8px; border-radius: 4px;">${item.quantity} ${item.unit}</span>
+              <span class="cart-quantity-summary" style="color:#173b63;font-weight:700;font-size:16px;background:#edf6ff;padding:8px 12px;border-radius:8px;white-space:nowrap;">الكمية: <b dir="ltr" style="font:800 22px Arial,sans-serif">${item.quantity}</b> ${item.unit}</span>
               <button style="background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 14px; font-weight: 700;" onclick="removeFromCart(${item.id})">✕</button>
             </div>
           `;
