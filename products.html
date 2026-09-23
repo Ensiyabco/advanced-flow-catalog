@@ -1129,21 +1129,6 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
     </main>
   </div>
 
-  <!-- Add Main Category Modal -->
-  <div class="modal-overlay" id="category-modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom: 15px;">إضافة قسم رئيسي جديد</h3>
-      <div class="form-group">
-        <label>اسم القسم الرئيسي الجديد</label>
-        <input type="text" id="new-main-cat-name" placeholder="مثال: أجهزة طهي حديثة">
-      </div>
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button onclick="closeModal('category-modal')" style="padding: 8px 15px; border: none; background: #cbd5e0; border-radius: 4px; cursor: pointer;">إلغاء</button>
-        <button onclick="saveNewMainCategory()" style="padding: 8px 15px; border: none; background: var(--secondary-color); color: white; border-radius: 4px; cursor: pointer;">حفظ القسم</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Add Sub Category Modal -->
   <div class="modal-overlay" id="subcategory-modal">
     <div class="modal-content">
@@ -1396,28 +1381,74 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       document.getElementById('category-modal').style.display = 'flex';
     }
 
-    function saveNewMainCategory() {
-      if (!adminMode) return;
-      const name = document.getElementById('new-main-cat-name').value.trim();
-      if (!name) return alert("يرجى كتابة اسم القسم الرئيسي!");
-      if (categories.some(c => c.name.trim() === name)) return alert("هذا القسم موجود بالفعل!");
+    let mainCategorySaving = false;
 
-      const image = document.getElementById('main-cat-preview').src || placeholderImg;
-      const cat = {
-        name,
-        subCats: [],
-        image: image,
-        description: document.getElementById('new-main-cat-description').value.trim(),
-        info: document.getElementById('new-main-cat-info').value.trim(),
-        order: Number(document.getElementById('new-main-cat-order').value) || categories.length + 1
-      };
-      categories.push(cat);
-      categoryImages[name] = image;
-      localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
-      saveCategoriesData();
-      buildCategoryAccordion();
-      closeModal('category-modal');
-      alert(`تم حفظ القسم الرئيسي (${name}) بنجاح.`);
+    async function commitMainCategory(nextCategories, nextProducts, nextImages, nextMeta, nextAliases, selectedName) {
+      if (mainCategorySaving) return false;
+      const cloud = window.ANSIYAB_CLOUD;
+      const version = cloud?.state?.updated_at;
+      if (!cloud?.client || !version) {
+        alert('لم يكتمل تحميل الكتالوج. أعد تحميل الصفحة قبل الحفظ.');
+        return false;
+      }
+      mainCategorySaving = true;
+      const button = document.querySelector('#category-modal .primary');
+      const label = button.textContent;
+      button.disabled = true;
+      button.textContent = 'جارٍ الحفظ…';
+      try {
+        if (!(await cloud.signIn())) return false;
+        const settings = Object.assign({}, cloud.state.store_settings || {}, {
+          _categoryImages: nextImages, _subCategoryMeta: nextMeta, _categoryAliases: nextAliases
+        });
+        const payload = {categories: nextCategories, products: nextProducts,
+          store_settings: settings, updated_at: new Date().toISOString()};
+        // A single confirmed write keeps category names, products and metadata together.
+        const {data,error} = await cloud.client.from('catalog_state').update(payload)
+          .eq('id','main').eq('updated_at',version).select('id,updated_at').maybeSingle();
+        if (error) throw new Error(error.message || 'تعذر الحفظ.');
+        if (!data) throw new Error('تغيّر الكتالوج في جلسة أخرى. أعد تحميل الصفحة ثم أعد التعديل.');
+        categories = nextCategories;
+        products = nextProducts;
+        categoryImages = nextImages;
+        subCategoryMeta = nextMeta;
+        cloud.state = Object.assign({}, cloud.state, payload, data);
+        const cache = {'ansiyab_categories_v1':categories,'ansiyab_products_v7':products,
+          'ansiyab_products':products,'ansiyab_cat_images':categoryImages,
+          'ansiyab_subcategory_meta_v1':subCategoryMeta};
+        for (const [key,value] of Object.entries(cache)) {
+          try {localStorage.setItem(key,JSON.stringify(value));} catch (_) { /* Cloud is authoritative. */ }
+        }
+        const clean = Object.assign({},settings);delete clean._categoryImages;delete clean._subCategoryMeta;
+        try {localStorage.setItem('ansiyab_store_settings',JSON.stringify(clean));} catch (_) {}
+        buildCategoryAccordion();
+        closeModal('category-modal');
+        clickMainCategory(selectedName);
+        alert('تم حفظ القسم بنجاح.');
+        return true;
+      } catch (error) {
+        alert('لم يتم حفظ التعديل: ' + (error.message || error));
+        return false;
+      } finally {
+        mainCategorySaving = false;button.disabled=false;button.textContent=label;
+      }
+    }
+
+    async function saveNewMainCategory() {
+      if (!adminMode || mainCategorySaving) return;
+      // Even an old caller must never create a new category while editing one.
+      if (Number(document.getElementById('category-edit-index').value) >= 0) return saveMainCategoryEdit();
+      const name = document.getElementById('new-main-cat-name').value.trim();
+      if (!name) return alert('يرجى كتابة اسم القسم الرئيسي!');
+      if (categories.some(c=>normalizeCategoryName(c.name)===normalizeCategoryName(name))) return alert('هذا القسم موجود بالفعل!');
+      const image=document.getElementById('main-cat-preview').src || placeholderImg;
+      const next=structuredClone(categories);
+      next.push({name,subCats:[],image,
+        description:document.getElementById('new-main-cat-description').value.trim(),
+        info:document.getElementById('new-main-cat-info').value.trim(),
+        order:Number(document.getElementById('new-main-cat-order').value)||categories.length+1});
+      return commitMainCategory(next,structuredClone(products),{...categoryImages,[name]:image},
+        structuredClone(subCategoryMeta),{...(window.ANSIYAB_CLOUD.state?.store_settings?._categoryAliases||{})},name);
     }
 
     function editMainCategory(index, event) {
@@ -1428,6 +1459,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 
       document.getElementById('category-modal-title').textContent = 'تعديل القسم الرئيسي';
       document.getElementById('category-edit-index').value = index;
+      document.getElementById('category-edit-index').dataset.originalName = cat.name;
       document.getElementById('new-main-cat-name').value = cat.name || '';
       document.getElementById('new-main-cat-description').value = cat.description || '';
       document.getElementById('new-main-cat-info').value = cat.info || '';
@@ -1437,45 +1469,46 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       document.getElementById('category-modal').style.display = 'flex';
     }
 
-    function saveMainCategoryEdit() {
-      if (!adminMode) return;
-      const index = Number(document.getElementById('category-edit-index').value);
-      const cat = categories[index];
-      if (!cat) return;
-
-      const oldName = cat.name;
-      const name = document.getElementById('new-main-cat-name').value.trim();
-      if (!name) return alert("اسم القسم لا يمكن أن يكون فارغاً.");
-      if (categories.some((c,i) => i !== index && c.name.trim() === name)) return alert("يوجد قسم رئيسي بهذا الاسم بالفعل.");
-
-      cat.name = name;
-      cat.description = document.getElementById('new-main-cat-description').value.trim();
-      cat.info = document.getElementById('new-main-cat-info').value.trim();
-      cat.order = Number(document.getElementById('new-main-cat-order').value) || index + 1;
-
-      const preview = document.getElementById('main-cat-preview').src;
-      if (preview && preview !== 'about:blank') cat.image = preview;
-
-      products.forEach(p => {
-        if (p.mainCat === oldName) p.mainCat = name;
-      });
-
-      if (categoryImages[oldName] && !cat.image) cat.image = categoryImages[oldName];
-      if (oldName !== name) delete categoryImages[oldName];
-      categoryImages[name] = cat.image || placeholderImg;
-      localStorage.setItem('ansiyab_cat_images', JSON.stringify(categoryImages));
-
-      saveCategoriesData();
-      saveProductsData();
-      buildCategoryAccordion();
-      closeModal('category-modal');
-      renderProducts(products, "جميع المنتجات");
+    async function saveMainCategoryEdit() {
+      if (!adminMode || mainCategorySaving) return;
+      const field=document.getElementById('category-edit-index');
+      const index=Number(field.value), original=categories[index];
+      if (!original || original.name !== field.dataset.originalName) return alert('تغيّر القسم أثناء التعديل. أغلق النافذة وافتح القسم مجددًا.');
+      const oldName=original.name;
+      const name=document.getElementById('new-main-cat-name').value.trim();
+      if(!name)return alert('اسم القسم لا يمكن أن يكون فارغاً.');
+      if(categories.some((cat,i)=>i!==index&&normalizeCategoryName(cat.name)===normalizeCategoryName(name))) return alert('يوجد قسم رئيسي بهذا الاسم بالفعل.');
+      const next=structuredClone(categories),cat=next[index];
+      cat.name=name;
+      cat.description=document.getElementById('new-main-cat-description').value.trim();
+      cat.info=document.getElementById('new-main-cat-info').value.trim();
+      cat.order=Number(document.getElementById('new-main-cat-order').value)||index+1;
+      const preview=document.getElementById('main-cat-preview').src;
+      if(preview && preview!=='about:blank')cat.image=preview;
+      const nextProducts=products.map(p=>p.mainCat===oldName?{...p,mainCat:name}:structuredClone(p));
+      const images={...categoryImages};
+      if(oldName!==name)delete images[oldName];
+      images[name]=cat.image||categoryImages[oldName]||placeholderImg;
+      const meta=structuredClone(subCategoryMeta);
+      if(oldName!==name)for(const key of Object.keys(meta)){
+        if(key.startsWith(oldName+'|||')){
+          const newKey=name+key.slice(oldName.length);
+          if(Object.hasOwn(meta,newKey))return alert('توجد بيانات سابقة لهذا الاسم. اختر اسمًا آخر.');
+          meta[newKey]=meta[key];delete meta[key];
+        }
+      }
+      const aliases={...(window.ANSIYAB_CLOUD.state?.store_settings?._categoryAliases||{})};
+      if(oldName!==name){
+        for(const key of Object.keys(aliases))if(aliases[key]===oldName)aliases[key]=name;
+        aliases[oldName]=name;delete aliases[name];
+      }
+      return commitMainCategory(next,nextProducts,images,meta,aliases,name);
     }
 
-    function saveMainCategoryModal() {
-      const index = Number(document.getElementById('category-edit-index').value);
-      if (index >= 0) saveMainCategoryEdit();
-      else saveNewMainCategory();
+    async function saveMainCategoryModal() {
+      if(mainCategorySaving)return;
+      const index=Number(document.getElementById('category-edit-index').value);
+      return index>=0 ? saveMainCategoryEdit() : saveNewMainCategory();
     }
 
     function previewMainCategoryImage(input) {
@@ -1871,7 +1904,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         <div class="inner-breadcrumb" style="grid-column:1/-1">
           <button type="button" onclick="resetCategoryFilter()">الرئيسية</button>
           <span>›</span>
-          <button type="button" onclick="clickMainCategory(${JSON.stringify(mainCatName)})">${escapeHtml(mainCatName)}</button>
+          <button type="button" onclick="clickMainCategory(${escapeHtml(JSON.stringify(mainCatName))})">${escapeHtml(mainCatName)}</button>
         </div>
         <div class="subcat-view-prompt" style="grid-column:1/-1">اختر القسم الفرعي</div>
 
@@ -1905,7 +1938,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       crumb.innerHTML = `
         <button type="button" onclick="resetCategoryFilter()">الرئيسية</button>
         <span>›</span>
-        <button type="button" onclick="clickMainCategory(${JSON.stringify(mainCat)})">${escapeHtml(mainCat)}</button>
+        <button type="button" onclick="clickMainCategory(${escapeHtml(JSON.stringify(mainCat))})">${escapeHtml(mainCat)}</button>
         ${subCat ? `<span>›</span><span class="breadcrumb-current">${escapeHtml(subCat)}</span>` : ''}
       `;
       grid.prepend(crumb);
@@ -2575,7 +2608,11 @@ const uploadSourceFiles = new Map();
 
     function findCategoryIndexByName(name) {
       const target = normalizeCategoryName(name);
-      return categories.findIndex(c => normalizeCategoryName(c && c.name) === target);
+      const direct = categories.findIndex(c => normalizeCategoryName(c && c.name) === target);
+      if (direct >= 0) return direct;
+      const aliases = Object.assign({'دوافير ودبات':'دبات وروس دوافير'}, window.ANSIYAB_CLOUD?.state?.store_settings?._categoryAliases || {});
+      const resolved = aliases[name];
+      return resolved ? categories.findIndex(c => normalizeCategoryName(c.name) === normalizeCategoryName(resolved)) : -1;
     }
 
 
