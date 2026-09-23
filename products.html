@@ -2668,11 +2668,7 @@ function clearCatalogSearch() {
         if (!applyCatalogData(data)) throw new Error('Catalog unavailable');
         // Safe resumable migration: small batches to avoid connection timeouts.
         if (adminMode && products.some(p => Array.isArray(p.images) && p.images.some(src => typeof src === 'string' && src.startsWith('data:image/')))) {
-          let { data: sessionData } = await cloud.client.auth.getSession();
-          if (!sessionData?.session) {
-            const signedIn = await cloud.signIn();
-            if (signedIn) ({ data: sessionData } = await cloud.client.auth.getSession());
-          }
+          const { data: sessionData } = await cloud.client.auth.getSession();
           if (sessionData?.session) {
             let remaining = products.reduce((n,p)=>n+(Array.isArray(p.images)?p.images.filter(src=>typeof src==='string'&&src.startsWith('data:image/')).length:0),0);
             const countEl = document.getElementById('current-view-count');
@@ -2812,10 +2808,10 @@ function clearCatalogSearch() {
         <input id="store-logo-setting" type="text" placeholder="assets/images/logo.png">
       </label>
       <label>صورة أول شريحة في الشريط
-        <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png">
+        <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp">
       </label>
     </div>
-    <img id="store-hero-preview" class="store-settings-preview" src="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png" alt="معاينة">
+    <img id="store-hero-preview" class="store-settings-preview" src="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp" alt="معاينة" loading="lazy">
     <div class="store-settings-actions">
       <button type="button" onclick="saveStoreSettings()" style="background:#1f5f9f;color:#fff">حفظ</button>
       <button type="button" onclick="closeStoreSettings()" style="background:#edf2f7;color:#243b53">إلغاء</button>
@@ -2836,7 +2832,7 @@ function clearCatalogSearch() {
     document.getElementById("store-name-setting").value=s.name||"الأنسياب المتقدم";
     document.getElementById("store-tagline-setting").value=s.tagline||"أدوات ولوازم الغاز والرحلات والكشتات";
     document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.png";
-    document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png";
+    document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp";
     document.getElementById("store-hero-preview").src=document.getElementById("store-hero-setting").value;
     document.getElementById("store-settings").classList.add("open");
   };
@@ -2846,7 +2842,7 @@ function clearCatalogSearch() {
       name:document.getElementById("store-name-setting").value.trim()||"الأنسياب المتقدم",
       tagline:document.getElementById("store-tagline-setting").value.trim()||"أدوات ولوازم الغاز والرحلات والكشتات",
       logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.png",
-      hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png"
+      hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp"
     }));
     if(window.ANSIYAB_CLOUD?.push) window.ANSIYAB_CLOUD.push();
     closeStoreSettings(); location.reload();
@@ -3156,79 +3152,38 @@ function clearCatalogSearch() {
         }
         group.end = y; group.ink += count;
       }
-      const lines = groups.filter(g => g.end - g.start >= 4 && g.ink >= 100);
-      const caption = lines.pop();
-      if (!caption) return [];
-      // Read the neighbouring model-code line separately; never let it compete
-      // with the Arabic name as an alternative OCR result.
-      const selected = [caption];
-      const previous = lines.pop();
-      if (previous && caption.start - previous.end <= probe.height * .09 &&
-          previous.end - previous.start <= (caption.end - caption.start) * 1.6) {
-        selected.push(previous);
-      }
-      return selected.map((line, index) => {
-        const top = Math.max(0, line.start / probe.height - .012);
-        const bottom = Math.min(footer - .006, (line.end + 1) / probe.height + .012);
+      const line = groups.filter(g => g.end - g.start >= 4 && g.ink >= 100).pop();
+      const regions = line ? [[Math.max(0, line.start / probe.height - .012),
+        Math.min(footer - .006, (line.end + 1) / probe.height + .012)]] : [];
+      if (!regions.length) return [];
+      return regions.map(([top, bottom]) => {
         const crop = canvas(full.width * .97, full.height * (bottom - top));
         const cc = crop.getContext('2d', {willReadFrequently: true});
-        cc.drawImage(full, full.width * .015, full.height * top,
+        cc.drawImage(full, full.width * .015, Math.max(0, full.height * top),
           full.width * .97, crop.height, 0, 0, crop.width, crop.height);
-        const raw = cc.getImageData(0, 0, crop.width, crop.height);
-        let left = crop.width, right = -1, upper = crop.height, lower = -1;
-        for (let y = 0; y < crop.height; y++) for (let x = 0; x < crop.width; x++) {
-          const i = (y * crop.width + x) * 4;
-          const hi = Math.max(raw.data[i], raw.data[i+1], raw.data[i+2]);
-          const lo = Math.min(raw.data[i], raw.data[i+1], raw.data[i+2]);
-          if (hi < 135 && hi - lo < 32) {
-            left = Math.min(left, x); right = Math.max(right, x);
-            upper = Math.min(upper, y); lower = Math.max(lower, y);
+        const pixels = cc.getImageData(0, 0, crop.width, crop.height);
+        let left=crop.width, right=-1, upper=crop.height, lower=-1;
+        for (let i=0; i<pixels.data.length; i+=4) {
+          const r=pixels.data[i], g=pixels.data[i+1], b=pixels.data[i+2];
+          if (Math.max(r,g,b)<100 && Math.max(r,g,b)-Math.min(r,g,b)<32) {
+            const x=(i/4)%crop.width, y=Math.floor(i/4/crop.width);
+            left=Math.min(left,x); right=Math.max(right,x);
+            upper=Math.min(upper,y); lower=Math.max(lower,y);
           }
+          const gray=Math.round(.299*r+.587*g+.114*b);
+          pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=gray;
         }
-        if (right < left) return {kind: index ? 'code' : 'name', variants: []};
-        left = Math.max(0, left - 10); upper = Math.max(0, upper - 10);
-        right = Math.min(crop.width, right + 11); lower = Math.min(crop.height, lower + 11);
-        const width = right - left, height = lower - upper;
-        const ratio = Math.min(4, 3200 / width, 900 / height);
-        const variants = [false, true].map(binary => {
-          const padded = canvas(width * ratio + 48, height * ratio + 48);
-          const out = padded.getContext('2d', {willReadFrequently: true});
-          out.fillStyle = 'white'; out.fillRect(0, 0, padded.width, padded.height);
-          out.drawImage(crop, left, upper, width, height, 24, 24, padded.width - 48, padded.height - 48);
-          const pixels = out.getImageData(0, 0, padded.width, padded.height);
-          for (let i = 0; i < pixels.data.length; i += 4) {
-            const r = pixels.data[i], g = pixels.data[i+1], b = pixels.data[i+2];
-            const hi = Math.max(r, g, b), lo = Math.min(r, g, b);
-            // Keep a continuous-tone version to preserve thin letters and dots.
-            const value = binary ? (hi < 165 && hi - lo < 48 ? 0 : 255) :
-              Math.max(0, Math.min(255, (.299*r + .587*g + .114*b - 20) * 1.12));
-            pixels.data[i] = pixels.data[i+1] = pixels.data[i+2] = value;
-          }
-          out.putImageData(pixels, 0, 0);
-          return padded;
-        });
-        return {kind: index ? 'code' : 'name', variants};
+        cc.putImageData(pixels,0,0);
+        if(right<left) { left=0;right=crop.width-1;upper=0;lower=crop.height-1; }
+        const width=right-left+1, height=lower-upper+1;
+        const ratio=54/height;
+        const padded=canvas(width*ratio+30,84);
+        const out=padded.getContext('2d');
+        out.fillStyle='white';out.fillRect(0,0,padded.width,padded.height);
+        out.drawImage(crop,left,upper,width,height,15,15,padded.width-30,54);
+        return padded;
       });
     } finally { URL.revokeObjectURL(url); }
-  }
-
-
-  function scoreCandidate(data, kind) {
-    const text = String(data.text || '').replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '').replace(/\s+/g, ' ').trim();
-    const confidence = Math.max(0, Math.min(100, Number(data.confidence) || 0));
-    const letters = (text.match(/[\p{L}]/gu) || []).length;
-    const digits = (text.match(/[\p{N}]/gu) || []).length;
-    const count = letters + digits;
-    const noise = (text.match(/[^\p{L}\p{N}\p{M}\s\-_/().+×%°]/gu) || []).length;
-    let valid = count >= 2;
-    if (kind === 'code') {
-      // An upper photograph/watermark is not a model code. Accept compact Latin
-      // codes or numeric identifiers without guessing O/0, I/1 or S/5.
-      valid = /^[A-Za-z0-9][A-Za-z0-9 _/().+\-]{1,31}$/.test(text) &&
-        !/https?|www|whatsapp|equipment|camping/i.test(text);
-    }
-    return {text: valid ? text : '', confidence,
-      score: valid ? confidence + Math.min(count, 12) * .4 - noise * 4 : -Infinity};
   }
 
   files.addEventListener('change', async () => {
@@ -3246,7 +3201,7 @@ function clearCatalogSearch() {
       cancel();
       note.textContent = 'انتهت مهلة القراءة. يمكنك كتابة الاسم يدويًا أو إعادة اختيار الصورة.';
     }, 120000);
-    note.textContent = 'جارٍ قراءة الاسم من الصورة… قد يستغرق تحميل العربية والإنجليزية أول مرة بعض الوقت.';
+    note.textContent = 'جارٍ قراءة الاسم من الصورة… قد يستغرق تحميل اللغة العربية أول مرة بعض الوقت.';
     try {
       const crops = await prepare(file);
       if (!active()) return;
@@ -3256,34 +3211,22 @@ function clearCatalogSearch() {
       }
       const engine = await loadLibrary();
       if (!active()) return;
-      const worker = await engine.createWorker(['ara', 'eng'], 1);
+      const worker = await engine.createWorker('ara', 1);
       if (!active()) { await worker.terminate(); return; }
       current.worker = worker;
-      const results = [];
-      for (const region of crops) {
-        if (region.kind === 'code') {
-          await worker.reinitialize('eng');
+      let best = {text: '', score: -1, confidence: 0};
+      for (const crop of crops) {
+        for (const mode of ['13', '7', '6']) {
           if (!active()) return;
+          await worker.setParameters({tessedit_pageseg_mode: mode, user_defined_dpi: '300'});
+          const {data} = await worker.recognize(crop);
+          if (!active()) return;
+          const text = String(data.text || '').replace(/[\u200e\u200f]/g, '').replace(/\s+/g, ' ').trim();
+          const letters = (text.match(/[\u0621-\u063a\u0641-\u064a]/g) || []).length;
+          const confidence = Number(data.confidence) || 0;
+          const score = letters >= 3 ? confidence + Math.min(letters, 30) : -1;
+          if (score > best.score) best = {text, score, confidence};
         }
-        let best = {text: '', score: -Infinity, confidence: 0};
-        for (const crop of region.variants) {
-          for (const mode of ['7', '13', '6']) {
-            if (!active()) return;
-            await worker.setParameters({tessedit_pageseg_mode: mode, user_defined_dpi: '300'});
-            const {data} = await worker.recognize(crop);
-            if (!active()) return;
-            const candidate = scoreCandidate(data, region.kind);
-            if (candidate.score > best.score) best = candidate;
-          }
-        }
-        results.push({...best, kind: region.kind});
-      }
-      const caption = results.find(result => result.kind === 'name');
-      const code = results.find(result => result.kind === 'code' && result.text && result.confidence >= 45);
-      const best = {...caption};
-      if (best.text && code && !best.text.includes(code.text)) {
-        best.text += ' ' + code.text;
-        best.confidence = Math.min(best.confidence, code.confidence);
       }
       if (!active()) return;
       if (!best.text) { note.textContent = 'لم يُقرأ اسم واضح من الصورة. اكتب الاسم يدويًا.'; return; }

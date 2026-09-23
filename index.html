@@ -315,11 +315,11 @@
 
 <style id="new-hero-first-slide">
 .hero-slide-new-first {
-  background-image: url("wide_cinematic_outdoor_camping_cooking_product_adv.png") !important;
+  background-image: url("wide_cinematic_outdoor_camping_cooking_product_adv.webp") !important;
 }
 </style>
 <script>
-window.ANSIYAB_FIRST_HERO_IMAGE = "wide_cinematic_outdoor_camping_cooking_product_adv.png";
+window.ANSIYAB_FIRST_HERO_IMAGE = "wide_cinematic_outdoor_camping_cooking_product_adv.webp";
 </script>
 
 
@@ -691,7 +691,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     const cats=(Array.isArray(cloud?.categories)&&cloud.categories.length)?cloud.categories:parse("ansiyab_categories",[]);
     const catImages=(cloud?.store_settings?._categoryImages)||parse("ansiyab_cat_images",{})||{};
     const arr=[{
-      img:"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png",
+      img:"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp",
       title:"كتالوج ومعرض الأنسياب المتقدم",
       sub:"لعملاء الجملة بأسعار منافسة",
       desc:"استعرض تشكيلتنا من أدوات ولوازم الغاز والرحلات والكشتات، واختر المنتجات والكميات وأرسل طلبك مباشرة عبر الموقع.",
@@ -786,10 +786,10 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         <input id="store-logo-setting" type="text" placeholder="assets/images/logo.png">
       </label>
       <label>صورة أول شريحة في الشريط
-        <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png">
+        <input id="store-hero-setting" type="text" value="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp">
       </label>
     </div>
-    <img id="store-hero-preview" class="store-settings-preview" src="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png" alt="معاينة الشريط">
+    <img id="store-hero-preview" class="store-settings-preview" src="assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp" alt="معاينة الشريط" loading="lazy">
     <div class="store-settings-actions">
       <button type="button" onclick="saveStoreSettings()" style="background:#1f5f9f;color:#fff">حفظ</button>
       <button type="button" onclick="closeStoreSettings()" style="background:#edf2f7;color:#243b53">إلغاء</button>
@@ -813,7 +813,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     document.getElementById("store-name-setting").value=s.name||"الأنسياب المتقدم";
     document.getElementById("store-tagline-setting").value=s.tagline||"أدوات ولوازم الغاز والرحلات والكشتات";
     document.getElementById("store-logo-setting").value=s.logo||"assets/images/logo.png";
-    document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png";
+    document.getElementById("store-hero-setting").value=s.hero||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp";
     document.getElementById("store-hero-preview").src=document.getElementById("store-hero-setting").value;
     document.getElementById("store-settings").classList.add("open");
   };
@@ -823,7 +823,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       name:document.getElementById("store-name-setting").value.trim()||"الأنسياب المتقدم",
       tagline:document.getElementById("store-tagline-setting").value.trim()||"أدوات ولوازم الغاز والرحلات والكشتات",
       logo:document.getElementById("store-logo-setting").value.trim()||"assets/images/logo.png",
-      hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.png"
+      hero:document.getElementById("store-hero-setting").value.trim()||"assets/images/wide_cinematic_outdoor_camping_cooking_product_adv.webp"
     }));
     if(window.ANSIYAB_CLOUD?.push) window.ANSIYAB_CLOUD.push();
     closeStoreSettings(); location.reload();
