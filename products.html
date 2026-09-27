@@ -2408,6 +2408,7 @@ const uploadSourceFiles = new Map();
     async function saveProduct() {
       if (productSavePending) return;
       if (!adminMode) return alert('يرجى الدخول إلى وضع المشرف لحفظ المنتج.');
+      const returnViewTitle = document.getElementById('current-view-title')?.innerText || 'جميع المنتجات';
       if (productImagesPending) return alert('انتظر لحظة حتى ينتهي تجهيز الصور، ثم اضغط حفظ.');
       if (productImagesError) return alert(productImagesError);
       const nextProducts = JSON.parse(JSON.stringify(products));
@@ -2495,7 +2496,7 @@ const uploadSourceFiles = new Map();
         controls.forEach((control, index) => { control.disabled = priorDisabled[index]; });
       }
       if (saved) {
-        renderProducts(products);
+        renderProducts(getCurrentVisibleProducts(), returnViewTitle);
         if (editId === '-1') {
           // Reuse the wrapped opener to reset image jobs and OCR for the next product.
           window.openProductModal();
