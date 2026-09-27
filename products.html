@@ -1101,6 +1101,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <div class="header-shortcuts">
         <a href="index.html" class="header-shortcut">⌂<span>الرئيسية</span></a>
         <a href="https://wa.me/966506645562" class="header-shortcut">◉<span>الدعم</span></a>
+        <button class="header-shortcut" type="button" onclick="toggleAdminMode()" aria-label="دخول أو خروج المشرف">🔐<span>المشرف</span></button>
         <button class="header-shortcut cart-shortcut" type="button" onclick="openCartModal()">🛒<span>الطلبات</span><b class="cart-badge" id="cart-count">0</b></button>
       </div>
     </div>
@@ -1208,8 +1209,14 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         <input type="number" id="prod-stock-input" value="" min="0" placeholder="أدخل كمية المخزون">
       </div>
       <div class="form-group">
-        <label>صور المنتج (يمكن اختيار أكثر من صورة)</label>
-        <input type="file" id="prod-files-input" multiple accept="image/*" onchange="encodeMultipleImages(this)">
+        <label>صور المنتج</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <label for="prod-camera-input" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:#0ea5a8;color:#fff;border-radius:9px;cursor:pointer;font-weight:700">📷 التقاط صورة بالكاميرا</label>
+          <input type="file" id="prod-camera-input" accept="image/*" capture="environment" onchange="encodeMultipleImages(this)" style="position:absolute;opacity:0;width:1px;height:1px">
+          <label for="prod-files-input" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:#2b6cb0;color:#fff;border-radius:9px;cursor:pointer;font-weight:700">🖼️ اختيار من الصور</label>
+          <input type="file" id="prod-files-input" multiple accept="image/*" onchange="encodeMultipleImages(this)" style="position:absolute;opacity:0;width:1px;height:1px">
+        </div>
+        <small style="display:block;margin-top:7px;color:#64748b">يمكن التقاط صورة مباشرة أو اختيار صورة/صور محفوظة على الجهاز.</small>
       </div>
       <div id="modal-images-preview" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px;"></div>
       
