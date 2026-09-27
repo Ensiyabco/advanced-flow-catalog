@@ -1274,14 +1274,14 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       const searchTitle = document.getElementById("current-view-title")?.innerText || "";
       if (searchTitle.startsWith("نتائج البحث: ")) return searchCatalogProducts(searchTitle.slice("نتائج البحث: ".length));
       const title = document.getElementById("current-view-title")?.innerText || "جميع المنتجات";
-      if (title === "جميع المنتجات") return products;
+      if (title === "جميع المنتجات") return visibleProducts(products);
       if (title.startsWith("قسم: ")) {
         const name = title.slice(5).trim();
         return products.filter(p => p.mainCat === name);
       }
       const parts = title.split("➔").map(v => v.trim());
       if (parts.length === 2) return products.filter(p => p.mainCat === parts[0] && p.subCat === parts[1]);
-      return products;
+      return visibleProducts(products);
     }
 
     async function toggleAdminMode() {
@@ -1348,6 +1348,14 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
     }
 
     let categories = readStorageArray('ansiyab_categories_v1', defaultCategoriesList);
+
+    function isAdminOnlyCategory(name) {
+      return categories.some(cat => cat && cat.adminOnly === true && cat.name === name);
+    }
+    function visibleProducts(list) {
+      const source = Array.isArray(list) ? list : products;
+      return adminMode ? source : source.filter(product => !isAdminOnlyCategory(product.mainCat));
+    }
 
     // تحميل صور الأقسام الرئيسية بأمان.
     let categoryImages = (() => {
@@ -1798,13 +1806,14 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       allItem.onclick = () => {
         clearCategoryActiveStates();
         allItem.classList.add('active-header');
-        renderProducts(products, "جميع المنتجات");
+        renderProducts(visibleProducts(products), "جميع المنتجات");
         history.replaceState(null, "", "products.html");
       };
       container.appendChild(allItem);
 
       const orderedCategories = categories
         .map((cat, originalIndex) => ({ cat, originalIndex }))
+        .filter(({cat}) => adminMode || !cat.adminOnly)
         .sort((a, b) => {
           const ao = Number(a.cat && a.cat.order);
           const bo = Number(b.cat && b.cat.order);
@@ -2668,7 +2677,7 @@ const uploadSourceFiles = new Map();
 
 function searchCatalogProducts(query) {
  const terms = normalizeCategoryName(query).toLowerCase().split(' ').filter(Boolean);
- return products.filter(p => {
+ return visibleProducts(products).filter(p => {
   const text = normalizeCategoryName([p.name,p.mainCat,p.subCat,p.description,p.code,p.sku,p.salesCode].filter(v=>v!=null).join(' ')).toLowerCase();
   return terms.every(term => text.includes(term));
  });
@@ -2729,7 +2738,7 @@ function clearCatalogSearch() {
       products = data.products;
       if (Array.isArray(data.categories)) categories = data.categories;
       // Render independently of menu rebuilding so a menu error cannot leave stale cards.
-      renderProducts(products, "جميع المنتجات");
+      renderProducts(visibleProducts(products), "جميع المنتجات");
       buildCategoryAccordion();
       openCategoryFromUrl();
       return true;
@@ -2742,7 +2751,7 @@ function clearCatalogSearch() {
       updateAdminIndicator();
       const grid = document.getElementById('products-grid-container');
       if (products.length) {
-        renderProducts(products, "جميع المنتجات");
+        renderProducts(visibleProducts(products), "جميع المنتجات");
         openCategoryFromUrl();
       } else {
         document.getElementById('current-view-count').textContent = 'جارٍ التحميل…';
