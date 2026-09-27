@@ -1314,6 +1314,9 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 
     const targetPhoneNumber = "966506645562";
     const placeholderImg = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420" viewBox="0 0 600 420"><rect width="600" height="420" rx="24" fill="#f8fafc"/><rect x="2" y="2" width="596" height="416" rx="22" fill="none" stroke="#dbe5ee" stroke-width="4"/><g fill="#94a3b8" text-anchor="middle" font-family="Arial,Tahoma,sans-serif"><text x="300" y="190" font-size="72">📦</text><text x="300" y="260" font-size="34">لا توجد صورة</text></g></svg>`);
+    const legacyProductLogo = 'https://ensiyabco.github.io/advanced-flow-catalog/assets/images/logo.webp';
+    const productPlaceholderLogo = 'https://ensiyabco.github.io/advanced-flow-catalog/assets/images/ensiyabco-product-placeholder-20260910.jpeg';
+    const productImageUrl = src => src === legacyProductLogo ? productPlaceholderLogo : src;
 
     const defaultCategoriesList = [
       { name: "ادوات لحام ووصواريخ بقاعدة", subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
@@ -1721,10 +1724,11 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         moreWrap.remove();
         const batch=list.slice(shown, shown + (shown === 0 ? INITIAL_BATCH : NEXT_BATCH));
         batch.forEach(p => {
-        const mainImg = (p.images && p.images.length > 0) ? p.images[0] : placeholderImg;
+        const mainImg = (p.images && p.images.length > 0) ? productImageUrl(p.images[0]) : placeholderImg;
         let thumbsHtml = '';
         if (p.images && p.images.length > 1) {
           p.images.forEach((imgSrc, imgIdx) => {
+            imgSrc = productImageUrl(imgSrc);
             thumbsHtml += `<img loading="lazy" decoding="async" src="${imgSrc}" class="thumb-img ${imgIdx === 0 ? 'active-thumb' : ''}" onclick="changeMainImage(${p.id}, '${imgSrc}', this)">`;
           });
         }
@@ -2340,7 +2344,7 @@ const uploadSourceFiles = new Map();
       document.getElementById('prod-box-input').value = prod.boxQty ?? 1;
       document.getElementById('prod-stock-input').value = prod.stockQty !== undefined && prod.stockQty !== null ? prod.stockQty : '';
       
-      modalImagesBase64 = prod.images ? [...prod.images] : [];
+      modalImagesBase64 = prod.images ? prod.images.map(productImageUrl) : [];
       renderProductImageEditor();
 
       document.getElementById('product-modal').style.display = 'flex';
@@ -2545,7 +2549,7 @@ const uploadSourceFiles = new Map();
     function openLightboxForProduct(prodId) {
       const p = products.find(item => item.id === prodId);
       if (!p || !p.images || p.images.length === 0) return;
-      currentLightboxImages = p.images;
+      currentLightboxImages = p.images.map(productImageUrl);
       currentLightboxIndex = 0;
       currentLightboxTitle = p.name;
       
