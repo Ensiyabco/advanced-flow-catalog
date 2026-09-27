@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="catalog-import.css?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -1109,6 +1110,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <button class="cart-btn-trigger" onclick="openCartModal()">🛒 قائمة الطلبات <span class="cart-badge cart-count-mirror">0</span></button>
       <button type="button" class="category-manager-top-btn admin-only" onclick="openCategoryManager()">▦ إدارة الأقسام</button>
       <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
+      <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
       <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
       <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
       <button type="button" class="admin-only store-settings-btn" onclick="openStoreSettings()">⚙ إعدادات المتجر</button>
@@ -1173,6 +1175,10 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         <label>اسم المنتج</label>
         <input type="text" id="prod-name-input">
 <label style="margin-top:10px"><input type="checkbox" id="prod-order-enabled" style="width:auto"> السماح بطلب هذا المنتج</label>
+      </div>
+      <div class="form-group">
+        <label for="prod-code-input">الكود</label>
+        <input type="text" id="prod-code-input" dir="ltr" maxlength="100" autocomplete="off">
       </div>
       <div class="form-group">
         <label>القسم الرئيسي</label>
@@ -1722,20 +1728,21 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
             <button class="action-icon-btn" style="background:#e53e3e; color:white;" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
           <div class="product-img-box" id="main-img-box-${p.id}" onclick="openLightboxForProduct(${p.id})">
-            <img loading="lazy" decoding="async" id="main-product-img-${p.id}" src="${mainImg}" alt="${p.name}"
+            <img loading="lazy" decoding="async" id="main-product-img-${p.id}" src="${mainImg}" alt="${escapeHtml(p.name)}"
                onerror="this.onerror=null;this.src=placeholderImg;">
           </div>
           ${thumbsHtml ? `<div class="product-thumbnails">${thumbsHtml}</div>` : ''}
-          <div class="product-title">${p.name}</div>
+          <div class="product-title">${escapeHtml(p.name)}</div>
+          ${p.salesCode ? `<div class="product-code">الكود: <bdi>${escapeHtml(p.salesCode)}</bdi></div>` : ''}
           
           <div class="product-info-table">
             <div class="info-item">
               <label>الوحدة</label>
-              <span>${defaultUnit}</span>
+              <span>${escapeHtml(defaultUnit)}</span>
             </div>
             <div class="info-item">
               <label>شد الكرتون</label>
-              <span>${p.boxQty || 1}</span>
+              <span>${p.boxQty ?? 1}</span>
             </div>
             <div class="info-item">
               <label>المخزن</label>
@@ -2046,6 +2053,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       document.getElementById('edit-prod-id').value = "-1";
       document.getElementById('prod-name-input').readOnly = false;
       document.getElementById('prod-name-input').value = "";
+      document.getElementById('prod-code-input').value = "";
       document.getElementById("prod-order-enabled").checked = true;
       document.getElementById('prod-unit-input').value = "حبة";
       document.getElementById('prod-box-input').value = "";
@@ -2055,7 +2063,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       modalImagesBase64 = [];
       
       const mainSelect = document.getElementById('prod-main-cat-select');
-      mainSelect.innerHTML = '';
+      mainSelect.innerHTML = '<option value="">بدون قسم</option>';
       categories.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.name;
@@ -2069,7 +2077,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
     function updateSubCatDropdown() {
       const mainCatName = document.getElementById('prod-main-cat-select').value;
       const subSelect = document.getElementById('prod-sub-cat-select');
-      subSelect.innerHTML = '';
+      subSelect.innerHTML = '<option value="">بدون قسم فرعي</option>';
       const catObj = categories.find(c => c.name === mainCatName);
       if (catObj && catObj.subCats) {
         catObj.subCats.forEach(sub => {
@@ -2292,11 +2300,12 @@ const uploadSourceFiles = new Map();
       document.getElementById('edit-prod-id').value = prod.id;
       document.getElementById('prod-name-input').readOnly = false;
       document.getElementById('prod-name-input').value = prod.name;
+      document.getElementById('prod-code-input').value = prod.salesCode || '';
       document.getElementById('prod-order-enabled').checked = prod.orderEnabled !== false;
       document.getElementById('prod-files-input').value = '';
       
       const mainSelect = document.getElementById('prod-main-cat-select');
-      mainSelect.innerHTML = '';
+      mainSelect.innerHTML = '<option value="">بدون قسم</option>';
       categories.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.name;
@@ -2307,7 +2316,9 @@ const uploadSourceFiles = new Map();
       
       updateSubCatDropdown();
       document.getElementById('prod-sub-cat-select').value = prod.subCat;
-      document.getElementById('prod-unit-input').value = prod.unit || 'حبة';
+      const unitSelect = document.getElementById('prod-unit-input');
+      if (prod.unit && !Array.from(unitSelect.options).some(option => option.value === prod.unit)) unitSelect.add(new Option(prod.unit, prod.unit));
+      unitSelect.value = prod.unit || 'حبة';
       document.getElementById('prod-box-input').disabled = false;
       document.getElementById('prod-box-input').readOnly = false;
       document.getElementById('prod-box-input').value = prod.boxQty ?? 1;
@@ -2335,7 +2346,7 @@ const uploadSourceFiles = new Map();
         .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06F0));
       if (!/^[0-9]+$/.test(normalized)) return NaN;
       const value = Number(normalized);
-      return Number.isSafeInteger(value) && value >= 1 ? value : NaN;
+      return Number.isSafeInteger(value) && value >= 0 ? value : NaN;
     }
 
     async function uploadProductImagesToStorage(imageSources, productId) {
@@ -2364,6 +2375,8 @@ const uploadSourceFiles = new Map();
       const nextProducts = JSON.parse(JSON.stringify(products));
       const editId = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('prod-name-input').value.trim();
+      const salesCode = document.getElementById('prod-code-input').value.trim();
+      if (salesCode && products.some(p => String(p.id) !== editId && String(p.salesCode || '').trim() === salesCode)) return alert('الكود مرتبط بمنتج آخر.');
       const mainCat = document.getElementById('prod-main-cat-select').value;
       const subCat = document.getElementById('prod-sub-cat-select').value;
       const unit = document.getElementById('prod-unit-input').value || 'حبة';
@@ -2372,7 +2385,7 @@ const uploadSourceFiles = new Map();
       if (boxRaw === '') return alert("الرجاء إدخال شد الكرتون / التعبئة.");
       const boxQty = parsePackQuantity(boxRaw);
       const stockQty = stockRaw === '' ? null : parseInt(stockRaw, 10);
-      if (!Number.isInteger(boxQty) || boxQty < 1) return alert("شد الكرتون يجب أن يكون رقمًا صحيحًا أكبر من صفر.");
+      if (!Number.isInteger(boxQty) || boxQty < 0) return alert("شد الكرتون يجب أن يكون رقمًا صحيحًا غير سالب.");
       if (stockRaw !== '' && (!Number.isInteger(stockQty) || stockQty < 0)) return alert("كمية المخزون يجب أن تكون فارغة أو صفرًا أو رقمًا صحيحًا موجبًا.");
       
       if (!name) return alert("الرجاء إدخال اسم المنتج!");
@@ -2398,6 +2411,7 @@ const uploadSourceFiles = new Map();
         nextProducts.push({
           id: newId,
           name: name,
+          salesCode: salesCode,
           mainCat: mainCat,
           subCat: subCat,
           unit: unit,
@@ -2412,6 +2426,8 @@ const uploadSourceFiles = new Map();
         if (prod) {
           // Manual corrections are allowed; later uploads never overwrite the name.
           prod.name = name;
+          if (prod.itemNumber) prod.sourceName = name.endsWith(' — ' + prod.itemNumber) ? name.slice(0, -(' — ' + prod.itemNumber).length) : name;
+          prod.salesCode = salesCode;
           prod.orderEnabled = document.getElementById('prod-order-enabled').checked;
           prod.mainCat = mainCat;
           prod.subCat = subCat;
@@ -2646,7 +2662,7 @@ const uploadSourceFiles = new Map();
 function searchCatalogProducts(query) {
  const terms = normalizeCategoryName(query).toLowerCase().split(' ').filter(Boolean);
  return products.filter(p => {
-  const text = normalizeCategoryName([p.name,p.mainCat,p.subCat,p.description,p.code,p.sku].filter(v=>v!=null).join(' ')).toLowerCase();
+  const text = normalizeCategoryName([p.name,p.mainCat,p.subCat,p.description,p.code,p.sku,p.salesCode].filter(v=>v!=null).join(' ')).toLowerCase();
   return terms.every(term => text.includes(term));
  });
 }
@@ -3432,5 +3448,20 @@ function buildTopCategoryNav() {
 
 
 </script>
+<script>
+window.CatalogImportHost = {
+  isAdmin: () => adminMode && !productSavePending,
+  accept: saved => {
+    products = saved.products;
+    window.ANSIYAB_CLOUD.state = {...window.ANSIYAB_CLOUD.state, ...saved};
+    window.ANSIYAB_CLOUD.loaded = true;
+    cacheConfirmedProducts();
+    renderProducts(products, 'جميع المنتجات');
+  }
+};
+</script>
+<script src="catalog-import-core.js?v=1"></script>
+<script src="catalog-import-ui.js?v=1"></script>
 </body>
 </html>
+
