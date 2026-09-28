@@ -2419,7 +2419,8 @@ const uploadSourceFiles = new Map();
       const editId = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('prod-name-input').value.trim();
       const salesCode = document.getElementById('prod-code-input').value.trim();
-      if (salesCode && products.some(p => String(p.id) !== editId && String(p.salesCode || '').trim() === salesCode)) return alert('الكود مرتبط بمنتج آخر.');
+      const codeDuplicate = salesCode && products.find(p => String(p.id) !== editId && String(p.salesCode || '').trim() === salesCode);
+      if (codeDuplicate && editId === '-1') return alert('الكود مرتبط بمنتج موجود. افتح المنتج الموجود لتعديله أو دمجه.');
       const mainCat = document.getElementById('prod-main-cat-select').value;
       const subCat = document.getElementById('prod-sub-cat-select').value;
       const unit = document.getElementById('prod-unit-input').value || 'حبة';
@@ -2435,7 +2436,7 @@ const uploadSourceFiles = new Map();
       const originalProduct = products.find(product => String(product.id) === editId);
       if (editId === '-1' || productNameKey(originalProduct?.name) !== productNameKey(name)) {
         const duplicate = products.find(product => String(product.id) !== editId && productNameKey(product.name) === productNameKey(name));
-        if (duplicate) {
+        if (duplicate && String(duplicate.id) !== String(codeDuplicate?.id)) {
           alert('يوجد منتج محفوظ بهذا الاسم: «' + duplicate.name + '». لم يُحفظ التغيير. اختر اسمًا مختلفًا أو عدّل المنتج الموجود.');
           return;
         }
@@ -2467,17 +2468,24 @@ const uploadSourceFiles = new Map();
         const prod = nextProducts.find(p => String(p.id) === editId);
         if (!prod) return alert('تعذر العثور على المنتج المطلوب تعديله. أغلق النافذة وأعد فتح المنتج.');
         if (prod) {
+          const duplicate = codeDuplicate && nextProducts.find(p => String(p.id) === String(codeDuplicate.id));
+          const mergedImages = [...new Set([...storedImages, ...(duplicate?.images || [])])];
           // Manual corrections are allowed; later uploads never overwrite the name.
           prod.name = name;
           if (prod.itemNumber) prod.sourceName = name.endsWith(' — ' + prod.itemNumber) ? name.slice(0, -(' — ' + prod.itemNumber).length) : name;
           prod.salesCode = salesCode;
           prod.orderEnabled = document.getElementById('prod-order-enabled').checked;
-          prod.mainCat = mainCat;
-          prod.subCat = subCat;
-          prod.unit = unit;
+          prod.mainCat = mainCat || duplicate?.mainCat || '';
+          prod.subCat = subCat || duplicate?.subCat || '';
+          prod.unit = unit || duplicate?.unit || 'حبة';
           prod.boxQty = boxQty;
-          prod.stockQty = stockQty;
-          prod.images = storedImages;
+          prod.stockQty = stockQty ?? duplicate?.stockQty ?? null;
+          prod.images = mergedImages;
+          if (duplicate) {
+            for (const field of ['itemNumber', 'sku', 'barcode']) if (!prod[field] && duplicate[field]) prod[field] = duplicate[field];
+            const duplicateIndex = nextProducts.findIndex(p => String(p.id) === String(duplicate.id));
+            if (duplicateIndex >= 0) nextProducts.splice(duplicateIndex, 1);
+          }
         }
       }
       
@@ -2512,7 +2520,7 @@ const uploadSourceFiles = new Map();
           document.getElementById('prod-name-input').focus();
         } else {
           closeModal('product-modal');
-          alert('تم حفظ المنتج وصوره في Supabase بنجاح.');
+          alert(codeDuplicate ? 'تم حفظ المنتج ودمجه مع الصنف المكرر بنجاح.' : 'تم حفظ المنتج وصوره في Supabase بنجاح.');
         }
       }
     }
