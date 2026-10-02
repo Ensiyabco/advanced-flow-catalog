@@ -1137,6 +1137,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
       <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ تحسين صور المنتجات</button>
       <button type="button" class="admin-btn admin-only" onclick="createProductImageTemplates(this)">▣ إنشاء قوالب صور احترافية</button>
+      <button type="button" class="admin-btn admin-only" onclick="restoreOriginalProductImages(this)">↩ استرجاع الصور الأصلية</button>
       <button type="button" class="admin-btn admin-only" onclick="openAnalyticsDashboard()">📊 الإحصاءات</button>
       <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
       <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
@@ -3026,6 +3027,27 @@ function clearCatalogSearch() {
       products = nextProducts;
       renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
       alert("تم تحسين " + references.length + " صورة وحفظ النسخ الأصلية داخل بيانات المنتجات.");
+    };
+
+    window.restoreOriginalProductImages = async function(button){
+      if (!adminMode) return;
+      const cloud = window.ANSIYAB_CLOUD;
+      if (!cloud?.push) { alert("ربط Supabase غير متاح حاليًا."); return; }
+      const affected = products.filter(product => Array.isArray(product.originalImages) && product.originalImages.length);
+      if (!affected.length) { alert("لا توجد قوالب مركبة لاسترجاعها."); return; }
+      const originalLabel = button?.textContent || "";
+      if (button) { button.disabled = true; button.textContent = "جاري استرجاع الصور…"; }
+      const nextProducts = products.map(product => {
+        if (!Array.isArray(product.originalImages) || !product.originalImages.length) return product;
+        const { originalImages, ...cleanProduct } = product;
+        return { ...cleanProduct, images: originalImages };
+      });
+      const saved = await cloud.push({ products: nextProducts });
+      if (button) { button.disabled = false; button.textContent = originalLabel; }
+      if (!saved) { alert("تعذر حفظ استرجاع الصور. تحقق من الاتصال وأعد المحاولة."); return; }
+      products = nextProducts;
+      renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
+      alert("تم استرجاع الصور الأصلية. القوالب المركبة لن تظهر في الكتالوج.");
     };
 
     window.createProductImageTemplates = async function(button){
