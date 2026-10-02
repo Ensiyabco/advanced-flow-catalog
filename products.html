@@ -1811,6 +1811,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         card.className = 'product-card';
         card.innerHTML = `
           <div class="product-admin-overlay admin-only">
+            <button class="action-icon-btn" style="background:#0f766e; color:white;" title="محرر الصورة" onclick="openProductImageStudio(${p.id})">✨</button>
             <button class="action-icon-btn" style="background:#2b6cb0; color:white;" onclick="editProduct(${p.id})">✏️</button>
             <button class="action-icon-btn" style="background:#e53e3e; color:white;" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
@@ -3025,6 +3026,49 @@ function clearCatalogSearch() {
       products = nextProducts;
       renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
       alert("تم تحسين " + references.length + " صورة وحفظ النسخ الأصلية داخل بيانات المنتجات.");
+    };
+
+    let productImageStudio = null;
+    function ensureProductImageStudio(){
+      if (productImageStudio) return productImageStudio;
+      const root = document.createElement("div");
+      root.id = "product-image-studio";
+      root.style.cssText = "display:none;position:fixed;inset:0;z-index:10050;background:rgba(8,20,36,.78);padding:20px;overflow:auto";
+      root.innerHTML = '<div style="max-width:1050px;margin:auto;background:#fff;border-radius:16px;padding:18px;direction:rtl"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h3 style="margin:0;color:#123f78">محرر صورة المنتج</h3><button type="button" data-close style="border:0;background:#e2e8f0;border-radius:8px;padding:8px 14px;cursor:pointer">إغلاق</button></div><div style="display:grid;grid-template-columns:minmax(280px,1fr) 300px;gap:18px;margin-top:16px"><div style="background:#f1f5f9;border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:center"><canvas data-canvas style="width:100%;max-width:600px;aspect-ratio:1;display:block;background:#fff"></canvas></div><div style="display:grid;gap:11px;align-content:start"><label>الصورة <select data-source style="width:100%;padding:8px"></select></label><label>اسم المنتج <input data-name style="width:100%;padding:8px;box-sizing:border-box"></label><label>الكود <input data-code style="width:100%;padding:8px;box-sizing:border-box"></label><label>تكبير المنتج <input data-zoom type="range" min="1" max="3" step=".05" value="1.25" style="width:100%"></label><label>الإضاءة <input data-bright type="range" min=".7" max="1.4" step=".02" value="1.03" style="width:100%"></label><label>التباين <input data-contrast type="range" min=".7" max="1.5" step=".02" value="1.10" style="width:100%"></label><label>التشبع <input data-saturate type="range" min=".7" max="1.5" step=".02" value="1.05" style="width:100%"></label><button data-save type="button" style="border:0;border-radius:9px;background:#0f766e;color:#fff;padding:12px;font-weight:800;cursor:pointer">حفظ نسخة محسنة</button><small style="color:#64748b">الصورة الأصلية محفوظة. عدّل المنزلقات حتى يصبح المنتج واضحًا وكبيرًا ثم احفظ.</small></div></div></div>';
+      document.body.appendChild(root); root.querySelector("[data-close]").onclick = () => root.style.display = "none"; productImageStudio = root; return root;
+    }
+    window.openProductImageStudio = async function(productId){
+      if (!adminMode) return;
+      const product = products.find(item => item.id === productId);
+      if (!product?.images?.length) { alert("لا توجد صورة لهذا المنتج."); return; }
+      const root = ensureProductImageStudio(), canvas = root.querySelector("[data-canvas]"), ctx = canvas.getContext("2d", { alpha: false });
+      canvas.width = 1200; canvas.height = 1200;
+      const source = root.querySelector("[data-source]"), name = root.querySelector("[data-name]"), code = root.querySelector("[data-code]"), zoom = root.querySelector("[data-zoom]"), bright = root.querySelector("[data-bright]"), contrast = root.querySelector("[data-contrast]"), saturate = root.querySelector("[data-saturate]");
+      source.innerHTML = product.images.map((url, index) => '<option value="' + escapeHtml(url) + '">الصورة ' + (index + 1) + '</option>').join("");
+      name.value = product.name || ""; code.value = product.salesCode || "";
+      let bitmap = null;
+      const draw = async () => {
+        const url = source.value;
+        if (!bitmap || bitmap._url !== url) { bitmap?.close?.(); const response = await fetch(url, { cache: "no-store" }); bitmap = await createImageBitmap(await response.blob()); bitmap._url = url; }
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1200, 1200); ctx.fillStyle = "#f5faff"; ctx.fillRect(0, 0, 1200, 930);
+        const scale = Math.min(980 / bitmap.width, 760 / bitmap.height) * Number(zoom.value), width = bitmap.width * scale, height = bitmap.height * scale;
+        ctx.save(); ctx.beginPath(); ctx.rect(60, 90, 1080, 790); ctx.clip(); ctx.filter = "brightness(" + bright.value + ") contrast(" + contrast.value + ") saturate(" + saturate.value + ")"; ctx.drawImage(bitmap, (1200 - width) / 2, 485 - height / 2, width, height); ctx.restore(); ctx.filter = "none";
+        ctx.fillStyle = "#123f78"; ctx.fillRect(0, 930, 1200, 270); ctx.fillStyle = "#f57921"; ctx.fillRect(0, 930, 1200, 12); ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.direction = "rtl"; ctx.font = "bold 48px Arial"; ctx.fillText(name.value || "منتج إنسياب المتقدم", 600, 1035, 1080); if (code.value) { ctx.font = "bold 30px Arial"; ctx.fillText("الكود: " + code.value, 600, 1100); }
+      };
+      const redraw = () => draw().catch(error => { console.warn(error); alert("تعذر عرض الصورة في المحرر."); });
+      [source, name, code, zoom, bright, contrast, saturate].forEach(control => control.addEventListener(control === name || control === code ? "input" : "change", redraw)); await draw();
+      root.querySelector("[data-save]").onclick = async () => {
+        const save = root.querySelector("[data-save]"); save.disabled = true; save.textContent = "جاري الحفظ…";
+        try {
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", .92)); if (!blob) throw new Error("تعذر إنشاء الصورة");
+          const upload = await window.ANSIYAB_CLOUD.client.storage.from("product-images").upload("edited/" + Date.now() + "/product-" + product.id + ".webp", blob, { contentType: "image/webp", cacheControl: "31536000", upsert: false }); if (upload.error) throw upload.error;
+          const publicUrl = window.ANSIYAB_CLOUD.client.storage.from("product-images").getPublicUrl(upload.data.path).data.publicUrl;
+          const nextProducts = products.map(item => item.id !== product.id ? item : { ...item, name: name.value.trim() || item.name, salesCode: code.value.trim() || item.salesCode, originalImages: item.originalImages || [...item.images], images: [publicUrl, ...item.images] });
+          const saved = await window.ANSIYAB_CLOUD.push({ products: nextProducts }); if (!saved) throw new Error("تعذر حفظ المنتج");
+          products = nextProducts; root.style.display = "none"; renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات"); alert("تم حفظ النسخة المحسنة مع الاحتفاظ بالصورة الأصلية.");
+        } catch (error) { alert("تعذر حفظ النسخة المحسنة. تحقق من الاتصال وأعد المحاولة."); console.error(error); } finally { save.disabled = false; save.textContent = "حفظ نسخة محسنة"; }
+      };
+      root.style.display = "block";
     };
 
     window.restoreOriginalProductImages = async function(button){
