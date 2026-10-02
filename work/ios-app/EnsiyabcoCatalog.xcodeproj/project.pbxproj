@@ -1,0 +1,29 @@
+// !$*UTF8*$!
+{
+ archiveVersion = 1;
+ classes = {};
+ objectVersion = 56;
+ objects = {
+  1A000001 /* Project */ = {isa = PBXProject; buildConfigurationList = 1A000002 /* Build configuration list */; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base, ar); mainGroup = 1A000003; productRefGroup = 1A000004; projectDirPath = ""; projectRoot = ""; targets = (1A000005 /* EnsiyabcoCatalog */); };
+  1A000002 = {isa = XCConfigurationList; buildConfigurations = (1A000006, 1A000007); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+  1A000003 = {isa = PBXGroup; children = (1A000008 /* EnsiyabcoCatalog */, 1A000004 /* Products */); sourceTree = "<group>"; };
+  1A000004 = {isa = PBXGroup; children = (1A000009 /* EnsiyabcoCatalog.app */); name = Products; sourceTree = "<group>"; };
+  1A000005 = {isa = PBXNativeTarget; buildConfigurationList = 1A00000A; buildPhases = (1A00000B, 1A00000C, 1A00000D); buildRules = (); dependencies = (); name = EnsiyabcoCatalog; productName = EnsiyabcoCatalog; productReference = 1A000009; productType = "com.apple.product-type.application"; };
+  1A000006 = {isa = XCBuildConfiguration; buildSettings = { CLANG_ENABLE_MODULES = YES; }; name = Debug; };
+  1A000007 = {isa = XCBuildConfiguration; buildSettings = { CLANG_ENABLE_MODULES = YES; }; name = Release; };
+  1A000008 = {isa = PBXGroup; children = (1A00000E, 1A00000F, 1A000010); path = EnsiyabcoCatalog; sourceTree = "<group>"; };
+  1A000009 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EnsiyabcoCatalog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+  1A00000A = {isa = XCConfigurationList; buildConfigurations = (1A000011, 1A000012); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+  1A00000B = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (1A000013, 1A000014); runOnlyForDeploymentPostprocessing = 0; };
+  1A00000C = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+  1A00000D = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+  1A00000E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnsiyabcoCatalogApp.swift; sourceTree = "<group>"; };
+  1A00000F = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogWebView.swift; sourceTree = "<group>"; };
+  1A000010 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+  1A000011 = {isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = EnsiyabcoCatalog/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; MARKETING_VERSION = 1.0.0; PRODUCT_BUNDLE_IDENTIFIER = com.ensiyabco.catalog; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+  1A000012 = {isa = XCBuildConfiguration; buildSettings = { ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = EnsiyabcoCatalog/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; MARKETING_VERSION = 1.0.0; PRODUCT_BUNDLE_IDENTIFIER = com.ensiyabco.catalog; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+  1A000013 = {isa = PBXBuildFile; fileRef = 1A00000E; };
+  1A000014 = {isa = PBXBuildFile; fileRef = 1A00000F; };
+ };
+ rootObject = 1A000001;
+}
