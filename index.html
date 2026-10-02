@@ -410,6 +410,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       <div class="logo-text">الأنسياب المتقدم | كتالوج ومعرض لعملاء الجملة</div>
     </a>
     <div style="display: flex; align-items: center; gap: 15px;">
+      <button type="button" onclick="installEnsiyabcoApp()" style="border:0;border-radius:9px;padding:9px 12px;background:#173b63;color:#fff;font:inherit;cursor:pointer">⬇ تثبيت التطبيق</button>
       <button class="cart-btn-header" onclick="openCartModal()">
         <span>قائمة الطلب</span>
         <span class="cart-badge" id="cart-count">0</span>
@@ -872,10 +873,14 @@ async function checkOrderAvailability(items) {
   let installEvent;
   window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installEvent = event; });
   window.installEnsiyabcoApp = async () => {
-    if (!installEvent) return;
-    installEvent.prompt();
-    await installEvent.userChoice;
-    installEvent = null;
+    if (installEvent) {
+      installEvent.prompt();
+      await installEvent.userChoice;
+      installEvent = null;
+      return;
+    }
+    const isApple = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    alert(isApple ? 'في Safari اضغط مشاركة ثم «إضافة إلى الشاشة الرئيسية» لتثبيت التطبيق.' : 'افتح قائمة المتصفح ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».');
   };
 })();
 </script>
