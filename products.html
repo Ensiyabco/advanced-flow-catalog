@@ -1136,6 +1136,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
       <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
       <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ تحسين صور المنتجات</button>
+      <button type="button" class="admin-btn admin-only" onclick="createProductImageTemplates(this)">▣ إنشاء قوالب صور احترافية</button>
       <button type="button" class="admin-btn admin-only" onclick="openAnalyticsDashboard()">📊 الإحصاءات</button>
       <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
       <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
@@ -3024,6 +3025,107 @@ function clearCatalogSearch() {
       products = nextProducts;
       renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
       alert("تم تحسين " + references.length + " صورة وحفظ النسخ الأصلية داخل بيانات المنتجات.");
+    };
+
+    window.createProductImageTemplates = async function(button){
+      if (!adminMode) return;
+      const cloud = window.ANSIYAB_CLOUD;
+      const client = cloud?.client;
+      if (!client || !cloud?.push) { alert("ربط Supabase غير متاح حاليًا."); return; }
+
+      const prefix = "https://gexufsqafnswqesqdoqu.supabase.co/storage/v1/object/public/product-images/";
+      const targets = products.filter(product => typeof product.images?.[0] === "string" && product.images[0].startsWith(prefix));
+      if (!targets.length) { alert("لا توجد صور منتجات فعلية لإنشاء القوالب."); return; }
+
+      const originalLabel = button?.textContent || "";
+      if (button) { button.disabled = true; button.textContent = "جاري تجهيز القوالب…"; }
+
+      const logoResponse = await fetch("assets/images/ensiyabco-product-placeholder-20260910.jpeg");
+      const logo = await createImageBitmap(await logoResponse.blob());
+      const output = document.createElement("canvas");
+      output.width = 1200; output.height = 1200;
+      const ctx = output.getContext("2d", { alpha: false });
+      const scratch = document.createElement("canvas");
+      const scratchCtx = scratch.getContext("2d", { willReadFrequently: true });
+      const templates = new Map();
+      const failed = [];
+
+      const trimBox = bitmap => {
+        scratch.width = bitmap.width; scratch.height = bitmap.height;
+        scratchCtx.clearRect(0, 0, scratch.width, scratch.height);
+        scratchCtx.drawImage(bitmap, 0, 0);
+        const data = scratchCtx.getImageData(0, 0, scratch.width, scratch.height).data;
+        let minX = bitmap.width, minY = bitmap.height, maxX = -1, maxY = -1;
+        for (let y = 0; y < bitmap.height; y += 2) for (let x = 0; x < bitmap.width; x += 2) {
+          const i = (y * bitmap.width + x) * 4;
+          const isSubject = data[i + 3] > 30 && (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245);
+          if (isSubject) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); }
+        }
+        if (maxX < 0 || (maxX - minX) < bitmap.width * .08 || (maxY - minY) < bitmap.height * .08) return { x: 0, y: 0, w: bitmap.width, h: bitmap.height };
+        const padding = Math.round(Math.max(maxX - minX, maxY - minY) * .06);
+        return { x: Math.max(0, minX - padding), y: Math.max(0, minY - padding), w: Math.min(bitmap.width - Math.max(0, minX - padding), maxX - minX + padding * 2), h: Math.min(bitmap.height - Math.max(0, minY - padding), maxY - minY + padding * 2) };
+      };
+
+      for (let index = 0; index < targets.length; index += 1) {
+        const product = targets[index], source = product.images[0];
+        try {
+          const response = await fetch(source, { cache: "no-store" });
+          if (!response.ok) throw new Error("تعذر قراءة الصورة");
+          const bitmap = await createImageBitmap(await response.blob());
+          const crop = trimBox(bitmap);
+
+          ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 1200, 1200);
+          const gradient = ctx.createLinearGradient(0, 0, 1200, 1200);
+          gradient.addColorStop(0, "#f7fbff"); gradient.addColorStop(1, "#eaf4fb");
+          ctx.fillStyle = gradient; ctx.fillRect(0, 0, 1200, 1200);
+          ctx.fillStyle = "#ffffff"; ctx.roundRect(46, 44, 1108, 936, 36); ctx.fill();
+          ctx.globalAlpha = .06; ctx.drawImage(logo, 255, 300, 690, 440); ctx.globalAlpha = 1;
+          ctx.drawImage(logo, 74, 70, 230, 150);
+
+          const maxW = 970, maxH = 670, scale = Math.min(maxW / crop.w, maxH / crop.h);
+          const drawW = crop.w * scale, drawH = crop.h * scale;
+          ctx.drawImage(bitmap, crop.x, crop.y, crop.w, crop.h, (1200 - drawW) / 2, 215 + (670 - drawH) / 2, drawW, drawH);
+          bitmap.close?.();
+
+          ctx.fillStyle = "#123f78"; ctx.fillRect(0, 1000, 1200, 200);
+          ctx.fillStyle = "#f57921"; ctx.fillRect(0, 1000, 1200, 12);
+          ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; ctx.direction = "rtl";
+          ctx.font = "bold 48px Arial"; ctx.fillText(product.name || "منتج إنسياب المتقدم", 600, 1080, 1090);
+          const code = product.salesCode || product.itemNumber || product.barcode || "";
+          if (code) { ctx.font = "bold 28px Arial"; ctx.globalAlpha = .9; ctx.fillText("الكود: " + code, 600, 1140); ctx.globalAlpha = 1; }
+
+          const blob = await new Promise(resolve => output.toBlob(resolve, "image/webp", .92));
+          if (!blob) throw new Error("تعذر تكوين القالب");
+          const path = "templates/" + Date.now() + "-" + index + "/product-" + product.id + ".webp";
+          const upload = await client.storage.from("product-images").upload(path, blob, { contentType: "image/webp", cacheControl: "31536000", upsert: false });
+          if (upload.error) throw upload.error;
+          templates.set(product.id, client.storage.from("product-images").getPublicUrl(upload.data.path).data.publicUrl);
+        } catch (error) {
+          failed.push(product.id);
+          console.warn("Template creation failed:", product.id, error);
+        }
+        if (button) button.textContent = "جاري إنشاء القوالب " + (index + 1) + "/" + targets.length;
+      }
+
+      logo.close?.();
+      if (failed.length) {
+        if (button) { button.disabled = false; button.textContent = originalLabel; }
+        alert("تعذر إنشاء " + failed.length + " قالب. لم تتغير صور المنتجات؛ أعد المحاولة بعد التحقق من الاتصال.");
+        return;
+      }
+
+      const nextProducts = products.map(product => {
+        const template = templates.get(product.id);
+        if (!template) return product;
+        return { ...product, originalImages: product.originalImages || [...(product.images || [])], images: [template, ...(product.images || [])] };
+      });
+      if (button) button.textContent = "جاري حفظ القوالب…";
+      const saved = await cloud.push({ products: nextProducts });
+      if (button) { button.disabled = false; button.textContent = originalLabel; }
+      if (!saved) { alert("تم إنشاء القوالب لكن لم يحفظ الموقع الروابط. أعد المحاولة."); return; }
+      products = nextProducts;
+      renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
+      alert("تم إنشاء " + targets.length + " قالبًا احترافيًا مع الاحتفاظ بالصور الأصلية.");
     };
 
     function updateAdminIndicator() {
