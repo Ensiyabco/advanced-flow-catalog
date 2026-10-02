@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'android-app/**'
+      - '.github/workflows/build-android.yml'
 
 jobs:
   build:
@@ -19,4 +20,3 @@ jobs:
         with:
           name: ensiyabco-android-debug-apk
           path: android-app/app/build/outputs/apk/debug/app-debug.apk
-
