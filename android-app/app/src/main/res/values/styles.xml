@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.Ensiyabco" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">@color/ensiyabco_orange</item>
+        <item name="android:navigationBarColor">@color/ensiyabco_blue</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/ensiyabco_blue</item>
+    </style>
+</resources>
+
