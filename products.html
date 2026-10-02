@@ -2629,9 +2629,10 @@ const uploadSourceFiles = new Map();
       currentLightboxImages = p.images.map(productImageUrl);
       currentLightboxIndex = 0;
       currentLightboxTitle = p.name;
+      const isBrandedTemplate = currentLightboxImages[0]?.includes('/templates/');
       
       document.getElementById('lightbox-img-src').src = currentLightboxImages[currentLightboxIndex];
-      document.getElementById('lightbox-title').innerText = currentLightboxTitle;
+      document.getElementById('lightbox-title').innerText = isBrandedTemplate ? "" : currentLightboxTitle;
       document.getElementById('image-lightbox').style.display = 'flex';
     }
 
@@ -3082,9 +3083,9 @@ function clearCatalogSearch() {
           ctx.globalAlpha = .06; ctx.drawImage(logo, 255, 300, 690, 440); ctx.globalAlpha = 1;
           ctx.drawImage(logo, 74, 70, 230, 150);
 
-          const maxW = 970, maxH = 670, scale = Math.min(maxW / crop.w, maxH / crop.h);
+          const maxW = 1080, maxH = 760, scale = Math.min(maxW / crop.w, maxH / crop.h);
           const drawW = crop.w * scale, drawH = crop.h * scale;
-          ctx.drawImage(bitmap, crop.x, crop.y, crop.w, crop.h, (1200 - drawW) / 2, 215 + (670 - drawH) / 2, drawW, drawH);
+          ctx.drawImage(bitmap, crop.x, crop.y, crop.w, crop.h, (1200 - drawW) / 2, 175 + (760 - drawH) / 2, drawW, drawH);
           bitmap.close?.();
 
           ctx.fillStyle = "#123f78"; ctx.fillRect(0, 1000, 1200, 200);
