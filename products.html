@@ -1132,6 +1132,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <button type="button" class="category-manager-top-btn admin-only" onclick="openCategoryManager()">▦ إدارة الأقسام</button>
       <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
       <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
+      <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ تحسين صور المنتجات</button>
       <button type="button" class="admin-btn admin-only" onclick="openAnalyticsDashboard()">📊 الإحصاءات</button>
       <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
       <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
@@ -2950,6 +2951,76 @@ function clearCatalogSearch() {
       if (!window.ANSIYAB_CLOUD?.push) { alert("ربط Supabase غير متاح حاليًا."); return; }
       const ok = await window.ANSIYAB_CLOUD.push();
       if (ok) alert("تمت مزامنة الأقسام والمنتجات وإعدادات المتجر مع السحابة بنجاح.");
+    };
+
+    window.enhanceCatalogImages = async function(button){
+      if (!adminMode) return;
+      const cloud = window.ANSIYAB_CLOUD;
+      const client = cloud?.client;
+      if (!client || !cloud?.push) { alert("ربط Supabase غير متاح حاليًا."); return; }
+      const productImagePrefix = "https://gexufsqafnswqesqdoqu.supabase.co/storage/v1/object/public/product-images/";
+      const references = [...new Set(products.flatMap(product => (product.images || [])
+        .filter(url => typeof url === "string" && url.startsWith(productImagePrefix))))];
+      if (!references.length) { alert("لا توجد صور منتجات فعلية تحتاج إلى معالجة."); return; }
+
+      const originalLabel = button?.textContent || "";
+      if (button) { button.disabled = true; button.textContent = "جاري تجهيز الصور…"; }
+      const updates = new Map();
+      const errors = [];
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d", { alpha: false });
+
+      for (let index = 0; index < references.length; index += 1) {
+        const url = references[index];
+        try {
+          const response = await fetch(url, { cache: "no-store" });
+          if (!response.ok) throw new Error("تعذر قراءة الصورة");
+          const bitmap = await createImageBitmap(await response.blob());
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          context.fillStyle = "#ffffff";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.filter = "brightness(1.02) contrast(1.08) saturate(1.06)";
+          context.drawImage(bitmap, 0, 0);
+          context.filter = "none";
+          bitmap.close?.();
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", .90));
+          if (!blob) throw new Error("تعذر إنشاء النسخة المحسنة");
+          const originalPath = url.slice(productImagePrefix.length);
+          const filename = originalPath.split("/").pop().replace(/\.[^.]+$/, "");
+          const path = "enhanced/" + Date.now() + "-" + index + "/" + filename + ".webp";
+          const upload = await client.storage.from("product-images").upload(path, blob, {
+            contentType: "image/webp", cacheControl: "31536000", upsert: false
+          });
+          if (upload.error) throw upload.error;
+          updates.set(url, client.storage.from("product-images").getPublicUrl(upload.data.path).data.publicUrl);
+        } catch (error) {
+          errors.push(url);
+          console.warn("Image enhancement failed:", url, error);
+        }
+        if (button) button.textContent = "جاري تحسين الصور " + (index + 1) + "/" + references.length;
+      }
+
+      if (errors.length) {
+        if (button) { button.disabled = false; button.textContent = originalLabel; }
+        alert("لم تكتمل المعالجة: تعذر تحسين " + errors.length + " صورة. لم تُغيّر روابط المنتجات؛ أعد المحاولة بعد التحقق من الاتصال.");
+        return;
+      }
+
+      const nextProducts = products.map(product => {
+        const currentImages = product.images || [];
+        if (!currentImages.some(url => updates.has(url))) return product;
+        return { ...product, originalImages: product.originalImages || [...currentImages], images: currentImages.map(url => updates.get(url) || url) };
+      });
+
+      if (button) button.textContent = "جاري حفظ النسخ المحسنة…";
+      const saved = await cloud.push({ products: nextProducts });
+      if (button) { button.disabled = false; button.textContent = originalLabel; }
+      if (!saved) { alert("تمت معالجة الصور لكن لم يُحفظ تحديث الروابط. أعد المحاولة من زر التحسين."); return; }
+
+      products = nextProducts;
+      renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
+      alert("تم تحسين " + references.length + " صورة وحفظ النسخ الأصلية داخل بيانات المنتجات.");
     };
 
     function updateAdminIndicator() {
