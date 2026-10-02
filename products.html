@@ -1109,7 +1109,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         <a href="index.html" class="header-shortcut">⌂<span>الرئيسية</span></a>
         <a href="https://wa.me/966506645562" class="header-shortcut">◉<span>الدعم</span></a>
         <button class="header-shortcut" type="button" onclick="toggleAdminMode()" aria-label="دخول أو خروج المشرف">🔐<span>المشرف</span></button>
-        <button class="header-shortcut" type="button" onclick="installEnsiyabcoApp()">⬇<span>تثبيت التطبيق</span></button>
+        <button class="header-shortcut" type="button" onclick="installEnsiyabcoApp()">📱<span>تنزيل تطبيق أندرويد</span></button>
         <button class="header-shortcut cart-shortcut" type="button" onclick="openCartModal()">🛒<span>الطلبات</span><b class="cart-badge" id="cart-count">0</b></button>
       </div>
     </div>
@@ -3610,15 +3610,8 @@ window.CatalogImportHost = {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
   let installEvent;
   window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installEvent = event; });
-  window.installEnsiyabcoApp = async () => {
-    if (installEvent) {
-      installEvent.prompt();
-      await installEvent.userChoice;
-      installEvent = null;
-      return;
-    }
-    const isApple = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    alert(isApple ? 'في Safari اضغط مشاركة ثم «إضافة إلى الشاشة الرئيسية» لتثبيت التطبيق.' : 'افتح قائمة المتصفح ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».');
+  window.installEnsiyabcoApp = () => {
+    window.location.href = 'https://github.com/Ensiyabco/advanced-flow-catalog/releases/download/android-v1.0.0/app-debug.apk';
   };
 })();
 </script>
