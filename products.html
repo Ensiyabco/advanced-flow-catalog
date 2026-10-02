@@ -3035,7 +3035,10 @@ function clearCatalogSearch() {
       if (!client || !cloud?.push) { alert("ربط Supabase غير متاح حاليًا."); return; }
 
       const prefix = "https://gexufsqafnswqesqdoqu.supabase.co/storage/v1/object/public/product-images/";
-      const targets = products.filter(product => typeof product.images?.[0] === "string" && product.images[0].startsWith(prefix));
+      const targets = products.map(product => ({
+        product,
+        source: product.originalImages?.[0] || product.images?.[0]
+      })).filter(item => typeof item.source === "string" && item.source.startsWith(prefix) && !item.source.includes("/templates/"));
       if (!targets.length) { alert("لا توجد صور منتجات فعلية لإنشاء القوالب."); return; }
 
       const originalLabel = button?.textContent || "";
@@ -3068,7 +3071,7 @@ function clearCatalogSearch() {
       };
 
       for (let index = 0; index < targets.length; index += 1) {
-        const product = targets[index], source = product.images[0];
+        const product = targets[index].product, source = targets[index].source;
         try {
           const response = await fetch(source, { cache: "no-store" });
           if (!response.ok) throw new Error("تعذر قراءة الصورة");
@@ -3118,7 +3121,8 @@ function clearCatalogSearch() {
       const nextProducts = products.map(product => {
         const template = templates.get(product.id);
         if (!template) return product;
-        return { ...product, originalImages: product.originalImages || [...(product.images || [])], images: [template, ...(product.images || [])] };
+        const originals = product.originalImages || [...(product.images || [])];
+        return { ...product, originalImages: originals, images: [template, ...originals] };
       });
       if (button) button.textContent = "جاري حفظ القوالب…";
       const saved = await cloud.push({ products: nextProducts });
