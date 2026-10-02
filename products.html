@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#173b63">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="assets/images/ensiyabco-product-placeholder-20260910.jpeg">
   <link rel="stylesheet" href="catalog-import.css?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3599,5 +3604,18 @@ window.CatalogImportHost = {
 </script>
 <script src="catalog-import-core.js?v=1"></script>
 <script src="catalog-import-ui.js?v=1"></script>
+<script>
+(() => {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  let installEvent;
+  window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installEvent = event; });
+  window.installEnsiyabcoApp = async () => {
+    if (!installEvent) return;
+    installEvent.prompt();
+    await installEvent.userChoice;
+    installEvent = null;
+  };
+})();
+</script>
 </body>
 </html>

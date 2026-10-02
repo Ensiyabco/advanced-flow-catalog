@@ -1,0 +1,33 @@
+{
+  "name": "الأنسياب المتقدم",
+  "short_name": "الأنسياب",
+  "description": "كتالوج الأنسياب المتقدم لأدوات ولوازم الغاز والرحلات والكشتات.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#173b63",
+  "icons": [
+    {
+      "src": "assets/images/ensiyabco-product-placeholder-20260910.jpeg",
+      "sizes": "1600x1071",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "المنتجات",
+      "url": "products.html",
+      "icons": [
+        {
+          "src": "assets/images/ensiyabco-product-placeholder-20260910.jpeg",
+          "sizes": "1600x1071",
+          "type": "image/jpeg"
+        }
+      ]
+    }
+  ]
+}
