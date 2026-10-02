@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/cirruslabs/android-sdk:37
+    container: ghcr.io/cirruslabs/android-sdk:35
     steps:
       - uses: actions/checkout@v4
       - uses: gradle/actions/setup-gradle@v4
