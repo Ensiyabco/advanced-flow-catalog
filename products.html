@@ -1157,6 +1157,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
       <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
       <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ ضبط عرض صور المنتجات</button>
+      <button type="button" class="admin-btn admin-only" onclick="openAutoUploadTools()">✧ التحديد التلقائي للصور الجديدة</button>
       <button type="button" class="admin-btn admin-only" onclick="openAnalyticsDashboard()">📊 الإحصاءات</button>
       <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
       <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
@@ -2160,7 +2161,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
     function openProductModal() {
       if (!adminMode) return;
       uploadSourceFiles.clear();
-      productImagesJob++; productImagesPending = false; productImagesError = '';
+      productImagesJob++; resetAutoUploadCrop(); productImagesPending = false; productImagesError = '';
       document.getElementById('prod-files-input').disabled = false;
       document.getElementById('product-modal-title').innerText = "إضافة منتج جديد";
       document.getElementById('edit-prod-id').value = "-1";
@@ -2232,16 +2233,22 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         ? 'حذف الصورة يُعتمد بعد الضغط على حفظ. اسم المنتج يبقى كما هو.'
         : 'لا توجد صور. أضف صورة، أو احفظ المنتج بصورة افتراضية.';
       container.appendChild(hint);
+      renderAutoUploadReview();
     }
 
-    function removeProductImage(index) {
+    async function removeProductImage(index) {
       if (!adminMode || productImagesPending || productSavePending) return;
       if (!Number.isInteger(index) || index < 0 || index >= modalImagesBase64.length) return;
       uploadSourceFiles.delete(modalImagesBase64[index]);
       modalImagesBase64 = modalImagesBase64.filter((_, i) => i !== index);
       document.getElementById('prod-files-input').value = '';
       document.dispatchEvent(new Event('product-image-removed'));
+      const jobId = ++productImagesJob;
+      productImagesPending = true;
+      resetAutoUploadCrop();
       renderProductImageEditor();
+      try { await prepareAutoUploadCrop(jobId); }
+      finally { if (jobId === productImagesJob) { productImagesPending = false; renderProductImageEditor(); } }
     }
 
     async function persistProductList(nextProducts) {
@@ -2389,6 +2396,8 @@ const uploadSourceFiles = new Map();
           uploadSourceFiles.set(item.src, originals);
         }
         modalImagesBase64 = [...new Set([...modalImagesBase64, ...images.map(item => item.src)])];
+        await prepareAutoUploadCrop(jobId);
+        if (jobId !== productImagesJob) return;
         renderProductImageEditor();
       } catch (error) {
         if (jobId !== productImagesJob) return;
@@ -2405,7 +2414,7 @@ const uploadSourceFiles = new Map();
     function editProduct(id) {
       if (!adminMode || productSavePending) return;
       uploadSourceFiles.clear();
-      productImagesJob++; productImagesPending = false; productImagesError = '';
+      productImagesJob++; resetAutoUploadCrop(); productImagesPending = false; productImagesError = '';
       document.getElementById('prod-files-input').disabled = false;
       const prod = products.find(p => String(p.id) === String(id));
       if (!prod) return;
@@ -2582,6 +2591,7 @@ const uploadSourceFiles = new Map();
         }
       }
       
+      applyAutoUploadCrop(nextProducts, targetProductId, storedImages);
       const markerFiles = modalImagesBase64.flatMap(src => uploadSourceFiles.get(src) || []);
       productSavePending = true;
       const controls = Array.from(document.querySelectorAll('#product-modal input, #product-modal select, #product-modal button'));
@@ -2824,7 +2834,7 @@ const uploadSourceFiles = new Map();
     }
 
     function closeModal(modalId) {
-      if (modalId === 'product-modal') { productImagesJob++; productImagesPending = false; productImagesError = '';
+      if (modalId === 'product-modal') { productImagesJob++; resetAutoUploadCrop(); productImagesPending = false; productImagesError = '';
       document.getElementById('prod-files-input').disabled = false; }
       document.getElementById(modalId).style.display = 'none';
     }
@@ -2994,6 +3004,122 @@ function clearCatalogSearch() {
       if (!adminMode) return;
       alert('لتكبير المنتج، اضغط زر ✨ على بطاقة المنتج. حدد منطقة المنتج وراجع المعاينة ثم احفظ طريقة العرض. الصورة الكاملة تبقى متاحة عند الضغط عليها.');
     };
+
+/* Detect a proposed display crop locally. No image pixels or originals are replaced. */
+let autoUploadSuggestion = null;
+let autoUploadReview = null;
+let autoUploadEnabled = true;
+try { autoUploadEnabled = localStorage.getItem('catalog-auto-upload-crop') !== 'off'; } catch (_) {}
+
+function detectProductDisplayCrop(image) {
+  const scale=Math.min(1,512/Math.max(image.naturalWidth,image.naturalHeight));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0,canvas.width,canvas.height);
+  const {width:w,height:h}=canvas,pixels=ctx.getImageData(0,0,w,h).data;
+  let footer=-1;
+  for(let y=Math.floor(h*.7);y<h;y++) {
+    let blue=0;
+    for(let x=0;x<w;x++){const k=(y*w+x)*4,r=pixels[k],g=pixels[k+1],b=pixels[k+2];if(b>70&&b>r*1.35&&b>g*1.12)blue++;}
+    if(blue/w>.45){footer=y;break;}
+  }
+  const catalog=footer>=0,left=catalog?.1:.025,right=catalog?.94:.975,top=catalog?.22:.025,bottom=catalog?Math.min(.83,footer/h-.08):.975;
+  const mask=new Uint8Array(w*h),soft=new Uint8Array(w*h);
+  for(let y=Math.floor(top*h);y<Math.floor(bottom*h);y++)for(let x=Math.floor(left*w);x<Math.floor(right*w);x++) {
+    const i=y*w+x,k=i*4,lum=.2126*pixels[k]+.7152*pixels[k+1]+.0722*pixels[k+2];
+    if(pixels[k+3]<30)continue;
+    mask[i]=lum<175?1:0;soft[i]=lum<215?1:0;
+  }
+  function components(input) {
+    const dilated=new Uint8Array(w*h);
+    for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)if(input[y*w+x])for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)dilated[(y+dy)*w+x+dx]=1;
+    const labels=new Int32Array(w*h),queue=new Int32Array(w*h),items=[];
+    let id=0;
+    for(let i=0;i<dilated.length;i++)if(dilated[i]&&!labels[i]) {
+      id++;let head=0,tail=1,minX=w,minY=h,maxX=0,maxY=0,sx=0,sy=0;queue[0]=i;labels[i]=id;
+      while(head<tail){const index=queue[head++],x=index%w,y=Math.floor(index/w);minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);sx+=x;sy+=y;
+        for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=x+dx,ny=y+dy;if(nx<0||nx>=w||ny<0||ny>=h)continue;const next=ny*w+nx;if(dilated[next]&&!labels[next]){labels[next]=id;queue[tail++]=next;}}
+      }
+      items.push({id,x:minX,y:minY,width:maxX-minX+1,height:maxY-minY+1,area:tail,cx:sx/tail/w,cy:sy/tail/h});
+    }
+    return {labels,items};
+  }
+  const hard=components(mask),candidates=hard.items.filter(c=>c.area>=25&&!(catalog&&c.cy<.32&&c.cx<.23)&&!(catalog&&(c.height<h*.028||c.cy>.78)));
+  if(!candidates.length)return null;
+  const score=c=>c.area/(1+5*Math.hypot(c.cx-.52,c.cy-.53));candidates.sort((a,b)=>score(b)-score(a));const main=candidates[0];
+  const selected=new Set([main.id]);
+  for(const c of candidates){const gx=Math.max(main.x-c.x-c.width,c.x-main.x-main.width,0)/w,gy=Math.max(main.y-c.y-c.height,c.y-main.y-main.height,0)/h;if(c.area>=Math.max(25,main.area*.018)&&gx<.16&&gy<.14&&c.y/h>=.29&&(c.y+c.height)/h<.79)selected.add(c.id);}
+  const light=components(soft),lightIds=new Set();let ink=0;
+  for(let i=0;i<mask.length;i++)if(mask[i]&&selected.has(hard.labels[i])){ink++;if(light.labels[i])lightIds.add(light.labels[i]);}
+  const acceptedLight=new Set(light.items.filter(c=>lightIds.has(c.id)&&c.area<Math.max(ink*12,500)&&c.width/w<.86&&c.height/h<.8).map(c=>c.id));
+  let x0=w,y0=h,x1=-1,y1=-1;
+  for(let i=0;i<mask.length;i++)if((mask[i]&&selected.has(hard.labels[i]))||(soft[i]&&acceptedLight.has(light.labels[i]))){const x=i%w,y=Math.floor(i/w);x0=Math.min(x0,x);x1=Math.max(x1,x+1);y0=Math.min(y0,y);y1=Math.max(y1,y+1);}
+  if(ink<w*h*.0015||x1<0)return null;
+  x0/=w;x1/=w;y0/=h;y1/=h;
+  if(x0<left+.006||x1>right-.006||y0<top+.006||y1>bottom-.006)return null;
+  const pad=Math.max(x1-x0,y1-y0)*.12+.015;
+  x0=Math.max(left,x0-pad);x1=Math.min(right,x1+pad);y0=Math.max(top,y0-pad);y1=Math.min(bottom,y1+pad);
+  const crop={x:x0,y:y0,width:x1-x0,height:y1-y0};
+  return validCatalogCrop(crop)&&!(crop.width>.9&&crop.height>.9)?crop:null;
+}
+
+function resetAutoUploadCrop() {
+  autoUploadSuggestion=null;autoUploadReview=null;
+  document.getElementById('auto-upload-review')?.remove();
+}
+
+async function prepareAutoUploadCrop(jobId) {
+  const previous=autoUploadSuggestion;
+  resetAutoUploadCrop();
+  const source=modalImagesBase64[0];
+  if(!autoUploadEnabled||!source?.startsWith('data:image/'))return;
+  const image=new Image();
+  try {
+    await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;image.src=source;});
+    if(jobId!==productImagesJob||source!==modalImagesBase64[0])return;
+    const crop=detectProductDisplayCrop(image);
+    autoUploadReview={source,image,crop};
+    if(crop)autoUploadSuggestion={source,crop,accepted:previous?.source===source?previous.accepted:true};
+  }catch(_){if(jobId===productImagesJob)autoUploadReview={source,crop:null};}
+}
+
+function renderAutoUploadReview() {
+  document.getElementById('auto-upload-review')?.remove();
+  const review=autoUploadReview;
+  if(!review||review.source!==modalImagesBase64[0])return;
+  const panel=document.createElement('section');panel.id='auto-upload-review';
+  panel.style.cssText='width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;background:#f8fafc;line-height:1.8';
+  const title=document.createElement('strong');title.textContent='تحديد المنتج تلقائيًا';panel.append(title);
+  const note=document.createElement('p');note.setAttribute('role','status');
+  if(!review.crop){note.textContent='لم يمكن تحديد المنتج بثقة. ستُحفظ الصورة كاملة، ويمكن ضبط عرضها لاحقًا من زر ✨.';panel.append(note);}
+  else {
+    note.textContent='راجع المعاينة وتأكد أن جميع أطراف المنتج ظاهرة. الصورة الكاملة تبقى محفوظة.';panel.append(note);
+    const canvas=document.createElement('canvas');canvas.width=500;canvas.height=500;canvas.style.cssText='display:block;width:100%;max-width:250px;height:auto;margin:8px auto;background:white;border:1px solid #e2e8f0';
+    const ctx=canvas.getContext('2d'),c=review.crop,image=review.image,sw=c.width*image.naturalWidth,sh=c.height*image.naturalHeight,fit=Math.min(500/sw,500/sh);ctx.fillStyle='#fff';ctx.fillRect(0,0,500,500);ctx.imageSmoothingQuality='high';ctx.drawImage(image,c.x*image.naturalWidth,c.y*image.naturalHeight,sw,sh,(500-sw*fit)/2,(500-sh*fit)/2,sw*fit,sh*fit);panel.append(canvas);
+    const label=document.createElement('label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=!!autoUploadSuggestion?.accepted;checkbox.style.width='auto';checkbox.onchange=()=>{if(autoUploadSuggestion?.source===review.source)autoUploadSuggestion.accepted=checkbox.checked;};label.append(checkbox,document.createTextNode(' اعتماد هذا التحديد عند حفظ المنتج'));panel.append(label);
+  }
+  document.getElementById('modal-images-preview')?.append(panel);
+}
+
+function applyAutoUploadCrop(nextProducts,productId,storedImages) {
+  const target=nextProducts.find(p=>String(p.id)===String(productId));
+  if(!target)return;
+  if(target.imagePresentation&&!target.images.includes(target.imagePresentation.source))delete target.imagePresentation;
+  const proposed=autoUploadSuggestion;
+  if(autoUploadEnabled&&proposed?.accepted&&proposed.source===modalImagesBase64[0]&&validCatalogCrop(proposed.crop)&&storedImages[0])target.imagePresentation={source:storedImages[0],crop:{...proposed.crop},method:'auto-upload-v1'};
+}
+
+window.openAutoUploadTools=function() {
+  if(!adminMode||productImagesPending||productSavePending)return;
+  const id='catalog-auto-upload-tools';let root=document.getElementById(id);
+  if(!root){root=document.createElement('div');root.id=id;root.className='catalog-crop-overlay';root.innerHTML=`<section class="catalog-crop-dialog" style="max-width:560px" role="dialog" aria-modal="true" aria-labelledby="auto-tools-title"><div class="catalog-crop-heading"><h3 id="auto-tools-title">التحديد التلقائي للصور الجديدة</h3><button type="button" data-close>إغلاق</button></div><p>بعد اختيار صور منتج جديد، ستظهر معاينة تلقائية لمنطقة المنتج في الصورة الأولى. راجعها ثم احفظ المنتج. يمكنك إلغاء اعتماد التحديد لحفظ الصورة كاملة.</p><label><input type="checkbox" data-enabled> تشغيل التحديد التلقائي عند رفع الصور</label><p data-state role="status"></p><small>الصور الموجودة وتحديداتها لا تتغير. الإعداد محفوظ على هذا الجهاز، والتحديد لا يزيد دقة الصورة الأصلية.</small></section>`;document.body.append(root);}
+  const checkbox=root.querySelector('[data-enabled]'),state=root.querySelector('[data-state]');
+  function update(){autoUploadEnabled=checkbox.checked;try{localStorage.setItem('catalog-auto-upload-crop',autoUploadEnabled?'on':'off');}catch(_){}state.textContent=autoUploadEnabled?'التحديد التلقائي مفعّل للصور الجديدة.':'التحديد التلقائي متوقف؛ ستُعرض الصور الجديدة كاملة.';}
+  checkbox.checked=autoUploadEnabled;checkbox.onchange=update;update();
+  const close=()=>{root.hidden=true;document.removeEventListener('keydown',onKey);};
+  const onKey=e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const controls=Array.from(root.querySelectorAll('button,input'));const first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};
+  root.cleanupKeys?.();root.cleanupKeys=()=>document.removeEventListener('keydown',onKey);document.addEventListener('keydown',onKey);root.querySelector('[data-close]').onclick=close;root.onclick=e=>{if(e.target===root)close();};root.hidden=false;checkbox.focus();
+};
+
 
 /* Product crops affect catalog cards only; source images remain untouched. */
 let cropEditorSession = 0;
