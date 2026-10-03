@@ -1090,6 +1090,27 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 #cart-modal .cart-empty{text-align:center;color:#718096;padding:20px}
 @media(max-width:480px){#cart-modal .order-cart-item{grid-template-columns:minmax(0,1fr)}#cart-modal .order-cart-controls{grid-column:1;grid-row:auto;justify-content:space-between}#cart-modal .order-cart-quantity{flex-direction:row;align-items:center;gap:12px}}
 </style>
+<style>
+.catalog-crop-overlay[hidden]{display:none}
+.catalog-crop-overlay{position:fixed;inset:0;z-index:10050;background:#081424c7;padding:20px;overflow:auto;overscroll-behavior:contain}
+.catalog-crop-dialog{max-width:1050px;margin:auto;background:white;border-radius:16px;padding:20px;direction:rtl;color:#173b63;line-height:1.8}
+.catalog-crop-heading{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.catalog-crop-dialog p{margin:12px 0}
+.catalog-crop-columns,.catalog-crop-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.catalog-crop-columns>div{min-width:0;padding:10px;background:#f1f5f9;border-radius:12px}
+.catalog-crop-columns canvas{display:block;width:100%;height:auto;margin-top:8px}
+.catalog-crop-controls{margin:12px 0}
+.catalog-crop-controls input{display:block;width:100%;direction:ltr;min-height:44px}
+.catalog-crop-controls output{display:inline-block;direction:ltr}
+.catalog-crop-dialog select{max-width:100%;min-height:44px;padding:8px}
+.catalog-crop-dialog button{min-height:44px;padding:8px 14px;border:1px solid #dbe5ee;border-radius:8px;background:#edf2f7;color:#173b63;cursor:pointer;font-weight:bold}
+.catalog-crop-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.catalog-crop-dialog [data-save]{background:#0f766e;color:white}
+.catalog-crop-dialog button:disabled{opacity:.5;cursor:wait}
+.catalog-crop-dialog small{display:block;color:#64748b}
+@media(max-width:650px){.catalog-crop-overlay{padding:8px}.catalog-crop-dialog{padding:12px}.catalog-crop-columns{grid-template-columns:1fr}.catalog-crop-columns canvas{max-height:38vh;object-fit:contain}}
+
+</style>
 </head>
 <body>
 
@@ -1135,7 +1156,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       <button type="button" class="category-manager-top-btn admin-only" onclick="openCategoryManager()">▦ إدارة الأقسام</button>
       <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
       <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
-      <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ تحسين صور المنتجات</button>
+      <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ ضبط عرض صور المنتجات</button>
       <button type="button" class="admin-btn admin-only" onclick="openAnalyticsDashboard()">📊 الإحصاءات</button>
       <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
       <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
@@ -1775,6 +1796,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
       if (countEl) countEl.innerText = `${list ? list.length : 0} منتج`;
 
       if (!grid) return;
+      releaseCatalogCrops(grid);
       grid.innerHTML = '';
       if (!list || list.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#718096; padding:40px; background:white; border-radius:8px; border:1px solid #e2e8f0;">لا توجد منتجات مسجلة في هذا القسم حالياً.</p>';
@@ -1792,12 +1814,13 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
         moreWrap.remove();
         const batch=list.slice(shown, shown + (shown === 0 ? INITIAL_BATCH : NEXT_BATCH));
         batch.forEach(p => {
-        const mainImg = (p.images && p.images.length > 0) ? productImageUrl(p.images[0]) : placeholderImg;
+        const sources = (p.images || []).map(productImageUrl);
+        const mainImg = sources.includes(p.imagePresentation?.source) && validCatalogCrop(p.imagePresentation?.crop) ? p.imagePresentation.source : (sources[0] || placeholderImg);
         let thumbsHtml = '';
         if (p.images && p.images.length > 1) {
           p.images.forEach((imgSrc, imgIdx) => {
             imgSrc = productImageUrl(imgSrc);
-            thumbsHtml += `<img loading="lazy" decoding="async" src="${imgSrc}" class="thumb-img ${imgIdx === 0 ? 'active-thumb' : ''}" onclick="changeMainImage(${p.id}, '${imgSrc}', this)">`;
+            thumbsHtml += `<img loading="lazy" decoding="async" src="${imgSrc}" class="thumb-img ${imgSrc === mainImg ? 'active-thumb' : ''}" onclick="changeMainImage(${p.id}, '${imgSrc}', this)">`;
           });
         }
         
@@ -1854,6 +1877,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
           <button class="add-to-cart-btn" ${p.orderEnabled === false ? 'disabled style="background:#718096;cursor:not-allowed"' : ''} onclick="addToCart(${p.id})">${p.orderEnabled === false ? 'الطلب موقوف مؤقتًا' : 'إضافة لقائمة الطلب 🛒'}</button>
         `;
         grid.appendChild(card);
+        attachCatalogCrop(card.querySelector(`#main-product-img-${p.id}`), p, mainImg);
         });
         shown+=batch.length;
         if(shown<list.length) {
@@ -2345,14 +2369,14 @@ const uploadSourceFiles = new Map();
           image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذر فتح إحدى الصور. أعد اختيار الصور.')); };
           image.onload = () => {
             try {
-              const scale = Math.min(1, 1200 / Math.max(image.naturalWidth, image.naturalHeight));
+              const scale = Math.min(1, 2400 / Math.max(image.naturalWidth, image.naturalHeight));
               const canvas = document.createElement('canvas');
               canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
               canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
               const ctx = canvas.getContext('2d');
               ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
               ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-              resolve({src:canvas.toDataURL('image/webp', 0.78), file});
+              resolve({src:canvas.toDataURL('image/webp', 0.94), file});
             } catch (error) { reject(error); }
             finally { URL.revokeObjectURL(url); }
           };
@@ -2614,7 +2638,14 @@ const uploadSourceFiles = new Map();
 
     function changeMainImage(prodId, imgSrc, thumbEl) {
       const mainImg = document.getElementById(`main-product-img-${prodId}`);
-      if (mainImg) mainImg.src = imgSrc;
+      if (mainImg) {
+        cardCropObserver?.unobserve(mainImg.parentElement);
+        mainImg.catalogCrop = null;
+        mainImg.removeAttribute('style');
+        mainImg.src = imgSrc;
+        const product = products.find(p => String(p.id) === String(prodId));
+        if (product) attachCatalogCrop(mainImg, product, imgSrc);
+      }
       const card = thumbEl.closest('.product-card');
       if (card) {
         card.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active-thumb'));
@@ -2627,7 +2658,8 @@ const uploadSourceFiles = new Map();
       if (!p || !p.images || p.images.length === 0) return;
       trackCatalogEvent('product_view', p);
       currentLightboxImages = p.images.map(productImageUrl);
-      currentLightboxIndex = 0;
+      const shown = document.getElementById(`main-product-img-${prodId}`)?.getAttribute('src');
+      currentLightboxIndex = Math.max(0, currentLightboxImages.indexOf(shown));
       currentLightboxTitle = p.name;
       const isBrandedTemplate = currentLightboxImages[0]?.includes('/templates/');
       
@@ -2958,118 +2990,174 @@ function clearCatalogSearch() {
       if (ok) alert("تمت مزامنة الأقسام والمنتجات وإعدادات المتجر مع السحابة بنجاح.");
     };
 
-    window.enhanceCatalogImages = async function(button){
+    window.enhanceCatalogImages = function(){
       if (!adminMode) return;
-      const cloud = window.ANSIYAB_CLOUD;
-      const client = cloud?.client;
-      if (!client || !cloud?.push) { alert("ربط Supabase غير متاح حاليًا."); return; }
-      const productImagePrefix = "https://gexufsqafnswqesqdoqu.supabase.co/storage/v1/object/public/product-images/";
-      const references = [...new Set(products.flatMap(product => (product.images || [])
-        .filter(url => typeof url === "string" && url.startsWith(productImagePrefix))))];
-      if (!references.length) { alert("لا توجد صور منتجات فعلية تحتاج إلى معالجة."); return; }
-
-      const originalLabel = button?.textContent || "";
-      if (button) { button.disabled = true; button.textContent = "جاري تجهيز الصور…"; }
-      const updates = new Map();
-      const errors = [];
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d", { alpha: false });
-
-      for (let index = 0; index < references.length; index += 1) {
-        const url = references[index];
-        try {
-          const response = await fetch(url, { cache: "no-store" });
-          if (!response.ok) throw new Error("تعذر قراءة الصورة");
-          const bitmap = await createImageBitmap(await response.blob());
-          canvas.width = bitmap.width;
-          canvas.height = bitmap.height;
-          context.fillStyle = "#ffffff";
-          context.fillRect(0, 0, canvas.width, canvas.height);
-          context.filter = "brightness(1.02) contrast(1.08) saturate(1.06)";
-          context.drawImage(bitmap, 0, 0);
-          context.filter = "none";
-          bitmap.close?.();
-          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", .90));
-          if (!blob) throw new Error("تعذر إنشاء النسخة المحسنة");
-          const originalPath = url.slice(productImagePrefix.length);
-          const filename = originalPath.split("/").pop().replace(/\.[^.]+$/, "");
-          const path = "enhanced/" + Date.now() + "-" + index + "/" + filename + ".webp";
-          const upload = await client.storage.from("product-images").upload(path, blob, {
-            contentType: "image/webp", cacheControl: "31536000", upsert: false
-          });
-          if (upload.error) throw upload.error;
-          updates.set(url, client.storage.from("product-images").getPublicUrl(upload.data.path).data.publicUrl);
-        } catch (error) {
-          errors.push(url);
-          console.warn("Image enhancement failed:", url, error);
-        }
-        if (button) button.textContent = "جاري تحسين الصور " + (index + 1) + "/" + references.length;
-      }
-
-      if (errors.length) {
-        if (button) { button.disabled = false; button.textContent = originalLabel; }
-        alert("لم تكتمل المعالجة: تعذر تحسين " + errors.length + " صورة. لم تُغيّر روابط المنتجات؛ أعد المحاولة بعد التحقق من الاتصال.");
-        return;
-      }
-
-      const nextProducts = products.map(product => {
-        const currentImages = product.images || [];
-        if (!currentImages.some(url => updates.has(url))) return product;
-        return { ...product, originalImages: product.originalImages || [...currentImages], images: currentImages.map(url => updates.get(url) || url) };
-      });
-
-      if (button) button.textContent = "جاري حفظ النسخ المحسنة…";
-      const saved = await cloud.push({ products: nextProducts });
-      if (button) { button.disabled = false; button.textContent = originalLabel; }
-      if (!saved) { alert("تمت معالجة الصور لكن لم يُحفظ تحديث الروابط. أعد المحاولة من زر التحسين."); return; }
-
-      products = nextProducts;
-      renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات");
-      alert("تم تحسين " + references.length + " صورة وحفظ النسخ الأصلية داخل بيانات المنتجات.");
+      alert('لتكبير المنتج، اضغط زر ✨ على بطاقة المنتج. حدد منطقة المنتج وراجع المعاينة ثم احفظ طريقة العرض. الصورة الكاملة تبقى متاحة عند الضغط عليها.');
     };
 
-    let productImageStudio = null;
-    function ensureProductImageStudio(){
-      if (productImageStudio) return productImageStudio;
-      const root = document.createElement("div");
-      root.id = "product-image-studio";
-      root.style.cssText = "display:none;position:fixed;inset:0;z-index:10050;background:rgba(8,20,36,.78);padding:20px;overflow:auto";
-      root.innerHTML = '<div style="max-width:1050px;margin:auto;background:#fff;border-radius:16px;padding:18px;direction:rtl"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h3 style="margin:0;color:#123f78">محرر صورة المنتج</h3><button type="button" data-close style="border:0;background:#e2e8f0;border-radius:8px;padding:8px 14px;cursor:pointer">إغلاق</button></div><div style="display:grid;grid-template-columns:minmax(280px,1fr) 300px;gap:18px;margin-top:16px"><div style="background:#f1f5f9;border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:center"><canvas data-canvas style="width:100%;max-width:600px;aspect-ratio:1;display:block;background:#fff"></canvas></div><div style="display:grid;gap:11px;align-content:start"><label>الصورة <select data-source style="width:100%;padding:8px"></select></label><label>اسم المنتج <input data-name style="width:100%;padding:8px;box-sizing:border-box"></label><label>الكود <input data-code style="width:100%;padding:8px;box-sizing:border-box"></label><label>تكبير المنتج <input data-zoom type="range" min="1" max="3" step=".05" value="1.25" style="width:100%"></label><label>الإضاءة <input data-bright type="range" min=".7" max="1.4" step=".02" value="1.03" style="width:100%"></label><label>التباين <input data-contrast type="range" min=".7" max="1.5" step=".02" value="1.10" style="width:100%"></label><label>التشبع <input data-saturate type="range" min=".7" max="1.5" step=".02" value="1.05" style="width:100%"></label><button data-save type="button" style="border:0;border-radius:9px;background:#0f766e;color:#fff;padding:12px;font-weight:800;cursor:pointer">حفظ نسخة محسنة</button><small style="color:#64748b">الصورة الأصلية محفوظة. عدّل المنزلقات حتى يصبح المنتج واضحًا وكبيرًا ثم احفظ.</small></div></div></div>';
-      document.body.appendChild(root); root.querySelector("[data-close]").onclick = () => root.style.display = "none"; productImageStudio = root; return root;
+/* Product crops affect catalog cards only; source images remain untouched. */
+let cropEditorSession = 0;
+let cropEditorRoot;
+const cardCropObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(entries => {
+  for (const entry of entries) {
+    const img = entry.target.querySelector('img');
+    if (img?.catalogCrop) positionCatalogCrop(img);
+  }
+}) : null;
+
+function validCatalogCrop(crop) {
+  return crop && ['x','y','width','height'].every(key => Number.isFinite(crop[key])) &&
+    crop.x >= 0 && crop.y >= 0 && crop.width > .01 && crop.height > .01 &&
+    crop.x + crop.width <= 1.000001 && crop.y + crop.height <= 1.000001;
+}
+
+function positionCatalogCrop(img) {
+  const box = img.parentElement, crop = img.catalogCrop;
+  if (!box || !validCatalogCrop(crop) || !img.naturalWidth || !img.naturalHeight) return;
+  const width = box.clientWidth, height = box.clientHeight;
+  const cw = crop.width * img.naturalWidth, ch = crop.height * img.naturalHeight;
+  const scale = Math.min(width / cw, height / ch);
+  Object.assign(img.style, {
+    position:'absolute', maxWidth:'none', maxHeight:'none', padding:'0', transform:'none',
+    width:img.naturalWidth * scale + 'px', height:img.naturalHeight * scale + 'px',
+    clipPath:`inset(${crop.y * img.naturalHeight * scale}px ${(1-crop.x-crop.width) * img.naturalWidth * scale}px ${(1-crop.y-crop.height) * img.naturalHeight * scale}px ${crop.x * img.naturalWidth * scale}px)`,
+    left:((width - cw * scale) / 2 - crop.x * img.naturalWidth * scale) + 'px',
+    top:((height - ch * scale) / 2 - crop.y * img.naturalHeight * scale) + 'px'
+  });
+}
+
+function attachCatalogCrop(img, product, source) {
+  if (!img) return;
+  const presentation = product.imagePresentation;
+  if (!presentation || presentation.source !== source || !validCatalogCrop(presentation.crop)) return;
+  img.catalogCrop = presentation.crop;
+  img.parentElement.style.position = 'relative';
+  img.addEventListener('load', () => positionCatalogCrop(img));
+  img.addEventListener('error', () => { img.catalogCrop = null; img.removeAttribute('style'); }, {once:true});
+  if (img.complete) positionCatalogCrop(img);
+  cardCropObserver?.observe(img.parentElement);
+}
+
+function releaseCatalogCrops(grid) {
+  grid.querySelectorAll('.product-img-box').forEach(box => cardCropObserver?.unobserve(box));
+}
+
+window.openProductImageStudio = async function(productId) {
+  if (!adminMode || productSavePending) return;
+  const product = products.find(item => String(item.id) === String(productId));
+  if (!product?.images?.length) { alert('لا توجد صورة لهذا المنتج.'); return; }
+  if (!cropEditorRoot) {
+    cropEditorRoot = document.createElement('div');
+    cropEditorRoot.id = 'product-image-studio';
+    cropEditorRoot.className = 'catalog-crop-overlay';
+    cropEditorRoot.innerHTML = `<section class="catalog-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="catalog-crop-title">
+      <div class="catalog-crop-heading"><h3 id="catalog-crop-title">تكبير المنتج داخل البطاقة</h3><button type="button" data-close>إغلاق</button></div>
+      <p data-product></p><p>حرّك حدود التحديد لتضم المنتج كاملًا وتستبعد الشعار والاسم والفراغ الزائد. اضغط على صورة المنتج في الموقع لعرض الصورة الكاملة.</p>
+      <div class="catalog-crop-columns"><div><h4>الصورة الكاملة وحدود التحديد</h4><canvas data-source-canvas></canvas></div>
+      <div><h4>معاينة بطاقة المنتج</h4><canvas data-preview-canvas></canvas></div></div>
+      <label>الصورة <select data-source></select></label>
+      <div class="catalog-crop-controls">${[['left','الحد الأيسر',0],['right','الحد الأيمن',100],['top','الحد العلوي',0],['bottom','الحد السفلي',100]].map(([key,label,value]) => `<label>${label} <output data-output="${key}">${value}%</output><input data-edge="${key}" type="range" min="0" max="100" step="0.5" value="${value}"></label>`).join('')}</div>
+      <p data-status role="status" aria-live="polite"></p>
+      <div class="catalog-crop-actions"><button type="button" data-preset>تحديد وسط بطاقة الكتالوج</button><button type="button" data-reset>عرض الصورة كاملة</button><button type="button" data-save>حفظ طريقة العرض</button></div>
+      <small>التحديد يغيّر العرض فقط. لن يزيد دقة الصورة الأصلية؛ إذا كانت ضبابية تحتاج نسخة أوضح.</small>
+    </section>`;
+    document.body.append(cropEditorRoot);
+  }
+  const root = cropEditorRoot, token = ++cropEditorSession;
+  root.cleanupCropKeys?.();
+  const source = root.querySelector('[data-source]'), status = root.querySelector('[data-status]');
+  const save = root.querySelector('[data-save]'), full = root.querySelector('[data-source-canvas]');
+  const preview = root.querySelector('[data-preview-canvas]');
+  const edges = Object.fromEntries(Array.from(root.querySelectorAll('[data-edge]')).map(input => [input.dataset.edge,input]));
+  let image = null, loadingId = 0, saving = false;
+  const active = () => token === cropEditorSession;
+  const close = () => {
+    if (saving) return;
+    ++cropEditorSession; root.hidden = true;
+    document.removeEventListener('keydown', onKey);
+    document.querySelector('#main-img-box-' + product.id)?.focus();
+  };
+  const onKey = event => {
+    if (event.key === 'Escape') { event.preventDefault(); close(); }
+    if (event.key === 'Tab') {
+      const controls = Array.from(root.querySelectorAll('button,select,input')).filter(el => !el.disabled);
+      const first=controls[0], last=controls[controls.length-1];
+      if (event.shiftKey && document.activeElement===first) { event.preventDefault();last.focus(); }
+      else if (!event.shiftKey && document.activeElement===last) { event.preventDefault();first.focus(); }
     }
-    window.openProductImageStudio = async function(productId){
-      if (!adminMode) return;
-      const product = products.find(item => item.id === productId);
-      if (!product?.images?.length) { alert("لا توجد صورة لهذا المنتج."); return; }
-      const root = ensureProductImageStudio(), canvas = root.querySelector("[data-canvas]"), ctx = canvas.getContext("2d", { alpha: false });
-      canvas.width = 1200; canvas.height = 1200;
-      const source = root.querySelector("[data-source]"), name = root.querySelector("[data-name]"), code = root.querySelector("[data-code]"), zoom = root.querySelector("[data-zoom]"), bright = root.querySelector("[data-bright]"), contrast = root.querySelector("[data-contrast]"), saturate = root.querySelector("[data-saturate]");
-      source.innerHTML = product.images.map((url, index) => '<option value="' + escapeHtml(url) + '">الصورة ' + (index + 1) + '</option>').join("");
-      name.value = product.name || ""; code.value = product.salesCode || "";
-      let bitmap = null;
-      const draw = async () => {
-        const url = source.value;
-        if (!bitmap || bitmap._url !== url) { bitmap?.close?.(); const response = await fetch(url, { cache: "no-store" }); bitmap = await createImageBitmap(await response.blob()); bitmap._url = url; }
-        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1200, 1200); ctx.fillStyle = "#f5faff"; ctx.fillRect(0, 0, 1200, 930);
-        const scale = Math.min(980 / bitmap.width, 760 / bitmap.height) * Number(zoom.value), width = bitmap.width * scale, height = bitmap.height * scale;
-        ctx.save(); ctx.beginPath(); ctx.rect(60, 90, 1080, 790); ctx.clip(); ctx.filter = "brightness(" + bright.value + ") contrast(" + contrast.value + ") saturate(" + saturate.value + ")"; ctx.drawImage(bitmap, (1200 - width) / 2, 485 - height / 2, width, height); ctx.restore(); ctx.filter = "none";
-        ctx.fillStyle = "#123f78"; ctx.fillRect(0, 930, 1200, 270); ctx.fillStyle = "#f57921"; ctx.fillRect(0, 930, 1200, 12); ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.direction = "rtl"; ctx.font = "bold 48px Arial"; ctx.fillText(name.value || "منتج إنسياب المتقدم", 600, 1035, 1080); if (code.value) { ctx.font = "bold 30px Arial"; ctx.fillText("الكود: " + code.value, 600, 1100); }
-      };
-      const redraw = () => draw().catch(error => { console.warn(error); alert("تعذر عرض الصورة في المحرر."); });
-      [source, name, code, zoom, bright, contrast, saturate].forEach(control => control.addEventListener(control === name || control === code ? "input" : "change", redraw)); await draw();
-      root.querySelector("[data-save]").onclick = async () => {
-        const save = root.querySelector("[data-save]"); save.disabled = true; save.textContent = "جاري الحفظ…";
-        try {
-          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", .92)); if (!blob) throw new Error("تعذر إنشاء الصورة");
-          const upload = await window.ANSIYAB_CLOUD.client.storage.from("product-images").upload("edited/" + Date.now() + "/product-" + product.id + ".webp", blob, { contentType: "image/webp", cacheControl: "31536000", upsert: false }); if (upload.error) throw upload.error;
-          const publicUrl = window.ANSIYAB_CLOUD.client.storage.from("product-images").getPublicUrl(upload.data.path).data.publicUrl;
-          const nextProducts = products.map(item => item.id !== product.id ? item : { ...item, name: name.value.trim() || item.name, salesCode: code.value.trim() || item.salesCode, originalImages: item.originalImages || [...item.images], images: [publicUrl, ...item.images] });
-          const saved = await window.ANSIYAB_CLOUD.push({ products: nextProducts }); if (!saved) throw new Error("تعذر حفظ المنتج");
-          products = nextProducts; root.style.display = "none"; renderProducts(getCurrentVisibleProducts(), document.getElementById("current-view-title")?.innerText || "جميع المنتجات"); alert("تم حفظ النسخة المحسنة مع الاحتفاظ بالصورة الأصلية.");
-        } catch (error) { alert("تعذر حفظ النسخة المحسنة. تحقق من الاتصال وأعد المحاولة."); console.error(error); } finally { save.disabled = false; save.textContent = "حفظ نسخة محسنة"; }
-      };
-      root.style.display = "block";
-    };
+  };
+  root.querySelector('[data-close]').onclick = close;
+  root.onclick = event => { if (event.target === root) close(); };
+  document.addEventListener('keydown', onKey);
+  root.cleanupCropKeys = () => document.removeEventListener('keydown', onKey);
+  root.querySelector('[data-product]').textContent = product.name;
+  source.replaceChildren();
+  product.images.map(productImageUrl).forEach((url,index) => {
+    const option = document.createElement('option');option.value=url;option.textContent='الصورة '+(index+1);source.append(option);
+  });
+  if (Array.from(source.options).some(option => option.value===product.imagePresentation?.source)) source.value=product.imagePresentation.source;
+  function bounds() {
+    return {x:Number(edges.left.value)/100,y:Number(edges.top.value)/100,
+      width:(Number(edges.right.value)-Number(edges.left.value))/100,
+      height:(Number(edges.bottom.value)-Number(edges.top.value))/100};
+  }
+  function setBounds(crop) {
+    edges.left.value=crop.x*100;edges.top.value=crop.y*100;
+    edges.right.value=(crop.x+crop.width)*100;edges.bottom.value=(crop.y+crop.height)*100;
+  }
+  function draw() {
+    Object.entries(edges).forEach(([key,input]) => root.querySelector('[data-output="'+key+'"]').textContent=input.value+'%');
+    const crop=bounds();save.disabled=saving || !image || !validCatalogCrop(crop);
+    if (!image) return;
+    const scale=Math.min(1,1000/Math.max(image.naturalWidth,image.naturalHeight));
+    full.width=Math.round(image.naturalWidth*scale);full.height=Math.round(image.naturalHeight*scale);
+    const ctx=full.getContext('2d');ctx.drawImage(image,0,0,full.width,full.height);
+    preview.width=800;preview.height=800;const out=preview.getContext('2d');out.fillStyle='#fff';out.fillRect(0,0,800,800);
+    if (!validCatalogCrop(crop)) { status.textContent='اجعل الحد الأيسر قبل الأيمن والحد العلوي قبل السفلي، مع مساحة كافية للمنتج.'; return; }
+    const x=crop.x*full.width,y=crop.y*full.height,w=crop.width*full.width,h=crop.height*full.height;
+    ctx.fillStyle='rgba(8,20,36,.42)';ctx.fillRect(0,0,full.width,y);ctx.fillRect(0,y+h,full.width,full.height-y-h);ctx.fillRect(0,y,x,h);ctx.fillRect(x+w,y,full.width-x-w,h);
+    ctx.strokeStyle='#0f766e';ctx.lineWidth=3;ctx.strokeRect(x,y,w,h);
+    const sw=crop.width*image.naturalWidth,sh=crop.height*image.naturalHeight;
+    const fit=Math.min(800/sw,800/sh);out.imageSmoothingQuality='high';
+    out.drawImage(image,crop.x*image.naturalWidth,crop.y*image.naturalHeight,sw,sh,(800-sw*fit)/2,(800-sh*fit)/2,sw*fit,sh*fit);
+    status.textContent=Math.min(sw,sh)<500 ? 'المساحة المحددة صغيرة الدقة؛ تكبيرها لن يضيف تفاصيل. راجع المعاينة قبل الحفظ.' : 'راجع أن جميع أطراف المنتج ظاهرة في المعاينة قبل الحفظ.';
+  }
+  async function loadSource() {
+    const id=++loadingId;image=null;save.disabled=true;status.textContent='جارٍ تحميل الصورة…';
+    const url=source.value;
+    const saved=product.imagePresentation;
+    setBounds(saved?.source===url && validCatalogCrop(saved.crop) ? saved.crop : {x:0,y:0,width:1,height:1});
+    const next=new Image();
+    try {
+      await new Promise((resolve,reject) => {next.onload=resolve;next.onerror=reject;next.src=url;});
+      if (!active() || id!==loadingId) return;
+      image=next;draw();
+    } catch (_) {if (active() && id===loadingId) status.textContent='تعذر تحميل الصورة. اختر صورة أخرى أو أعد فتح المحرر.';}
+  }
+  source.onchange=loadSource;
+  Object.values(edges).forEach(input => input.oninput=draw);
+  root.querySelector('[data-reset]').onclick=()=>{setBounds({x:0,y:0,width:1,height:1});draw();};
+  root.querySelector('[data-preset]').onclick=()=>{setBounds({x:.12,y:.22,width:.76,height:.48});draw();};
+  save.onclick=async()=>{
+    if (saving || !active() || !adminMode || productSavePending || !image || !validCatalogCrop(bounds())) return;
+    const current=products.find(item=>String(item.id)===String(productId));
+    if (!current || !current.images?.map(productImageUrl).includes(source.value)) {status.textContent='صور المنتج تغيرت. أغلق المحرر وأعد فتحه.';return;}
+    const crop=bounds(), sourceUrl=source.value;
+    saving=true;productSavePending=true;
+    root.querySelectorAll('button,select,input').forEach(el=>el.disabled=true);
+    status.textContent='جارٍ حفظ طريقة العرض…';
+    try {
+      const next=products.map(item=>String(item.id)!==String(productId)?item:{...item,imagePresentation:{source:sourceUrl,crop}});
+      const confirmed=await persistProductList(next);
+      products=confirmed;cacheConfirmedProducts();
+      renderProducts(getCurrentVisibleProducts(),document.getElementById('current-view-title')?.innerText || 'جميع المنتجات');
+      status.textContent='تم حفظ طريقة العرض. الصورة الكاملة تظهر عند الضغط على المنتج.';
+    } catch(error) {status.textContent='لم تُحفظ طريقة العرض. '+(error.message || 'تحقق من الاتصال وأعد المحاولة.');}
+    finally {saving=false;productSavePending=false;root.querySelectorAll('button,select,input').forEach(el=>el.disabled=false);save.disabled=!validCatalogCrop(bounds());}
+  };
+  root.hidden=false;root.querySelector('[data-close]').focus();await loadSource();
+};
+
 
     window.restoreOriginalProductImages = async function(button){
       if (!adminMode) return;
