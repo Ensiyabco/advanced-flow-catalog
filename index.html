@@ -393,6 +393,22 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 .subcategory-back{display:none}
 @media(max-width:560px){.catalog-search{flex-wrap:wrap}.catalog-search input{flex-basis:65%}.catalog-search button{padding:13px 12px}}
 </style>
+
+<style id="mobile-header-order-20261003">
+@media(max-width:820px){
+ body>header{position:relative!important;padding:12px!important;display:flex!important;flex-direction:column!important;gap:12px!important}
+ body>header .logo-container{width:100%;min-width:0;gap:10px}
+ body>header .logo-container img{width:46px;height:48px;flex:0 0 46px}
+ body>header .logo-text{font-size:15px!important;line-height:1.5;min-width:0}
+ body>header .home-header-actions{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;width:100%;min-width:0}
+ body>header .home-header-actions>button{width:100%;min-width:0;min-height:44px;padding:9px 8px!important;font-size:13px!important;line-height:1.4;justify-content:center;box-shadow:none}
+ body>header .home-header-actions>.nav-links{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;overflow:visible;width:100%}
+ body>header .nav-links a{padding:10px 2px;font-size:12px;white-space:nowrap;text-align:center;min-height:44px}
+ .home-admin-banner{position:relative!important;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;padding:8px 10px!important;font-size:12px!important;line-height:1.5}
+ .home-admin-banner button,.home-admin-banner a{margin:0!important;padding:7px 9px!important;min-height:36px;display:inline-flex;align-items:center;justify-content:center}
+}
+@media(display-mode:standalone){.home-install-button{display:none!important}}
+</style>
 </head>
 <body>
 <div class="ensiyabco-watermark" aria-hidden="true">
@@ -409,8 +425,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       <img src="assets/images/logo.webp" alt="شعار المتجر" id="logo-img" onerror="this.onerror=null;this.src='assets/images/logo.webp'">
       <div class="logo-text">الأنسياب المتقدم | كتالوج ومعرض لعملاء الجملة</div>
     </a>
-    <div style="display: flex; align-items: center; gap: 15px;">
-      <button type="button" onclick="installEnsiyabcoApp()" style="border:0;border-radius:9px;padding:9px 12px;background:#173b63;color:#fff;font:inherit;cursor:pointer">📱 تنزيل تطبيق أندرويد</button>
+    <div class="home-header-actions" style="display: flex; align-items: center; gap: 15px;">
+      <button class="home-install-button" type="button" onclick="installEnsiyabcoApp()" style="border:0;border-radius:9px;padding:9px 12px;background:#173b63;color:#fff;font:inherit;cursor:pointer">📱 تنزيل التطبيق</button>
       <button class="cart-btn-header" onclick="openCartModal()">
         <span>قائمة الطلب</span>
         <span class="cart-badge" id="cart-count">0</span>
@@ -541,8 +557,9 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
     function showAdminBanner() {
       const banner = document.createElement('div');
+      banner.className = 'home-admin-banner';
       banner.style.cssText = 'background: #2b6cb0; color: white; text-align: center; padding: 8px; font-weight: bold; position: sticky; top: 0; z-index: 99999; font-size: 13px;';
-      banner.innerHTML = '⚙️ وضع المشرف مفعل | <button type="button" onclick="openStoreSettings()" style="margin:0 8px;padding:4px 10px;border:0;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;">إعدادات المتجر</button> | <a href="#" onclick="logoutAdmin(event)" style="color: #fbd38d; text-decoration: underline; margin-right: 10px;">تسجيل الخروج</a>';
+      banner.innerHTML = '<span>⚙️ وضع المشرف مفعل</span> <button type="button" onclick="openStoreSettings()" style="margin:0 8px;padding:4px 10px;border:0;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:700;">إعدادات المتجر</button> <a href="#" onclick="logoutAdmin(event)" style="color: #fbd38d; text-decoration: underline; margin-right: 10px;">تسجيل الخروج</a>';
       document.body.insertBefore(banner, document.body.firstChild);
     }
 
