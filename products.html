@@ -1127,6 +1127,57 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 }
 @media(display-mode:standalone){.header-shortcut[onclick="installEnsiyabcoApp()"]{display:none!important}.header-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
+<script id="grouped-order-cart-20261004">
+function orderCartKey(item) {
+  return item.id != null ? 'id:' + String(item.id).trim() : 'name:' + String(item.name || '').trim();
+}
+function orderCartQuantity(value) {
+  const text=String(value ?? '').trim().replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-1632)).replace(/[۰-۹]/g,d=>String(d.charCodeAt(0)-1776));
+  const valueNumber=Number(text);
+  return /^\d+$/.test(text) && Number.isSafeInteger(valueNumber) && valueNumber>0 ? valueNumber : 1;
+}
+function normalizeOrderCart(items) {
+  const result=[], seen=new Map();
+  for(const source of Array.isArray(items)?items:[]) {
+    if(!source || typeof source!=='object')continue;
+    const unit=String(source.unitType ?? source.unit ?? 'حبة').trim() || 'حبة';
+    const qty=orderCartQuantity(source.qty ?? source.quantity ?? 1);
+    const key=JSON.stringify([orderCartKey(source),unit]);
+    const found=seen.get(key);
+    if(found){found.qty+=qty;found.quantity=found.qty;}
+    else {const item={...source,qty,quantity:qty,unitType:unit,unit};seen.set(key,item);result.push(item);}
+  }
+  return result;
+}
+function groupOrderCart(items) {
+  const groups=[], seen=new Map();
+  items.forEach((item,index)=>{
+    const key=orderCartKey(item);
+    let group=seen.get(key);
+    if(!group){group={item,entries:[]};seen.set(key,group);groups.push(group);}
+    group.entries.push({item,index});
+  });
+  return groups;
+}
+function buildOrderMessage(items) {
+  let message='السلام عليكم، أرغب في طلب المنتجات التالية من مؤسسة الأنسياب المتقدم:\n\n';
+  groupOrderCart(normalizeOrderCart(items)).forEach((group,index)=>{
+    const quantities=group.entries.map(({item})=>item.qty+' '+item.unitType).join(' + ');
+    message+=(index+1)+'. *'+group.item.name+'* - الكمية: '+quantities+'\n';
+  });
+  return message+'\nشكراً لكم.';
+}
+function orderCartEscape(value) {
+  const el=document.createElement('span');el.textContent=String(value ?? '');return el.innerHTML;
+}
+
+</script>
+<style id="grouped-cart-layout">
+#cart-modal .order-cart-item{grid-template-columns:minmax(0,1fr)}
+#cart-modal .order-cart-unit-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+#cart-modal .order-cart-unit-entry .order-cart-controls{grid-row:auto}
+@media(max-width:480px){#cart-modal .order-cart-unit-entry{grid-template-columns:minmax(0,1fr)}}
+</style>
 </head>
 <body>
 
@@ -1501,7 +1552,8 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 
     // The cloud catalog is the source of truth. Do not render a stale/demo local product while Supabase is loading.
 
-    let cart = readStorageArray('ansiyab_cart', []).map(item => ({...item, qty: readOrderQuantity(item.qty ?? item.quantity) ?? 1, unitType: item.unitType ?? item.unit ?? 'حبة'}));
+    let cart = normalizeOrderCart(readStorageArray('ansiyab_cart', []));
+    localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
     let modalImagesBase64 = [];
     let currentLightboxImages = [];
     let currentLightboxIndex = 0;
@@ -2680,7 +2732,7 @@ const uploadSourceFiles = new Map();
     }
 
     function openLightboxForProduct(prodId) {
-      const p = products.find(item => item.id === prodId);
+      const p = products.find(item => String(item.id) === String(prodId));
       if (!p || !p.images || p.images.length === 0) return;
       trackCatalogEvent('product_view', p);
       currentLightboxImages = p.images.map(productImageUrl);
@@ -2706,7 +2758,7 @@ const uploadSourceFiles = new Map();
 
     function addToCart(prodId) {
       if (products.find(item => String(item.id) === String(prodId))?.orderEnabled === false) return alert('طلب هذا المنتج موقوف مؤقتًا.');
-      const p = products.find(item => item.id === prodId);
+      const p = products.find(item => String(item.id) === String(prodId));
       if (!p) return;
       const qtyEl = document.getElementById(`qty-${prodId}`);
       const qtyRaw = qtyEl ? qtyEl.value.trim() : '';
@@ -2715,9 +2767,10 @@ const uploadSourceFiles = new Map();
       if (!Number.isInteger(qty) || qty < 1) { if (qtyEl) qtyEl.focus(); return alert("كمية الطلب يجب أن تكون رقمًا صحيحًا أكبر من صفر."); }
       const unitType = document.getElementById(`unit-type-${prodId}`).value;
       
-      const existing = cart.find(item => item.id === prodId && item.unitType === unitType);
+      const existing = cart.find(item => String(item.id) === String(prodId) && item.unitType === unitType);
       if (existing) {
         existing.qty += qty;
+        existing.quantity = existing.qty;
       } else {
         cart.push({
           id: p.id,
@@ -2733,6 +2786,7 @@ const uploadSourceFiles = new Map();
     }
 
     function saveCart() {
+      cart = normalizeOrderCart(cart);
       localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
     }
 
@@ -2753,26 +2807,27 @@ const uploadSourceFiles = new Map();
     function openCartModal() {
       const container=document.getElementById('cart-items-container');
       container.innerHTML='';
-      if(!cart.length) {
-        container.innerHTML='<p class="cart-empty">قائمة الطلب فارغة حالياً.</p>';
-      } else {
-        cart.forEach((item,index)=>{
-          const row=document.createElement('div');row.className='order-cart-item';
-          const quantity=readOrderQuantity(item.qty) ?? 1;
-          row.innerHTML=`
-            <div class="order-cart-name">${escapeHtml(item.name)}</div>
-            <div class="cart-quantity-summary" id="cart-quantity-summary-${index}" aria-live="polite">الكمية: <b dir="ltr">${quantity}</b> <span>${escapeHtml(item.unitType)}</span></div>
-            <div class="order-cart-controls">
-              <label class="order-cart-quantity" for="cart-qty-${index}">تعديل الكمية
-                <input id="cart-qty-${index}" class="order-cart-qty-input" type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" autocomplete="off" dir="ltr" value="${quantity}" aria-label="كمية ${escapeHtml(item.name)}" onchange="updateCartItemQty(${index},this.value,this)">
-              </label>
-              <button class="order-cart-remove" type="button" aria-label="حذف ${escapeHtml(item.name)}" onclick="removeCartItem(${index})">حذف</button>
+      if(!cart.length)container.innerHTML='<p class="cart-empty">قائمة الطلب فارغة حالياً.</p>';
+      else groupOrderCart(cart).forEach(group=>{
+        const row=document.createElement('div');row.className='order-cart-item';
+        row.innerHTML='<div class="order-cart-name">'+escapeHtml(group.item.name)+'</div>'+
+          group.entries.map(({item,index})=>{
+            const quantity=readOrderQuantity(item.qty) ?? 1;
+            return `<div class="order-cart-unit-entry">
+              <div class="cart-quantity-summary" id="cart-quantity-summary-${index}" aria-live="polite">الكمية: <b dir="ltr">${quantity}</b> <span>${escapeHtml(item.unitType)}</span></div>
+              <div class="order-cart-controls">
+                <label class="order-cart-quantity" for="cart-qty-${index}">تعديل كمية ${escapeHtml(item.unitType)}
+                  <input id="cart-qty-${index}" class="order-cart-qty-input" type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" autocomplete="off" dir="ltr" value="${quantity}" aria-label="كمية ${escapeHtml(group.item.name)} ${escapeHtml(item.unitType)}" onchange="updateCartItemQty(${index},this.value,this)">
+                </label>
+                <button class="order-cart-remove" type="button" aria-label="حذف كمية ${escapeHtml(item.unitType)} من ${escapeHtml(item.name)}" onclick="removeCartItem(${index})">حذف</button>
+              </div>
             </div>`;
-          container.appendChild(row);
-        });
-      }
+          }).join('');
+        container.appendChild(row);
+      });
       document.getElementById('cart-modal').style.display='flex';
     }
+
 
     function updateCartItemQty(index,newQty,input) {
       if(!cart[index]) return false;
@@ -2802,11 +2857,7 @@ const uploadSourceFiles = new Map();
       if (!(await checkOrderAvailability(cart))) return;
       if (cart.length === 0) return alert("قائمة الطلب فارغة!");
       await Promise.allSettled(cart.map(item => trackCatalogEvent('product_order', item, item.qty)));
-      let text = "السلام عليكم، أرغب في طلب المنتجات التالية من متجر الأنسياب المتقدم:\n\n";
-      cart.forEach((item, i) => {
-        text += `${i + 1}. *${item.name}* - الكمية: ${item.qty} ${item.unitType}\n`;
-      });
-      text += "\nشكراً لكم.";
+      const text = buildOrderMessage(cart);
       const encoded = encodeURIComponent(text);
       window.location.assign(`https://wa.me/${targetPhoneNumber}?text=${encoded}`);
     }
