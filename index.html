@@ -409,6 +409,51 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 }
 @media(display-mode:standalone){.home-install-button{display:none!important}}
 </style>
+<script id="grouped-order-cart-20261004">
+function orderCartKey(item) {
+  return item.id != null ? 'id:' + String(item.id).trim() : 'name:' + String(item.name || '').trim();
+}
+function orderCartQuantity(value) {
+  const text=String(value ?? '').trim().replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-1632)).replace(/[۰-۹]/g,d=>String(d.charCodeAt(0)-1776));
+  const valueNumber=Number(text);
+  return /^\d+$/.test(text) && Number.isSafeInteger(valueNumber) && valueNumber>0 ? valueNumber : 1;
+}
+function normalizeOrderCart(items) {
+  const result=[], seen=new Map();
+  for(const source of Array.isArray(items)?items:[]) {
+    if(!source || typeof source!=='object')continue;
+    const unit=String(source.unitType ?? source.unit ?? 'حبة').trim() || 'حبة';
+    const qty=orderCartQuantity(source.qty ?? source.quantity ?? 1);
+    const key=JSON.stringify([orderCartKey(source),unit]);
+    const found=seen.get(key);
+    if(found){found.qty+=qty;found.quantity=found.qty;}
+    else {const item={...source,qty,quantity:qty,unitType:unit,unit};seen.set(key,item);result.push(item);}
+  }
+  return result;
+}
+function groupOrderCart(items) {
+  const groups=[], seen=new Map();
+  items.forEach((item,index)=>{
+    const key=orderCartKey(item);
+    let group=seen.get(key);
+    if(!group){group={item,entries:[]};seen.set(key,group);groups.push(group);}
+    group.entries.push({item,index});
+  });
+  return groups;
+}
+function buildOrderMessage(items) {
+  let message='السلام عليكم، أرغب في طلب المنتجات التالية من مؤسسة الأنسياب المتقدم:\n\n';
+  groupOrderCart(normalizeOrderCart(items)).forEach((group,index)=>{
+    const quantities=group.entries.map(({item})=>item.qty+' '+item.unitType).join(' + ');
+    message+=(index+1)+'. *'+group.item.name+'* - الكمية: '+quantities+'\n';
+  });
+  return message+'\nشكراً لكم.';
+}
+function orderCartEscape(value) {
+  const el=document.createElement('span');el.textContent=String(value ?? '');return el.innerHTML;
+}
+
+</script>
 </head>
 <body>
 <div class="ensiyabco-watermark" aria-hidden="true">
@@ -506,7 +551,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
       "منزليات": ["اكسسوارات عامة"]
     };
 
-    let cart = (JSON.parse(localStorage.getItem('ansiyab_cart')) || []).map(item => ({...item, quantity: item.qty ?? item.quantity ?? 1, unit: item.unitType ?? item.unit ?? 'حبة'}));
+    let cart = normalizeOrderCart(JSON.parse(localStorage.getItem('ansiyab_cart')) || []);
+    localStorage.setItem('ansiyab_cart', JSON.stringify(cart));
 
     document.addEventListener('DOMContentLoaded', async function() {
       buildHomeCategories();
@@ -598,7 +644,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         const canEdit = localStorage.getItem("isAdmin") === "true";
         card.innerHTML = `
           <div class="cat-img-box" style="position:relative">
-            <img src="${categoryImages[cat] || logoSrc}" alt="${cat}" onerror="this.src=logoSrc">
+            <img src="${categoryImages[cat] || logoSrc}" alt="${cat}" onerror="this.onerror=null;this.src='assets/images/logo.webp'">
             ${canEdit ? `<button type="button" title="تغيير صورة القسم" aria-label="تغيير صورة قسم ${cat}" class="home-cat-camera" style="position:absolute;top:8px;left:8px;z-index:2;border:0;border-radius:8px;background:#173b63;color:#fff;width:34px;height:34px;font-size:18px;cursor:pointer">📷</button>
             <input type="file" accept="image/*" class="home-cat-file" style="display:none">` : '' }
           </div>
@@ -654,28 +700,24 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
     }
 
     function openCartModal() {
-      const container = document.getElementById('cart-items-container');
-      container.innerHTML = '';
-
-      if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#a0aec0; padding:20px;">قائمة الطلب فارغة حالياً.</p>';
-      } else {
-        cart.forEach((item, index) => {
-          const row = document.createElement('div');
-          row.style.cssText = "display: flex; flex-wrap:wrap; gap:10px; justify-content: space-between; align-items: center; padding: 10px 5px; border-bottom: 1px solid #f1f5f9; font-size: 13px;";
-          row.innerHTML = `
-            <div style="font-weight: 700; color: #2d3748;">${index + 1}. ${item.name}</div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span class="cart-quantity-summary" style="color:#173b63;font-weight:700;font-size:16px;background:#edf6ff;padding:8px 12px;border-radius:8px;white-space:nowrap;">الكمية: <b dir="ltr" style="font:800 22px Arial,sans-serif">${item.quantity}</b> ${item.unit}</span>
-              <button style="background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 14px; font-weight: 700;" onclick="removeFromCart(${item.id})">✕</button>
-            </div>
-          `;
-          container.appendChild(row);
-        });
-      }
-
-      document.getElementById('cart-modal').style.display = 'flex';
+      const container=document.getElementById('cart-items-container');container.innerHTML='';
+      if(!cart.length)container.innerHTML='<p style="text-align:center;color:#718096;padding:20px">قائمة الطلب فارغة حالياً.</p>';
+      else groupOrderCart(cart).forEach((group,number)=>{
+        const row=document.createElement('div');row.className='home-order-cart-group';
+        row.style.cssText='padding:14px 0;border-bottom:1px solid #e2e8f0';
+        const title=document.createElement('div');title.style.cssText='font-weight:800;color:#173b63;margin-bottom:8px';title.textContent=(number+1)+'. '+group.item.name;row.appendChild(title);
+        group.entries.forEach(({item,index})=>{
+          const entry=document.createElement('div');entry.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px';
+          entry.innerHTML='<span class="cart-quantity-summary" style="color:#173b63;font-weight:700;background:#edf6ff;padding:8px 12px;border-radius:8px">الكمية: <b dir="ltr">'+item.quantity+'</b> '+orderCartEscape(item.unit)+'</span><button type="button" aria-label="حذف كمية '+orderCartEscape(item.unit)+'" style="border:0;border-radius:8px;padding:10px;color:#b91c1c;background:#fee2e2;min-height:44px;font:inherit;cursor:pointer" onclick="removeCartUnit('+index+')">حذف</button>';
+          row.appendChild(entry);
+        });container.appendChild(row);
+      });
+      document.getElementById('cart-modal').style.display='flex';
     }
+    function removeCartUnit(index) {
+      cart.splice(index,1);localStorage.setItem('ansiyab_cart',JSON.stringify(cart));updateCartBadge();openCartModal();
+    }
+
 
     function closeCartModal() {
       document.getElementById('cart-modal').style.display = 'none';
@@ -695,11 +737,7 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
         return;
       }
 
-      let message = "السلام عليكم، أرغب في طلب المنتجات التالية:\n\n";
-      cart.forEach((item, index) => {
-        message += `${index + 1}- ${item.name} | الكمية: ${item.quantity} ${item.unit}\n`;
-      });
-      message += "\nشكراً لكم.";
+      const message = buildOrderMessage(cart);
 
       // تم ربط رقم الواتساب المباشر هنا
       window.location.assign(`https://wa.me/966506645562?text=${encodeURIComponent(message)}`);
