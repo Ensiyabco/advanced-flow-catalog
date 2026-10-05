@@ -1183,6 +1183,42 @@ function orderCartEscape(value) {
 .product-share-btn{display:block;width:100%;min-height:44px;margin:10px 0 6px;padding:9px 6px;border:1px solid #b9d2e8;border-radius:8px;background:#edf6ff;color:#173b63;font:700 13px 'Tajawal',sans-serif;cursor:pointer}
 .product-share-btn:hover{background:#dcecff}.product-share-btn:focus-visible{outline:3px solid #2b6cb0;outline-offset:2px}
 </style>
+
+<style id="analytics-readable-layout">
+#analytics-modal .modal-content{width:min(94vw,1040px)!important;max-width:1040px;box-sizing:border-box;direction:rtl;color:#173b63}
+.analytics-header{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:18px}
+.analytics-header h3{margin:0 0 8px;font-size:24px}
+.analytics-actions{display:flex;flex-wrap:wrap;gap:8px}
+.analytics-actions button{min-height:44px;border:1px solid #cbd5e1;border-radius:9px;padding:8px 14px;background:#eef6ff;color:#173b63;font:inherit;cursor:pointer}
+.analytics-actions button:focus-visible{outline:3px solid #d28a20;outline-offset:2px}
+#analytics-period{color:#526477;margin:0;line-height:1.7}
+#analytics-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.analytics-stat{background:#eef6ff;border:1px solid #cfe3f7;border-radius:12px;padding:16px;text-align:center}
+.analytics-stat small{display:block;font-size:14px;line-height:1.6;color:#526477}
+.analytics-stat strong{display:block;font-size:28px;margin-top:6px}
+.analytics-lists{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.analytics-lists section{min-width:0;border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff}
+.analytics-lists h4{margin:0 0 14px;font-size:18px}
+.analytics-lists ol{list-style:none;margin:0;padding:0}
+.analytics-row{display:grid;grid-template-columns:28px minmax(0,1fr) 82px;align-items:start;gap:10px;padding:12px 0;border-top:1px solid #e2e8f0;line-height:1.7}
+.analytics-rank{color:#64748b;font-size:14px;text-align:center}
+.analytics-name{overflow-wrap:anywhere;color:#334155}
+.analytics-count{text-align:center;background:#eef6ff;border-radius:8px;padding:4px;color:#173b63;font-size:14px}
+.analytics-count strong{display:block;font-size:18px}
+#analytics-feedback{margin:12px 0;color:#334155;line-height:1.7}
+#analytics-share-text{width:100%;box-sizing:border-box;min-height:180px;font:inherit;line-height:1.8;direction:rtl}
+@media(max-width:700px){.analytics-header{flex-direction:column}.analytics-actions{width:100%}.analytics-actions button{flex:1 1 auto}#analytics-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-lists{grid-template-columns:1fr}.analytics-row{grid-template-columns:24px minmax(0,1fr) 72px;gap:8px}}
+@media print{
+body.analytics-print{background:white!important;overflow:visible!important}
+body.analytics-print>:not(#analytics-modal){display:none!important}
+body.analytics-print #analytics-modal{display:block!important;position:static!important;width:auto!important;height:auto!important;padding:0!important;overflow:visible!important;background:white!important}
+body.analytics-print #analytics-modal .modal-content{width:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important;box-shadow:none!important;scrollbar-gutter:auto}
+body.analytics-print .analytics-actions,body.analytics-print #analytics-feedback,body.analytics-print #analytics-share-text{display:none!important}
+body.analytics-print #analytics-summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.analytics-print .analytics-lists{grid-template-columns:1fr 1fr}
+body.analytics-print .analytics-row,body.analytics-print .analytics-stat{break-inside:avoid}
+}
+</style>
 </head>
 <body>
 
@@ -1348,12 +1384,20 @@ function orderCartEscape(value) {
 
   <!-- Analytics Modal -->
   <div class="modal-overlay" id="analytics-modal">
-    <div class="modal-content" style="max-width:980px">
-      <button type="button" onclick="closeModal('analytics-modal')" style="float:left;border:0;background:#e2e8f0;border-radius:6px;padding:7px 12px;cursor:pointer">إغلاق</button>
-      <h3 style="margin-bottom:8px">إحصاءات الموقع</h3>
-      <p id="analytics-period" style="color:#64748b;margin-bottom:16px">جارٍ تحميل الإحصاءات…</p>
-      <div id="analytics-summary" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px"></div>
-      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="analytics-title">
+      <div class="analytics-header">
+        <div><h3 id="analytics-title">إحصاءات الموقع</h3><p id="analytics-period">جارٍ تحميل الإحصاءات…</p></div>
+        <div class="analytics-actions">
+          <button type="button" data-analytics-report disabled onclick="printAnalyticsReport()">طباعة التقرير</button>
+          <button type="button" data-analytics-report disabled onclick="shareAnalyticsReport()">مشاركة التقرير</button>
+          <button type="button" data-analytics-report disabled onclick="exportAnalyticsReport()">تصدير التقرير</button>
+          <button type="button" onclick="closeModal('analytics-modal')">إغلاق</button>
+        </div>
+      </div>
+      <p id="analytics-feedback" role="status" aria-live="polite"></p>
+      <textarea id="analytics-share-text" aria-label="نص التقرير للنسخ" readonly hidden></textarea>
+      <div id="analytics-summary"></div>
+      <div class="analytics-lists">
         <section><h4>الأكثر مشاهدة</h4><ol id="analytics-most-views"></ol></section>
         <section><h4>الأقل مشاهدة</h4><ol id="analytics-least-views"></ol></section>
         <section><h4>الأكثر طلبًا</h4><ol id="analytics-most-orders"></ol></section>
@@ -2901,6 +2945,9 @@ const uploadSourceFiles = new Map();
       modal.style.display = 'flex';
       period.textContent = 'جارٍ تحميل الإحصاءات…';
       summary.innerHTML = '';
+      document.querySelectorAll('[data-analytics-report]').forEach(button => button.disabled = true);
+      document.getElementById('analytics-feedback').textContent = '';
+      document.getElementById('analytics-share-text').hidden = true;
       ['analytics-most-views','analytics-least-views','analytics-most-orders','analytics-least-orders'].forEach(id => document.getElementById(id).innerHTML = '');
       const cloud = window.ANSIYAB_CLOUD;
       if (!cloud?.client || !(await cloud.signIn())) { period.textContent = 'يلزم تسجيل دخول المشرف لعرض الإحصاءات.'; return; }
@@ -2919,16 +2966,57 @@ const uploadSourceFiles = new Map();
       const ranked = source => products.map(product => ({product, count: source.get(String(product.id)) || 0}))
         .sort((a,b) => b.count - a.count || String(a.product.name).localeCompare(String(b.product.name), 'ar'));
       const render = (id, rows, suffix) => {
-        document.getElementById(id).innerHTML = rows.slice(0,10).map(row => '<li style="padding:6px 0;border-bottom:1px solid #e2e8f0">' + escapeHtml(row.product.name) + ' <b style="float:left">' + row.count + ' ' + suffix + '</b></li>').join('') || '<li>لا توجد بيانات بعد.</li>';
+        document.getElementById(id).innerHTML = rows.slice(0,10).map((row,index) => '<li class="analytics-row"><span class="analytics-rank">' + (index + 1) + '</span><span class="analytics-name">' + escapeHtml(row.product.name) + '</span><span class="analytics-count"><strong>' + row.count + '</strong> ' + suffix + '</span></li>').join('') || '<li>لا توجد بيانات بعد.</li>';
       };
       const totalOrders = events.filter(event => event.event_type === 'product_order').length;
       const orderedUnits = events.filter(event => event.event_type === 'product_order').reduce((sum,event) => sum + Number(event.quantity || 1), 0);
-      summary.innerHTML = [['الزوار', visitors],['مشاهدات المنتجات', events.filter(event => event.event_type === 'product_view').length],['طلبات المنتجات', totalOrders],['وحدات مطلوبة', orderedUnits]].map(([label,value]) => '<div style="background:#eef6ff;border:1px solid #cfe3f7;border-radius:10px;padding:12px;text-align:center"><small>' + label + '</small><strong style="display:block;font-size:24px;color:#173b63">' + value + '</strong></div>').join('');
+      summary.innerHTML = [['الزوار', visitors],['مشاهدات المنتجات', events.filter(event => event.event_type === 'product_view').length],['طلبات المنتجات', totalOrders],['وحدات مطلوبة', orderedUnits]].map(([label,value]) => '<div class="analytics-stat"><small>' + label + '</small><strong>' + value + '</strong></div>').join('');
       render('analytics-most-views', ranked(views), 'مشاهدة');
       render('analytics-least-views', ranked(views).reverse(), 'مشاهدة');
       render('analytics-most-orders', ranked(orders), 'وحدة');
       render('analytics-least-orders', ranked(orders).reverse(), 'وحدة');
       period.textContent = events.length ? 'البيانات مسجلة منذ ' + new Date(events[events.length - 1].created_at).toLocaleDateString('ar-SA') : 'تبدأ الإحصاءات من أول زيارة بعد تفعيل هذه الميزة.';
+      document.querySelectorAll('[data-analytics-report]').forEach(button => button.disabled = false);
+    }
+
+    function analyticsReportText() {
+      const lines = ['تقرير إحصاءات الموقع — مؤسسة الأنسياب المتقدم', document.getElementById('analytics-period').textContent];
+      document.querySelectorAll('#analytics-summary .analytics-stat').forEach(stat => lines.push(stat.querySelector('small').textContent + ': ' + stat.querySelector('strong').textContent));
+      document.querySelectorAll('.analytics-lists section').forEach(section => {
+        lines.push('', section.querySelector('h4').textContent);
+        section.querySelectorAll('li').forEach(row => lines.push(row.querySelector('.analytics-name') ? row.querySelector('.analytics-rank').textContent + '. ' + row.querySelector('.analytics-name').textContent + ' — ' + row.querySelector('.analytics-count').textContent : row.textContent));
+      });
+      return lines.join('\n');
+    }
+
+    function printAnalyticsReport() {
+      document.body.classList.add('analytics-print');
+      try { window.print(); } finally { document.body.classList.remove('analytics-print'); }
+    }
+
+    async function shareAnalyticsReport() {
+      const text = analyticsReportText();
+      const feedback = document.getElementById('analytics-feedback');
+      if (navigator.share) {
+        try { await navigator.share({title:'تقرير إحصاءات الأنسياب', text}); feedback.textContent = 'تمت مشاركة التقرير.'; return; }
+        catch (error) { if (error.name === 'AbortError') return; }
+      }
+      try { await navigator.clipboard.writeText(text); feedback.textContent = 'تم نسخ التقرير. يمكنك لصقه في واتساب أو البريد.'; }
+      catch (_) {
+        const field = document.getElementById('analytics-share-text');
+        field.value = text; field.hidden = false; field.focus(); field.select();
+        feedback.textContent = 'حدد نص التقرير وانسخه للمشاركة.';
+      }
+    }
+
+    function exportAnalyticsReport() {
+      const style = document.getElementById('analytics-readable-layout').textContent;
+      const content = '<h1>تقرير إحصاءات الموقع</h1><p>مؤسسة الأنسياب المتقدم</p><p>' + escapeHtml(document.getElementById('analytics-period').textContent) + '</p><div id="analytics-summary">' + document.getElementById('analytics-summary').innerHTML + '</div><div class="analytics-lists">' + document.querySelector('.analytics-lists').innerHTML + '</div>';
+      const html = '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تقرير إحصاءات الأنسياب</title><style>body{font-family:Arial,sans-serif;color:#173b63;max-width:1040px;margin:24px auto;padding:16px;line-height:1.7}' + style + '</style></head><body>' + content + '</body></html>';
+      const url = URL.createObjectURL(new Blob([html], {type:'text/html;charset=utf-8'}));
+      const link = document.createElement('a'); link.href = url; link.download = 'ensiyab-statistics-' + new Date().toISOString().slice(0,10) + '.html';
+      document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+      document.getElementById('analytics-feedback').textContent = 'تم تجهيز التقرير للتنزيل. يمكن فتحه في المتصفح وطباعته أو حفظه PDF.';
     }
 
     function closeModal(modalId) {
