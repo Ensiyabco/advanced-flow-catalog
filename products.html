@@ -1178,6 +1178,10 @@ function orderCartEscape(value) {
 #cart-modal .order-cart-unit-entry .order-cart-controls{grid-row:auto}
 @media(max-width:480px){#cart-modal .order-cart-unit-entry{grid-template-columns:minmax(0,1fr)}}
 </style>
+<style id="product-sharing-20261005">
+.product-share-btn{display:block;width:100%;min-height:44px;margin:10px 0 6px;padding:9px 6px;border:1px solid #b9d2e8;border-radius:8px;background:#edf6ff;color:#173b63;font:700 13px 'Tajawal',sans-serif;cursor:pointer}
+.product-share-btn:hover{background:#dcecff}.product-share-btn:focus-visible{outline:3px solid #2b6cb0;outline-offset:2px}
+</style>
 </head>
 <body>
 
@@ -1401,6 +1405,9 @@ function orderCartEscape(value) {
     }
 
     function getCurrentVisibleProducts() {
+      const sharedId=new URLSearchParams(location.search).get('product');
+      const sharedTitle=document.getElementById('current-view-title')?.innerText || '';
+      if(sharedId && (sharedTitle.startsWith('المنتج: ') || sharedTitle==='المنتج غير متاح'))return visibleProducts(products).filter(item=>String(item.id)===sharedId);
       const searchTitle = document.getElementById("current-view-title")?.innerText || "";
       if (searchTitle.startsWith("نتائج البحث: ")) return searchCatalogProducts(searchTitle.slice("نتائج البحث: ".length));
       const title = document.getElementById("current-view-title")?.innerText || "جميع المنتجات";
@@ -1943,6 +1950,7 @@ function orderCartEscape(value) {
               <option value="كرتون" ${defaultUnit === 'كرتون' ? 'selected' : ''}>كرتون</option>
             </select>
           </div>
+          <button class="product-share-btn" type="button" onclick="shareProduct(${p.id},this)" aria-label="مشاركة ${escapeHtml(p.name)}">↗ مشاركة المنتج</button>
           <button class="add-to-cart-btn" ${p.orderEnabled === false ? 'disabled style="background:#718096;cursor:not-allowed"' : ''} onclick="addToCart(${p.id})">${p.orderEnabled === false ? 'الطلب موقوف مؤقتًا' : 'إضافة لقائمة الطلب 🛒'}</button>
         `;
         grid.appendChild(card);
@@ -2756,6 +2764,27 @@ const uploadSourceFiles = new Map();
       document.getElementById('lightbox-img-src').src = currentLightboxImages[currentLightboxIndex];
     }
 
+
+    function productShareUrl(productId) {
+      const url=new URL('products.html',location.href);
+      url.search='';url.hash='';url.searchParams.set('product',String(productId));return url.href;
+    }
+    async function shareProduct(productId,button) {
+      const product=visibleProducts(products).find(item=>String(item.id)===String(productId));
+      if(!product)return;
+      const url=productShareUrl(product.id);
+      const data={title:product.name,text:product.name+' — مؤسسة الأنسياب المتقدم',url};
+      if(typeof navigator.share==='function' && (!navigator.canShare || navigator.canShare(data))){
+        try {await navigator.share(data);return;}
+        catch(error){if(error.name==='AbortError')return;}
+      }
+      try {
+        if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(url);
+        if(button){button.textContent='✓ تم نسخ الرابط';setTimeout(()=>{if(button.isConnected)button.textContent='↗ مشاركة المنتج';},2500);}
+      } catch (_) {window.prompt('انسخ رابط المنتج لمشاركته:',url);}
+    }
+
     function addToCart(prodId) {
       if (products.find(item => String(item.id) === String(prodId))?.orderEnabled === false) return alert('طلب هذا المنتج موقوف مؤقتًا.');
       const p = products.find(item => String(item.id) === String(prodId));
@@ -2950,6 +2979,14 @@ function clearCatalogSearch() {
 
     function openCategoryFromUrl() {
       const params = new URLSearchParams(window.location.search);
+      const sharedId=params.get('product');
+      if(sharedId){
+        const match=visibleProducts(products).filter(item=>String(item.id)===sharedId);
+        renderProducts(match,match.length?'المنتج: '+match[0].name:'المنتج غير متاح');
+        let back=document.getElementById('shared-product-back');
+        if(!back){back=document.createElement('a');back.id='shared-product-back';back.href='products.html';back.textContent='← عرض جميع المنتجات';back.style.cssText='display:inline-block;margin:8px 0 16px;color:#173b63;font-weight:700';document.getElementById('products-grid-container').before(back);}
+        return;
+      }
       const catName = (params.get('cat') || '').trim();
       const subName = (params.get('sub') || '').trim();
       const search = (params.get('search') || '').trim();
