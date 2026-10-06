@@ -1219,6 +1219,28 @@ body.analytics-print .analytics-lists{grid-template-columns:1fr 1fr}
 body.analytics-print .analytics-row,body.analytics-print .analytics-stat{break-inside:avoid}
 }
 </style>
+
+<style id="catalog-organized-toolbar">
+.site-header-inner{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"brand shortcuts"!important;gap:24px!important}
+.site-brand-modern{grid-area:brand}.header-shortcuts{grid-area:shortcuts}
+body:not(.admin-mode) .admin-command-bar{display:none!important}
+.admin-command-bar{position:relative;z-index:1;background:#f3f7fb!important}
+.admin-command-inner{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px!important;align-items:stretch;max-width:1320px;padding:16px 20px!important;overflow:visible!important;white-space:normal!important}
+.admin-command-inner .admin-mode-indicator{grid-column:1/-1;justify-self:start;min-height:30px;padding:5px 12px!important;font-size:12px!important;box-shadow:none;background:#e6f5ee!important;color:#17634b!important}
+body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;min-width:0;background:#fff;border:1px solid #dce6ef;border-radius:12px;padding:14px}
+.admin-tool-group h2{margin:0 0 12px;font-size:15px;color:#173b63;line-height:1.5}
+.admin-tool-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.admin-command-inner .admin-tool-buttons button{display:flex;align-items:center;justify-content:center;min-width:0;width:100%;min-height:48px;padding:10px 8px!important;font-size:13px!important;line-height:1.5;white-space:normal!important;border-radius:8px!important;box-shadow:none!important}
+.admin-tool-buttons button:last-child:nth-child(odd){grid-column:1/-1}
+.admin-command-inner .admin-tool-buttons .admin-btn,.admin-command-inner .admin-tool-buttons .category-manager-top-btn,.admin-command-inner .admin-tool-buttons .store-settings-btn{background:#173b63!important}
+.admin-tool-buttons button:focus-visible{outline:3px solid #ed9a32;outline-offset:2px}
+.catalog-search{max-width:none;margin:16px 0!important;padding:12px!important;align-items:center!important;background:#fff!important;border:1px solid #dce6ef;box-shadow:0 3px 12px rgba(23,59,99,.04)}
+.catalog-search input{font-size:16px!important;min-height:48px}
+.catalog-search button{min-height:48px;line-height:1.5}
+.catalog-search button[type="button"]{background:#edf2f7;color:#173b63}
+@media(max-width:900px){.site-header-inner{grid-template-columns:1fr!important;grid-template-areas:"brand" "shortcuts"!important;gap:12px!important}.header-shortcuts{justify-content:center}.admin-command-inner{grid-template-columns:1fr;padding:12px!important}.admin-tool-buttons{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-tool-buttons button:last-child:nth-child(odd){grid-column:auto}}
+@media(max-width:560px){.admin-tool-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-tool-buttons button:last-child:nth-child(odd){grid-column:1/-1}.catalog-search{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}.catalog-search input{grid-column:1/-1;width:100%;box-sizing:border-box}.catalog-search button{width:100%;padding:10px!important}.header-shortcuts{width:100%}}
+</style>
 </head>
 <body>
 
@@ -1245,10 +1267,6 @@ body.analytics-print .analytics-row,body.analytics-print .analytics-stat{break-i
         <span class="site-brand-logo"><img src="assets/images/logo.webp" alt="شعار الأنسياب المتقدم" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="logo-fallback-mark">أ</span></span>
         <span class="site-brand-text"><strong>الأنسياب المتقدم</strong><small>أدوات ولوازم الغاز والرحلات والكشتات</small></span>
       </a>
-      <form class="header-catalog-search" role="search" onsubmit="event.preventDefault();document.getElementById('catalog-search-input').value=this.elements.headerSearch.value;runCatalogSearch();">
-        <input name="headerSearch" type="search" aria-label="البحث في المنتجات" placeholder="ابحث عن منتج أو قسم…">
-        <button type="submit" aria-label="بحث">⌕</button>
-      </form>
       <div class="header-shortcuts">
         <a href="index.html" class="header-shortcut">⌂<span>الرئيسية</span></a>
         <a href="https://wa.me/966506645562" class="header-shortcut">◉<span>الدعم</span></a>
@@ -1258,18 +1276,32 @@ body.analytics-print .analytics-row,body.analytics-print .analytics-stat{break-i
       </div>
     </div>
   </header>
-  <div class="admin-command-bar">
+  <div class="admin-command-bar" aria-label="أدوات المشرف">
     <div class="admin-command-inner">
-      <button class="cart-btn-trigger" onclick="openCartModal()">🛒 قائمة الطلبات <span class="cart-badge cart-count-mirror">0</span></button>
-      <button type="button" class="category-manager-top-btn admin-only" onclick="openCategoryManager()">▦ إدارة الأقسام</button>
-      <button class="admin-btn admin-only" onclick="openProductModal()">＋ إضافة منتج</button>
-      <button type="button" class="admin-btn admin-only" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
-      <button type="button" class="admin-btn admin-only" onclick="enhanceCatalogImages(this)">✦ ضبط عرض صور المنتجات</button>
-      <button type="button" class="admin-btn admin-only" onclick="openAutoUploadTools()">✧ التحديد التلقائي للصور الجديدة</button>
-      <button type="button" class="admin-btn admin-only" onclick="openAnalyticsDashboard()">📊 الإحصاءات</button>
-      <span class="admin-mode-indicator">✓ وضع المشرف مفعل</span>
-      <button type="button" class="admin-only cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
-      <button type="button" class="admin-only store-settings-btn" onclick="openStoreSettings()">⚙ إعدادات المتجر</button>
+      <span class="admin-mode-indicator">✓ وضع المشرف مفعّل</span>
+      <section class="admin-tool-group admin-only" aria-labelledby="admin-products-title">
+        <h2 id="admin-products-title">المنتجات والأقسام</h2>
+        <div class="admin-tool-buttons">
+          <button type="button" class="admin-btn" onclick="openProductModal()">＋ إضافة منتج</button>
+          <button type="button" class="category-manager-top-btn" onclick="openCategoryManager()">▦ إدارة الأقسام</button>
+          <button type="button" class="admin-btn" onclick="openCatalogImport()">⇧ استيراد الأصناف</button>
+        </div>
+      </section>
+      <section class="admin-tool-group admin-only" aria-labelledby="admin-images-title">
+        <h2 id="admin-images-title">أدوات الصور</h2>
+        <div class="admin-tool-buttons">
+          <button type="button" class="admin-btn" onclick="enhanceCatalogImages(this)">✦ ضبط عرض الصور</button>
+          <button type="button" class="admin-btn" onclick="openAutoUploadTools()">✧ التحديد التلقائي للصور</button>
+        </div>
+      </section>
+      <section class="admin-tool-group admin-only" aria-labelledby="admin-store-title">
+        <h2 id="admin-store-title">إدارة المتجر</h2>
+        <div class="admin-tool-buttons">
+          <button type="button" class="admin-btn" onclick="openAnalyticsDashboard()">▥ الإحصاءات</button>
+          <button type="button" class="cloud-sync-btn" onclick="syncCatalogToCloud()">◉ مزامنة السحابة</button>
+          <button type="button" class="store-settings-btn" onclick="openStoreSettings()">⚙ إعدادات المتجر</button>
+        </div>
+      </section>
     </div>
   </div>
   <nav id="catalog-top-nav" aria-label="أقسام المنتجات">
