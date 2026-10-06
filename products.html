@@ -1241,6 +1241,17 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 @media(max-width:900px){.site-header-inner{grid-template-columns:1fr!important;grid-template-areas:"brand" "shortcuts"!important;gap:12px!important}.header-shortcuts{justify-content:center}.admin-command-inner{grid-template-columns:1fr;padding:12px!important}.admin-tool-buttons{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-tool-buttons button:last-child:nth-child(odd){grid-column:auto}}
 @media(max-width:560px){.admin-tool-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-tool-buttons button:last-child:nth-child(odd){grid-column:1/-1}.catalog-search{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}.catalog-search input{grid-column:1/-1;width:100%;box-sizing:border-box}.catalog-search button{width:100%;padding:10px!important}.header-shortcuts{width:100%}}
 </style>
+<style id="catalog-contact-notice-20261006">
+.product-price-notice{margin:10px 0 8px;text-align:center;color:#173b63;font-size:16px;font-weight:800;line-height:1.5}
+.category-title-bar{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+.category-title-bar #current-view-title{min-width:0;overflow-wrap:anywhere}
+.category-title-bar #current-view-count{justify-self:end;white-space:nowrap}
+.catalog-contact-notice{margin:0;text-align:center;color:#173b63;font-size:18px;font-weight:800;line-height:1.6}
+@media(max-width:700px){
+.category-title-bar{grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.catalog-contact-notice{grid-column:1/-1;grid-row:2;font-size:16px}
+}
+</style>
 </head>
 <body>
 
@@ -1327,6 +1338,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 <button type="submit">بحث</button><button type="button" onclick="clearCatalogSearch()">مسح</button></form>
       <div class="category-title-bar">
         <h2 id="current-view-title">جميع المنتجات</h2>
+        <p class="catalog-contact-notice">السعر والتوفر: عند التواصل</p>
         <span id="current-view-count">0 منتج</span>
       </div>
       <div id="products-grid-container" class="products-grid"></div>
@@ -2029,6 +2041,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
             </select>
           </div>
           <button class="product-share-btn" type="button" onclick="shareProduct(${p.id},this)" aria-label="مشاركة ${escapeHtml(p.name)}">↗ مشاركة المنتج</button>
+          <p class="product-price-notice">السعر عند الطلب</p>
           <button class="add-to-cart-btn" ${p.orderEnabled === false ? 'disabled style="background:#718096;cursor:not-allowed"' : ''} onclick="addToCart(${p.id})">${p.orderEnabled === false ? 'الطلب موقوف مؤقتًا' : 'إضافة لقائمة الطلب 🛒'}</button>
         `;
         grid.appendChild(card);
