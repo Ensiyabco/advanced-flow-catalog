@@ -1258,6 +1258,11 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 .catalog-request-notice a:focus-visible{outline:3px solid #176b40;outline-offset:4px;border-radius:3px}
 @media(max-width:700px){.catalog-request-notice{font-size:16px;padding:14px 12px}}
 </style>
+<style id="product-order-footer-20261006">
+.product-order-footer{margin-top:auto;padding-top:12px;width:100%}
+.product-order-footer .product-price-notice{margin:0 0 8px;font-size:16px;line-height:1.5}
+.product-order-footer .add-to-cart-btn{display:block;width:100%;margin-top:0!important}
+</style>
 </head>
 <body>
 
@@ -2048,8 +2053,10 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
             </select>
           </div>
           <button class="product-share-btn" type="button" onclick="shareProduct(${p.id},this)" aria-label="مشاركة ${escapeHtml(p.name)}">↗ مشاركة المنتج</button>
+          <div class="product-order-footer">
           <p class="product-price-notice">السعر عند الطلب</p>
           <button class="add-to-cart-btn" ${p.orderEnabled === false ? 'disabled style="background:#718096;cursor:not-allowed"' : ''} onclick="addToCart(${p.id})">${p.orderEnabled === false ? 'الطلب موقوف مؤقتًا' : 'إضافة لقائمة الطلب 🛒'}</button>
+          </div>
         `;
         grid.appendChild(card);
         attachCatalogCrop(card.querySelector(`#main-product-img-${p.id}`), p, mainImg);
