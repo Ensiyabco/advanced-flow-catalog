@@ -1,0 +1,13 @@
+.ensiyab-social{position:relative;z-index:1;box-sizing:border-box;width:calc(100% - 32px);max-width:1100px;margin:32px auto;padding:28px 20px;border:1px solid #dce5ee;border-top:3px solid #f58220;border-radius:18px;background:#fff;color:#173653;text-align:center;font-family:inherit}
+.ensiyab-social h2{margin:0 0 8px;font-size:24px;line-height:1.5;color:#173653}
+.ensiyab-social>p{margin:0 0 20px;color:#475569;font-size:16px;line-height:1.7}
+.ensiyab-social-links{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.ensiyab-social .ensiyab-social-link{box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:10px;flex:1 1 155px;max-width:210px;min-height:64px;padding:10px 14px;border:1px solid #dce5ee;border-radius:12px;background:#f8fafc;color:#173653;text-decoration:none;line-height:1.5;transition:background .15s,border-color .15s}
+.ensiyab-social-link svg{flex:none}
+.ensiyab-social-link span{display:flex;flex-direction:column;text-align:right}
+.ensiyab-social-link strong{font-size:16px;font-weight:700}
+.ensiyab-social-link small{font-size:13px;color:#475569}
+.ensiyab-social .ensiyab-social-link:hover{background:#eef4fa;border-color:#173653}
+.ensiyab-social .ensiyab-social-link:focus-visible{outline:3px solid #173653;outline-offset:3px}
+.ensiyab-social-instagram svg{color:#b32470}.ensiyab-social-facebook svg{color:#0866d9}.ensiyab-social-snapchat svg{color:#173653;background:#fffc00;border-radius:7px;padding:2px}
+@media(max-width:480px){.ensiyab-social{padding:22px 12px;margin:24px auto}.ensiyab-social h2{font-size:21px}.ensiyab-social-links{gap:10px}.ensiyab-social .ensiyab-social-link{flex-basis:calc(50% - 5px);max-width:none;min-width:0;padding:10px 8px;gap:8px}.ensiyab-social-link strong{font-size:15px}}
