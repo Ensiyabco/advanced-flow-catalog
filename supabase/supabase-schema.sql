@@ -15,12 +15,12 @@ drop policy if exists "catalog public read" on public.catalog_state;
 create policy "catalog public read" on public.catalog_state for select to anon, authenticated using (true);
 
 drop policy if exists "catalog authenticated insert" on public.catalog_state;
-create policy "catalog authenticated insert" on public.catalog_state for insert to authenticated with check (true);
+create policy "catalog authenticated insert" on public.catalog_state for insert to authenticated with check ((select auth.uid()) = '4dbc60c5-8d9a-4ab5-9508-39b32166b475'::uuid);
 
 drop policy if exists "catalog authenticated update" on public.catalog_state;
-create policy "catalog authenticated update" on public.catalog_state for update to authenticated using (true) with check (true);
+create policy "catalog authenticated update" on public.catalog_state for update to authenticated using ((select auth.uid()) = '4dbc60c5-8d9a-4ab5-9508-39b32166b475'::uuid) with check ((select auth.uid()) = '4dbc60c5-8d9a-4ab5-9508-39b32166b475'::uuid);
 
 drop policy if exists "catalog authenticated delete" on public.catalog_state;
-create policy "catalog authenticated delete" on public.catalog_state for delete to authenticated using (true);
+create policy "catalog authenticated delete" on public.catalog_state for delete to authenticated using ((select auth.uid()) = '4dbc60c5-8d9a-4ab5-9508-39b32166b475'::uuid);
 
 insert into public.catalog_state (id) values ('main') on conflict (id) do nothing;
