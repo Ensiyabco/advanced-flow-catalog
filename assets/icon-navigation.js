@@ -81,7 +81,7 @@
       }
       if (action === 'categories') {
         const grid = document.getElementById('home-categories-grid');
-        if (grid) { grid.scrollIntoView({block:'start'}); return true; }
+        if (grid) { (document.querySelector('.section-title-container') || grid).scrollIntoView({block:'start'}); return true; }
         const host = document.getElementById('catalog-top-nav');
         const links = document.getElementById('catalog-top-links');
         if (host && links) {
