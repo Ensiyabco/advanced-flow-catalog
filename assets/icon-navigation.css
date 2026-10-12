@@ -1,0 +1,11 @@
+/* Shared icon navigation: Arabic RTL, matching the catalog identity. */
+.ensiyab-icon-nav{direction:rtl;position:relative;z-index:2;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));max-width:1180px;margin:12px auto 20px;padding:8px;background:rgba(255,255,255,.96);border:1px solid #e6edf4;border-radius:18px;box-shadow:0 6px 22px rgba(23,59,99,.08);box-sizing:border-box}
+.ensiyab-icon-nav .ensiyab-nav-item{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:74px;min-width:0;padding:8px 4px;border:0;border-radius:12px;background:transparent;color:#173b63;font:inherit;font-size:16px;line-height:1.5;text-decoration:none;cursor:pointer;box-sizing:border-box}
+.ensiyab-nav-item svg{display:block;width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.ensiyab-icon-nav .ensiyab-nav-item:hover,.ensiyab-icon-nav .ensiyab-nav-item[aria-current="page"]{background:#fff3e7;color:#93420a}
+.ensiyab-icon-nav .ensiyab-nav-item:focus-visible{outline:3px solid #173b63;outline-offset:-3px}
+.ensiyab-nav-icon{position:relative;display:block}
+.ensiyab-icon-nav .ensiyab-nav-count{position:absolute;top:-8px;inset-inline-end:-14px;min-width:22px;height:22px;padding:0 4px;border-radius:20px;background:#f59e0b;color:#173b63;font-size:12px;font-weight:800;line-height:22px;text-align:center;box-sizing:border-box}
+body.ensiyab-has-icon-nav header .nav-links>a[href="index.html"],body.ensiyab-has-icon-nav header .nav-links>a[href="products.html"],body.ensiyab-has-icon-nav header .main-nav>a[href="index.html"],body.ensiyab-has-icon-nav header .main-nav>a[href="products.html"],body.ensiyab-has-icon-nav header .cart-btn-header,body.ensiyab-has-icon-nav .header-shortcuts>a[href="index.html"],body.ensiyab-has-icon-nav .header-shortcuts>button[onclick="toggleAdminMode()"],body.ensiyab-has-icon-nav .header-shortcuts>.cart-shortcut{display:none!important}
+#home-categories-grid,#catalog-top-nav,#catalog-search-input{scroll-margin-top:140px}
+@media(max-width:700px){.ensiyab-icon-nav{margin:8px 10px 14px;padding:5px;border-radius:14px}.ensiyab-icon-nav .ensiyab-nav-item{min-height:66px;font-size:13px;gap:4px}.ensiyab-nav-item svg{width:28px;height:28px}}
