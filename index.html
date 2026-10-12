@@ -457,8 +457,20 @@ function orderCartEscape(value) {
 
 </script>
 <link rel="stylesheet" href="assets/social-links.css?v=20261007">
-<link rel="stylesheet" href="assets/icon-navigation.css?v=20261012">
-<script defer src="assets/icon-navigation.js?v=20261012"></script>
+<link rel="stylesheet" href="assets/icon-navigation.css?v=20261012b">
+<script defer src="assets/icon-navigation.js?v=20261012b"></script>
+<style id="mobile-content-fit-20261012">
+.hero-slides{position:relative}
+.hero-slide.active{position:relative;min-height:440px}
+@media(max-width:700px){.hero-slide.active{min-height:390px}}
+@media(max-width:560px){.home-benefits{grid-template-columns:1fr!important}}
+.section-title-container{gap:12px}
+.section-title-container h2{min-width:0}
+.home-all-products{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;min-height:44px;padding:9px 12px;border:1px solid #e8c29e;border-radius:10px;background:#fff3e7;color:#93420a;font-size:14px;font-weight:700;text-decoration:none}
+.home-all-products svg{flex-shrink:0}
+.home-all-products:focus-visible{outline:3px solid #173b63;outline-offset:3px}
+@media(max-width:560px){.section-title-container h2{font-size:18px}.home-all-products{max-width:128px;font-size:12px;padding:8px;gap:5px}}
+</style>
 </head>
 <body>
 <div class="ensiyabco-watermark" aria-hidden="true">
@@ -505,7 +517,7 @@ function orderCartEscape(value) {
       <h1 style="font-size:22px;color:#183b63;margin:0 0 6px;">الأنسياب المتقدم: أدوات الغاز والرحلات بالجملة</h1>
       <p style="font-size:14px;color:#4a5568;margin:0;">تصفح كتالوج أدوات ولوازم الغاز والرحلات والكشتات، وحدد المنتجات والكميات وأرسل طلبك مباشرة.</p>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div class="home-benefits" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
       <div style="background:#fff;border:1px solid #e7edf3;border-radius:16px;padding:16px;text-align:center;box-shadow:0 10px 24px rgba(15,23,42,.06);"><strong style="display:block;color:#183b63;">معرض منتجات متنوع</strong><span style="font-size:12px;color:#718096;">تشكيلة واسعة لعملاء الجملة</span></div>
       <div style="background:#fff;border:1px solid #e7edf3;border-radius:16px;padding:16px;text-align:center;box-shadow:0 10px 24px rgba(15,23,42,.06);"><strong style="display:block;color:#183b63;">أسعار منافسة</strong><span style="font-size:12px;color:#718096;">خيارات مناسبة لعملاء الجملة</span></div>
       <div style="background:#fff;border:1px solid #e7edf3;border-radius:16px;padding:16px;text-align:center;box-shadow:0 10px 24px rgba(15,23,42,.06);"><strong style="display:block;color:#183b63;">سهولة اختيار وإرسال الطلب</strong><span style="font-size:12px;color:#718096;">اختر المنتجات والكميات وأرسل طلبك مباشرة</span></div>
@@ -514,6 +526,7 @@ function orderCartEscape(value) {
 
   <div class="section-title-container">
     <h2>تصفح الأقسام الرئيسية</h2>
+    <a class="home-all-products" href="products.html" aria-label="عرض كل المنتجات"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>عرض كل المنتجات</span></a>
   </div>
 
   <div class="main-categories-grid" id="home-categories-grid"></div>

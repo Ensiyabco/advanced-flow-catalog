@@ -6,6 +6,11 @@
 .ensiyab-icon-nav .ensiyab-nav-item:focus-visible{outline:3px solid #173b63;outline-offset:-3px}
 .ensiyab-nav-icon{position:relative;display:block}
 .ensiyab-icon-nav .ensiyab-nav-count{position:absolute;top:-8px;inset-inline-end:-14px;min-width:22px;height:22px;padding:0 4px;border-radius:20px;background:#f59e0b;color:#173b63;font-size:12px;font-weight:800;line-height:22px;text-align:center;box-sizing:border-box}
-body.ensiyab-has-icon-nav header .nav-links>a[href="index.html"],body.ensiyab-has-icon-nav header .nav-links>a[href="products.html"],body.ensiyab-has-icon-nav header .main-nav>a[href="index.html"],body.ensiyab-has-icon-nav header .main-nav>a[href="products.html"],body.ensiyab-has-icon-nav header .cart-btn-header,body.ensiyab-has-icon-nav .header-shortcuts>a[href="index.html"],body.ensiyab-has-icon-nav .header-shortcuts>button[onclick="toggleAdminMode()"],body.ensiyab-has-icon-nav .header-shortcuts>.cart-shortcut{display:none!important}
+body.ensiyab-has-icon-nav header .nav-links>a[href="index.html"],body.ensiyab-has-icon-nav header .nav-links>a[href="products.html"],body.ensiyab-has-icon-nav header .main-nav>a[href="index.html"],body.ensiyab-has-icon-nav header .main-nav>a[href="products.html"],body.ensiyab-has-icon-nav header .cart-btn-header,body.ensiyab-has-icon-nav header .home-install-button,body.ensiyab-has-icon-nav header .header-shortcut[onclick="installEnsiyabcoApp()"],body.ensiyab-has-icon-nav .header-shortcuts>a[href="index.html"],body.ensiyab-has-icon-nav .header-shortcuts>button[onclick="toggleAdminMode()"],body.ensiyab-has-icon-nav .header-shortcuts>.cart-shortcut{display:none!important}
 #home-categories-grid,#catalog-top-nav,#catalog-search-input{scroll-margin-top:140px}
 @media(max-width:700px){.ensiyab-icon-nav{margin:8px 10px 14px;padding:5px;border-radius:14px}.ensiyab-icon-nav .ensiyab-nav-item{min-height:66px;font-size:13px;gap:4px}.ensiyab-nav-item svg{width:28px;height:28px}}
+
+.ensiyab-icon-nav [data-action="install"]>span:last-child{font-size:clamp(11px,2.8vw,16px)}
+body.ensiyab-native-app .ensiyab-icon-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.ensiyab-native-app .ensiyab-icon-nav [data-action="install"]{display:none}
+@media(display-mode:standalone){.ensiyab-icon-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.ensiyab-icon-nav [data-action="install"]{display:none}}
