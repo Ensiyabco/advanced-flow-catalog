@@ -42,17 +42,6 @@
     });
     header.insertAdjacentElement('afterend', nav);
     document.body.classList.add('ensiyab-has-icon-nav');
-    function measureNavigation() {
-      const height = header.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--ensiyab-header-height', height + 'px');
-      document.documentElement.style.setProperty('--ensiyab-navigation-height', (height + nav.getBoundingClientRect().height + 24) + 'px');
-    }
-    if (typeof ResizeObserver !== 'undefined') {
-      const observer = new ResizeObserver(measureNavigation);
-      observer.observe(header); observer.observe(nav);
-    }
-    window.addEventListener('resize', measureNavigation);
-    measureNavigation();
     // The Android WebView is already the installed catalog app.
     if (/; wv\)/i.test(navigator.userAgent)) document.body.classList.add('ensiyab-native-app');
     const cartLink = nav.querySelector('[data-action="cart"]');
