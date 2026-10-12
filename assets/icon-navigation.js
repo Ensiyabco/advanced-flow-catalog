@@ -42,6 +42,17 @@
     });
     header.insertAdjacentElement('afterend', nav);
     document.body.classList.add('ensiyab-has-icon-nav');
+    function measureNavigation() {
+      const height = header.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--ensiyab-header-height', height + 'px');
+      document.documentElement.style.setProperty('--ensiyab-navigation-height', (height + nav.getBoundingClientRect().height + 24) + 'px');
+    }
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(measureNavigation);
+      observer.observe(header); observer.observe(nav);
+    }
+    window.addEventListener('resize', measureNavigation);
+    measureNavigation();
     // The Android WebView is already the installed catalog app.
     if (/; wv\)/i.test(navigator.userAgent)) document.body.classList.add('ensiyab-native-app');
     const cartLink = nav.querySelector('[data-action="cart"]');
@@ -69,6 +80,8 @@
         if (input) { input.scrollIntoView({block:'center'}); input.focus({preventScroll:true}); return true; }
       }
       if (action === 'categories') {
+        const grid = document.getElementById('home-categories-grid');
+        if (grid) { grid.scrollIntoView({block:'start'}); return true; }
         const host = document.getElementById('catalog-top-nav');
         const links = document.getElementById('catalog-top-links');
         if (host && links) {
@@ -81,6 +94,7 @@
       }
       return false;
     }
+    function performRequestedAction() {
     const requested = new URLSearchParams(location.search).get('nav');
     if (['cart', 'search'].includes(requested)) {
       perform(requested);
@@ -88,7 +102,11 @@
       url.searchParams.delete('nav');
       history.replaceState(null, '', url);
     }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', performRequestedAction, {once:true});
+    else performRequestedAction();
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  if (document.querySelector('header')) init();
+  else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

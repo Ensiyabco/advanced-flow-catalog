@@ -921,8 +921,8 @@ body>.category-manager-overlay{position:fixed !important;inset:0 !important;z-in
 
 <style id="v10-breadcrumb-layout">
 .inner-breadcrumb{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.88);border:1px solid #e2e8f0;border-radius:12px;padding:9px 12px;margin-bottom:4px}
-.inner-breadcrumb button{border:0;background:transparent;color:#1f5f9e;font-weight:800;cursor:pointer;padding:3px 5px}
-.inner-breadcrumb button:hover{text-decoration:underline}
+.inner-breadcrumb button,.inner-breadcrumb a{font:inherit;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;border:0;background:transparent;color:#1f5f9e;font-weight:800;cursor:pointer;padding:3px 5px}
+.inner-breadcrumb button:hover,.inner-breadcrumb a:hover{text-decoration:underline}
 .breadcrumb-current{color:#475569;font-weight:700}
 .subcat-view-prompt{color:#64748b;font-size:17px;font-weight:700;text-align:right;padding:4px 4px 2px;margin-bottom:2px}
 </style>
@@ -1264,10 +1264,9 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 .product-order-footer .add-to-cart-btn{display:block;width:100%;margin-top:0!important}
 </style>
 <link rel="stylesheet" href="assets/social-links.css?v=20261007">
-<link rel="stylesheet" href="assets/icon-navigation.css?v=20261012b">
-<script defer src="assets/icon-navigation.js?v=20261012b"></script>
+<link rel="stylesheet" href="assets/icon-navigation.css?v=20261013">
 </head>
-<body>
+<body class="ensiyab-has-icon-nav">
 
 <div class="ensiyabco-watermark" aria-hidden="true">
   <div class="ensiyabco-watermark-inner">
@@ -1301,6 +1300,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       </div>
     </div>
   </header>
+<script src="assets/icon-navigation.js?v=20261013"></script>
   <div class="admin-command-bar" aria-label="أدوات المشرف">
     <div class="admin-command-inner">
       <span class="admin-mode-indicator">✓ وضع المشرف مفعّل</span>
@@ -2235,7 +2235,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 
       grid.innerHTML = `
         <div class="inner-breadcrumb" style="grid-column:1/-1">
-          <button type="button" onclick="resetCategoryFilter()">الرئيسية</button>
+          <a href="index.html">الرئيسية</a>
           <span>›</span>
           <button type="button" onclick="clickMainCategory(${escapeHtml(JSON.stringify(mainCatName))})">${escapeHtml(mainCatName)}</button>
         </div>
@@ -2269,7 +2269,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       crumb.className = 'inner-breadcrumb product-breadcrumb';
       crumb.style.gridColumn = '1 / -1';
       crumb.innerHTML = `
-        <button type="button" onclick="resetCategoryFilter()">الرئيسية</button>
+        <a href="index.html">الرئيسية</a>
         <span>›</span>
         <button type="button" onclick="clickMainCategory(${escapeHtml(JSON.stringify(mainCat))})">${escapeHtml(mainCat)}</button>
         ${subCat ? `<span>›</span><span class="breadcrumb-current">${escapeHtml(subCat)}</span>` : ''}

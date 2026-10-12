@@ -14,3 +14,12 @@ body.ensiyab-has-icon-nav header .nav-links>a[href="index.html"],body.ensiyab-ha
 body.ensiyab-native-app .ensiyab-icon-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
 body.ensiyab-native-app .ensiyab-icon-nav [data-action="install"]{display:none}
 @media(display-mode:standalone){.ensiyab-icon-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.ensiyab-icon-nav [data-action="install"]{display:none}}
+
+/* Keep the brand and primary actions available while viewing categories/products. */
+body.ensiyab-has-icon-nav>header{position:sticky!important;top:0!important;z-index:1100!important}
+body.ensiyab-has-icon-nav>.ensiyab-icon-nav{position:sticky;top:var(--ensiyab-header-height,100px);z-index:1100}
+#catalog-top-nav{top:var(--ensiyab-navigation-height,200px)!important}
+#home-categories-grid,#catalog-top-nav,#catalog-search-input,.products-content,.home-all-products{scroll-margin-top:var(--ensiyab-navigation-height,200px)!important}
+@media(max-width:820px){#catalog-top-links.mobile-open{max-height:calc(100dvh - var(--ensiyab-navigation-height,200px) - 70px);white-space:normal!important}}
+/* Hidden overflow created a separate body scroll container and defeated sticky headers. */
+html,body.ensiyab-has-icon-nav{overflow-x:clip!important}
