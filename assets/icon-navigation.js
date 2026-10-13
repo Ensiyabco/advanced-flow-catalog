@@ -65,8 +65,8 @@
       const entry = document.createElement('a');
       entry.className = 'ensiyab-admin-entry';
       entry.href = 'products.html?nav=admin';
-      entry.setAttribute('aria-label', 'دخول المشرف');
-      entry.innerHTML = '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg><span>دخول المشرف</span>';
+      entry.setAttribute('aria-label', 'المشرف');
+      entry.innerHTML = '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg><span>المشرف</span>';
       footer.append(entry);
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addAdminEntry, {once:true});
