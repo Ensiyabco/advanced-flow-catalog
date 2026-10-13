@@ -44,6 +44,18 @@
     document.body.classList.add('ensiyab-has-icon-nav');
     // The Android WebView is already the installed catalog app.
     if (/; wv\)/i.test(navigator.userAgent)) document.body.classList.add('ensiyab-native-app');
+    const mobile = window.matchMedia('(max-width:820px)');
+    const standalone = window.matchMedia('(display-mode:standalone)');
+    const measure = () => document.documentElement.style.setProperty('--ensiyab-bottom-nav-height', nav.getBoundingClientRect().height + 'px');
+    const updatePlacement = () => {
+      document.body.classList.toggle('ensiyab-bottom-navigation', mobile.matches || standalone.matches || document.body.classList.contains('ensiyab-native-app'));
+      measure();
+    };
+    mobile.addEventListener?.('change', updatePlacement);
+    standalone.addEventListener?.('change', updatePlacement);
+    window.addEventListener('resize', updatePlacement);
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(measure).observe(nav);
+    updatePlacement();
     const cartLink = nav.querySelector('[data-action="cart"]');
     const badge = cartLink.querySelector('.ensiyab-nav-count');
     const existingBadge = document.getElementById('cart-count');
