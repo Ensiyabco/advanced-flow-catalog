@@ -1,4 +1,4 @@
-const CACHE = 'ensiyabco-app-v13-admin-entry-20261013';
+const CACHE = 'ensiyabco-app-v14-admin-icon-20261013';
 const APP_SHELL = ['./','./index.html','./products.html','./manifest.webmanifest','./offline.html','./assets/images/ensiyabco-product-placeholder-20260910.jpeg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));

@@ -31,5 +31,5 @@ body.ensiyab-bottom-navigation :where(input,select,button,a){scroll-margin-botto
 
 header :is(.logo-container,.site-brand-modern,.logo-area){touch-action:none;-webkit-touch-callout:none;user-select:none}
 header :is(.logo-container,.site-brand-modern,.logo-area) img{pointer-events:none;-webkit-user-drag:none}
-.ensiyab-admin-entry{display:flex;align-items:center;justify-content:center;min-height:44px;width:fit-content;margin:12px auto;padding:6px 16px;color:inherit;font-size:14px;text-decoration:underline;text-underline-offset:4px}
+.ensiyab-admin-entry{display:flex;align-items:center;justify-content:center;min-height:44px;width:fit-content;margin:12px auto;padding:10px 16px;gap:8px;border:1px solid currentColor;border-radius:10px;color:inherit;font-size:14px;text-decoration:none}
 .ensiyab-admin-entry:focus-visible{outline:3px solid #f5a623;outline-offset:3px}
