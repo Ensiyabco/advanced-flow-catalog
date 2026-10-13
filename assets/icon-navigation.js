@@ -19,7 +19,7 @@
       ['categories', 'الأقسام', 'index.html#catalog-categories'],
       ['cart', 'السلة', 'products.html?nav=cart'],
       ['search', 'بحث', 'products.html?nav=search'],
-      ['install', 'تنزيل التطبيق', 'https://github.com/Ensiyabco/advanced-flow-catalog/releases/download/android-v1.0.0/app-debug.apk']
+      ['install', 'تنزيل التطبيق', 'https://github.com/Ensiyabco/advanced-flow-catalog/releases/download/android-v1.0.1/app-debug.apk']
     ];
     items.forEach(([action, label, href]) => {
       const link = document.createElement('a');
