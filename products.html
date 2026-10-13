@@ -1264,7 +1264,8 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 .product-order-footer .add-to-cart-btn{display:block;width:100%;margin-top:0!important}
 </style>
 <link rel="stylesheet" href="assets/social-links.css?v=20261007">
-<link rel="stylesheet" href="assets/icon-navigation.css?v=20261013b">
+<link rel="stylesheet" href="assets/icon-navigation.css?v=20261013c">
+<link rel="stylesheet" href="assets/product-sharing.css?v=20261013">
 </head>
 <body class="ensiyab-has-icon-nav">
 
@@ -1300,7 +1301,8 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       </div>
     </div>
   </header>
-<script src="assets/icon-navigation.js?v=20261013b"></script>
+<script src="assets/icon-navigation.js?v=20261013c"></script>
+<script src="assets/product-sharing.js?v=20261013"></script>
   <div class="admin-command-bar" aria-label="أدوات المشرف">
     <div class="admin-command-inner">
       <span class="admin-mode-indicator">✓ وضع المشرف مفعّل</span>
@@ -2896,15 +2898,7 @@ const uploadSourceFiles = new Map();
       if(!product)return;
       const url=productShareUrl(product.id);
       const data={title:product.name,text:product.name+' — مؤسسة الأنسياب المتقدم',url};
-      if(typeof navigator.share==='function' && (!navigator.canShare || navigator.canShare(data))){
-        try {await navigator.share(data);return;}
-        catch(error){if(error.name==='AbortError')return;}
-      }
-      try {
-        if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
-        await navigator.clipboard.writeText(url);
-        if(button){button.textContent='✓ تم نسخ الرابط';setTimeout(()=>{if(button.isConnected)button.textContent='↗ مشاركة المنتج';},2500);}
-      } catch (_) {window.prompt('انسخ رابط المنتج لمشاركته:',url);}
+      await window.ENSIYAB_PRODUCT_SHARE.share(data);
     }
 
     function addToCart(prodId) {

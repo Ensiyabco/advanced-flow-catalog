@@ -16,7 +16,7 @@
     nav.setAttribute('aria-label', 'التنقل الرئيسي');
     const items = [
       ['home', 'الرئيسية', 'index.html'],
-      ['categories', 'الأقسام', 'index.html#home-categories-grid'],
+      ['categories', 'الأقسام', 'index.html#catalog-categories'],
       ['cart', 'السلة', 'products.html?nav=cart'],
       ['search', 'بحث', 'products.html?nav=search'],
       ['install', 'تنزيل التطبيق', 'https://github.com/Ensiyabco/advanced-flow-catalog/releases/download/android-v1.0.0/app-debug.apk']
@@ -71,15 +71,7 @@
       if (action === 'categories') {
         const grid = document.getElementById('home-categories-grid');
         if (grid) { (document.querySelector('.section-title-container') || grid).scrollIntoView({block:'start'}); return true; }
-        const host = document.getElementById('catalog-top-nav');
-        const links = document.getElementById('catalog-top-links');
-        if (host && links) {
-          links.classList.add('mobile-open');
-          document.getElementById('catalog-menu-toggle')?.setAttribute('aria-expanded', 'true');
-          host.scrollIntoView({block:'start'});
-          document.getElementById('catalog-menu-toggle')?.focus({preventScroll:true});
-          return true;
-        }
+
       }
       return false;
     }

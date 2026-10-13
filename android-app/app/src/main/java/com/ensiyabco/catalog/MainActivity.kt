@@ -3,6 +3,7 @@ package com.ensiyabco.catalog
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.ActivityNotFoundException
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 
 class MainActivity : Activity() {
     private lateinit var webView: WebView
@@ -29,12 +31,22 @@ class MainActivity : Activity() {
             allowContentAccess = true
             builtInZoomControls = false
             displayZoomControls = false
+            userAgentString = userAgentString + " EnsiyabcoApp/1.0.1"
         }
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val uri = request.url
-                return if (uri.host == "ensiyabco.github.io") false else {
-                    startActivity(Intent(Intent.ACTION_VIEW, uri)); true
+                if (uri.scheme == "ensiyab-share") {
+                    if (request.isForMainFrame && uri.host == "product") shareProductLink(view, uri)
+                    return true
+                }
+                return if (uri.scheme == "https" && uri.host == "ensiyabco.github.io") false else {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, uri))
+                    } catch (_: ActivityNotFoundException) {
+                        Toast.makeText(this@MainActivity, "لا يوجد تطبيق لفتح هذا الرابط", Toast.LENGTH_SHORT).show()
+                    }
+                    true
                 }
             }
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
@@ -55,6 +67,26 @@ class MainActivity : Activity() {
             }
         }
         webView.loadUrl(CATALOG_URL)
+    }
+
+    private fun shareProductLink(view: WebView, uri: Uri) {
+        val source = view.url?.let { Uri.parse(it) } ?: return
+        val productUrl = uri.getQueryParameter("url") ?: return
+        val product = Uri.parse(productUrl)
+        // Only catalog pages may share HTTPS links to catalog products.
+        if (source.scheme != "https" || source.host != "ensiyabco.github.io" ||
+            source.path?.startsWith("/advanced-flow-catalog/") != true ||
+            product.scheme != "https" || product.host != "ensiyabco.github.io" ||
+            product.path != "/advanced-flow-catalog/products.html" ||
+            product.getQueryParameter("product").isNullOrBlank()) return
+        val title = uri.getQueryParameter("title").orEmpty().take(300)
+        val text = uri.getQueryParameter("text").orEmpty().take(1500)
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, title)
+            putExtra(Intent.EXTRA_TEXT, "$text\n$productUrl")
+        }
+        startActivity(Intent.createChooser(send, "مشاركة المنتج"))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
