@@ -47,13 +47,37 @@
     if(!client) return false;
     const sessionResult = await client.auth.getSession();
     if(sessionResult.data && sessionResult.data.session) return true;
-    const email = prompt('أدخل بريد حساب مدير Supabase:');
-    if(!email) return false;
-    const password = prompt('أدخل كلمة مرور حساب مدير Supabase:');
-    if(!password) return false;
-    const {error} = await client.auth.signInWithPassword({email: email.trim(), password});
-    if(error){ alert('تعذر تسجيل الدخول إلى Supabase:\n' + error.message); return false; }
-    return true;
+    return new Promise(resolve => {
+      const dialog = document.createElement('dialog');
+      dialog.dir = 'rtl';
+      dialog.setAttribute('aria-labelledby', 'ensiyab-login-title');
+      dialog.style.cssText = 'box-sizing:border-box;width:min(420px,calc(100% - 24px));max-height:85dvh;overflow:auto;border:0;border-radius:18px;padding:24px;color:#173b63;background:white;font-family:inherit;';
+      dialog.innerHTML = `<form style="display:grid;gap:14px">
+        <h2 id="ensiyab-login-title" style="margin:0;font-size:22px">دخول المشرف</h2>
+        <label style="display:grid;gap:6px">البريد الإلكتروني<input name="email" type="email" dir="ltr" autocomplete="username" required style="box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab8c8;border-radius:8px;font-size:16px"></label>
+        <label style="display:grid;gap:6px">كلمة المرور<input name="password" type="password" dir="ltr" autocomplete="current-password" required style="box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab8c8;border-radius:8px;font-size:16px"></label>
+        <p role="alert" style="margin:0;color:#a32121;overflow-wrap:anywhere"></p>
+        <button type="submit" style="min-height:46px;background:#173b63;color:white;border:0;border-radius:8px;font:inherit">دخول</button>
+        <button type="button" style="min-height:44px;border:1px solid #aab8c8;border-radius:8px;background:white;font:inherit">إلغاء</button>
+      </form>`;
+      const form = dialog.querySelector('form'), submit = form.querySelector('[type="submit"]');
+      let busy = false, finished = false;
+      const finish = result => { if(finished) return; finished = true; form.reset(); dialog.close(); dialog.remove(); resolve(result); };
+      dialog.addEventListener('cancel', event => { event.preventDefault(); if(!busy) finish(false); });
+      form.querySelector('[type="button"]').onclick = () => { if(!busy) finish(false); };
+      form.addEventListener('submit', async event => {
+        event.preventDefault(); if(busy) return;
+        busy = true; submit.disabled = true; submit.textContent = 'جارٍ تسجيل الدخول…';
+        const message = form.querySelector('[role="alert"]'); message.textContent = '';
+        try {
+          const {data, error} = await client.auth.signInWithPassword({email: form.elements.email.value.trim(), password: form.elements.password.value});
+          if(error || !data?.session) { message.textContent = 'تعذر الدخول. تحقق من البريد وكلمة المرور ثم حاول مجددًا.'; }
+          else { finish(true); return; }
+        } catch(error) { message.textContent = 'تعذر الاتصال. تحقق من الإنترنت ثم حاول مجددًا.'; }
+        busy = false; submit.disabled = false; submit.textContent = 'دخول';
+      });
+      document.body.append(dialog); dialog.showModal();
+    });
   }
 
   async function push(overrides){

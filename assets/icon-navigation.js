@@ -64,6 +64,8 @@
       const cancel = () => { clearTimeout(timer); timer = null; };
       brand.addEventListener('pointerdown', event => {
         if (event.button !== 0) return;
+        cancel();
+        brand.setPointerCapture?.(event.pointerId);
         origin = {x:event.clientX,y:event.clientY}; held = false;
         timer = setTimeout(() => {
           held = true;
@@ -78,17 +80,6 @@
       ['pointerup','pointercancel','pointerleave'].forEach(type => brand.addEventListener(type, cancel));
       brand.addEventListener('contextmenu', event => event.preventDefault());
       brand.addEventListener('click', event => { if (held) { event.preventDefault(); event.stopPropagation(); held=false; } }, true);
-    }
-    if (document.body.classList.contains('ensiyab-native-app') || standalone.matches) {
-      const refresh = document.createElement('button');
-      refresh.type = 'button'; refresh.className = 'ensiyab-refresh-button';
-      refresh.textContent = '↻ تحديث العرض';
-      refresh.addEventListener('click', () => {
-        const target = new URL(location.href);
-        target.searchParams.set('_refresh', String(Date.now()));
-        location.replace(target.href);
-      });
-      (header.querySelector('.header-shortcuts, .home-header-actions') || header).append(refresh);
     }
     const cartLink = nav.querySelector('[data-action="cart"]');
     const badge = cartLink.querySelector('.ensiyab-nav-count');
