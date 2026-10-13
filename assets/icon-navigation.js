@@ -43,12 +43,12 @@
     header.insertAdjacentElement('afterend', nav);
     document.body.classList.add('ensiyab-has-icon-nav');
     // The Android WebView is already the installed catalog app.
-    if (/; wv\)/i.test(navigator.userAgent)) document.body.classList.add('ensiyab-native-app');
+    if (/\bwv\b|EnsiyabcoApp\//i.test(navigator.userAgent)) document.body.classList.add('ensiyab-native-app');
     const mobile = window.matchMedia('(max-width:820px)');
     const standalone = window.matchMedia('(display-mode:standalone)');
     const measure = () => document.documentElement.style.setProperty('--ensiyab-bottom-nav-height', nav.getBoundingClientRect().height + 'px');
     const updatePlacement = () => {
-      document.body.classList.toggle('ensiyab-bottom-navigation', mobile.matches || standalone.matches || document.body.classList.contains('ensiyab-native-app'));
+      document.body.classList.toggle('ensiyab-bottom-navigation', mobile.matches || (window.matchMedia('(pointer:coarse)').matches && window.screen.width <= 820) || standalone.matches || document.body.classList.contains('ensiyab-native-app'));
       measure();
     };
     mobile.addEventListener?.('change', updatePlacement);
@@ -56,6 +56,40 @@
     window.addEventListener('resize', updatePlacement);
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(measure).observe(nav);
     updatePlacement();
+    window.addEventListener('pageshow', updatePlacement);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updatePlacement(); });
+    const brand = header.querySelector('.logo-container, .site-brand-modern, .logo-area');
+    if (brand) {
+      let timer, origin, held = false;
+      const cancel = () => { clearTimeout(timer); timer = null; };
+      brand.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+        origin = {x:event.clientX,y:event.clientY}; held = false;
+        timer = setTimeout(() => {
+          held = true;
+          const target = new URL('products.html', location.href);
+          target.searchParams.set('nav', 'admin');
+          location.href = target.href;
+        }, 1000);
+      });
+      brand.addEventListener('pointermove', event => {
+        if (origin && Math.hypot(event.clientX-origin.x,event.clientY-origin.y)>12) cancel();
+      });
+      ['pointerup','pointercancel','pointerleave'].forEach(type => brand.addEventListener(type, cancel));
+      brand.addEventListener('contextmenu', event => event.preventDefault());
+      brand.addEventListener('click', event => { if (held) { event.preventDefault(); event.stopPropagation(); held=false; } }, true);
+    }
+    if (document.body.classList.contains('ensiyab-native-app') || standalone.matches) {
+      const refresh = document.createElement('button');
+      refresh.type = 'button'; refresh.className = 'ensiyab-refresh-button';
+      refresh.textContent = '↻ تحديث العرض';
+      refresh.addEventListener('click', () => {
+        const target = new URL(location.href);
+        target.searchParams.set('_refresh', String(Date.now()));
+        location.replace(target.href);
+      });
+      (header.querySelector('.header-shortcuts, .home-header-actions') || header).append(refresh);
+    }
     const cartLink = nav.querySelector('[data-action="cart"]');
     const badge = cartLink.querySelector('.ensiyab-nav-count');
     const existingBadge = document.getElementById('cart-count');
@@ -88,13 +122,15 @@
       return false;
     }
     function performRequestedAction() {
-    const requested = new URLSearchParams(location.search).get('nav');
-    if (['cart', 'search'].includes(requested)) {
-      perform(requested);
+      const requested = new URLSearchParams(location.search).get('nav');
+      if (!['cart', 'search', 'admin'].includes(requested)) return;
       const url = new URL(location.href);
       url.searchParams.delete('nav');
       history.replaceState(null, '', url);
-    }
+      if (requested === 'admin') {
+        // Reuse the authenticated login flow. Never grant admin mode here.
+        if (localStorage.getItem('isAdmin') !== 'true' && typeof window.toggleAdminMode === 'function') window.toggleAdminMode();
+      } else perform(requested);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', performRequestedAction, {once:true});
     else performRequestedAction();
