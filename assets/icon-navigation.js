@@ -58,6 +58,18 @@
     updatePlacement();
     window.addEventListener('pageshow', updatePlacement);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) updatePlacement(); });
+    // A normal link remains usable when a device intercepts long-press gestures.
+    const addAdminEntry = () => {
+      const footer = document.querySelector('footer');
+      if (!footer || footer.querySelector('.ensiyab-admin-entry')) return;
+      const entry = document.createElement('a');
+      entry.className = 'ensiyab-admin-entry';
+      entry.href = 'products.html?nav=admin';
+      entry.textContent = 'دخول المشرف';
+      footer.append(entry);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addAdminEntry, {once:true});
+    else addAdminEntry();
     const brand = header.querySelector('.logo-container, .site-brand-modern, .logo-area');
     if (brand) {
       let timer, origin, held = false;
