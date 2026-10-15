@@ -1267,6 +1267,9 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 <link rel="stylesheet" href="assets/icon-navigation.css?v=20261013j">
 <link rel="stylesheet" href="assets/product-sharing.css?v=20261013a">
 <link rel="stylesheet" href="assets/image-zoom.css?v=20261013a">
+  <link rel="icon" href="assets/images/logo.webp" type="image/webp">
+  <link rel="stylesheet" href="assets/storefront-experience.css?v=20261016">
+  <script defer src="assets/storefront-experience.js?v=20261016"></script>
 </head>
 <body class="ensiyab-has-icon-nav">
 
@@ -1639,7 +1642,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
     let categories = readStorageArray('ansiyab_categories_v1', defaultCategoriesList);
 
     function isAdminOnlyCategory(name) {
-      return categories.some(cat => cat && cat.adminOnly === true && cat.name === name);
+      return /^للمشرف\s*[—–-]?\s*بانتظار التصنيف$/.test(String(name).trim()) || categories.some(cat => cat && cat.adminOnly === true && cat.name === name);
     }
     function visibleProducts(list) {
       const source = Array.isArray(list) ? list : products;
@@ -2113,7 +2116,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 
       const orderedCategories = categories
         .map((cat, originalIndex) => ({ cat, originalIndex }))
-        .filter(({cat}) => adminMode || !cat.adminOnly)
+        .filter(({cat}) => adminMode || !isAdminOnlyCategory(cat.name))
         .sort((a, b) => {
           const ao = Number(a.cat && a.cat.order);
           const bo = Number(b.cat && b.cat.order);
@@ -4291,7 +4294,7 @@ function buildTopCategoryNav() {
     b.addEventListener('click',()=>{action();close();});return b;
   };
   const all=button('عرض كل المنتجات',()=>resetCategoryFilter());all.className='catalog-nav-all';host.append(all);
-  const sorted=categories.map((cat,index)=>({cat,index})).sort((a,b)=>{
+  const sorted=categories.map((cat,index)=>({cat,index})).filter(({cat})=>adminMode || !isAdminOnlyCategory(cat.name)).sort((a,b)=>{
     const rank=c=>Number(c.order)>0?Number(c.order):9999;
     return rank(a.cat)-rank(b.cat)||a.index-b.index;
   });

@@ -470,6 +470,9 @@ function orderCartEscape(value) {
 .home-all-products:focus-visible{outline:3px solid #173b63;outline-offset:3px}
 @media(max-width:560px){.section-title-container h2{font-size:18px}.home-all-products{max-width:128px;font-size:12px;padding:8px;gap:5px}}
 </style>
+  <link rel="icon" href="assets/images/logo.webp" type="image/webp">
+  <link rel="stylesheet" href="assets/storefront-experience.css?v=20261016">
+  <script defer src="assets/storefront-experience.js?v=20261016"></script>
 </head>
 <body class="ensiyab-has-icon-nav">
 <div class="ensiyabco-watermark" aria-hidden="true">
@@ -514,7 +517,7 @@ function orderCartEscape(value) {
 
   <section style="max-width:1180px;margin:-18px auto 36px;padding:0 20px;position:relative;z-index:3;">
     <div style="background:#fff;border:1px solid #e7edf3;border-radius:16px;padding:18px 24px;margin-bottom:12px;text-align:center;box-shadow:0 10px 24px rgba(15,23,42,.06);">
-      <h1 style="font-size:22px;color:#183b63;margin:0 0 6px;">الأنسياب المتقدم: أدوات الغاز والرحلات بالجملة</h1>
+      <h2 style="font-size:22px;color:#183b63;margin:0 0 6px;">الأنسياب المتقدم: أدوات الغاز والرحلات بالجملة</h2>
       <p style="font-size:14px;color:#4a5568;margin:0;">تصفح كتالوج أدوات ولوازم الغاز والرحلات والكشتات، وحدد المنتجات والكميات وأرسل طلبك مباشرة.</p>
     </div>
     <div class="home-benefits" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
@@ -679,6 +682,8 @@ function orderCartEscape(value) {
 
       categoriesMap.forEach(catObj => {
         const cat = typeof catObj === 'string' ? catObj : catObj.name;
+        const adminCategory = catObj.adminOnly === true || /^للمشرف\s*[—–-]?\s*بانتظار التصنيف$/.test(String(cat).trim());
+        if (adminCategory && localStorage.getItem('isAdmin') !== 'true') return;
         const card = document.createElement('div');
         card.className = 'main-cat-card';
         const categoryHref = `products.html?cat=${encodeURIComponent(cat)}`;
@@ -825,6 +830,7 @@ function orderCartEscape(value) {
     }
     if(Array.isArray(cats)){
       cats.forEach(c=>{
+        if ((c.adminOnly === true || /^للمشرف\s*[—–-]?\s*بانتظار التصنيف$/.test(String(c.name).trim())) && localStorage.getItem('isAdmin') !== 'true') return;
         const img=catImages && catImages[c.name];
         if(img) arr.push({
           img,title:c.name,sub:"من الأنسياب المتقدم",
@@ -853,7 +859,7 @@ function orderCartEscape(value) {
         <div class="hero-slide-bg"></div><div class="hero-slide-overlay"></div>
         <div class="hero-slide-content">
           <span class="kicker">الأنسياب المتقدم</span>
-          <h1>${esc(item.title)}</h1><h2>${esc(item.sub)}</h2>
+          ${i===0?'<h1':'<h2'} class="hero-title">${esc(item.title)}${i===0?'</h1>':'</h2>'}<p class="hero-subtitle">${esc(item.sub)}</p>
           <p>${esc(item.desc)}</p>
           <a class="shop-now" href="${item.href}">تسوق الآن <span>←</span></a>
         </div>`;
@@ -870,7 +876,7 @@ function orderCartEscape(value) {
     document.querySelectorAll(".hero-slide").forEach((x,n)=>x.classList.toggle("active",n===index));
     document.querySelectorAll(".hero-dot").forEach((x,n)=>x.classList.toggle("active",n===index));
   }
-  function start(){clearInterval(timer);if(items.length>1)timer=setInterval(()=>go(index+1),6000)}
+  function start(){clearInterval(timer);} // Slides advance on visitor input; no forced motion while reading.
   window.refreshHeroFromCloud=function(){ items=collect(); render(); };
   document.addEventListener("DOMContentLoaded",()=>{
     items=collect();render();
