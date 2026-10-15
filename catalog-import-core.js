@@ -1,9 +1,9 @@
 /* Catalog import: deterministic validation/planning. No network or storage writes. */
 (function (root, factory) {
-  const api = factory();
+  const api = factory(typeof module === 'object' && module.exports ? require('./assets/numbers.js') : root.EnsiyabNumbers);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.CatalogImport = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (numbers) {
   'use strict';
   const MAX_ROWS = 5000;
   const fields = ['name', 'itemNumber', 'salesCode', 'unit', 'boxQty', 'stockQty'];
@@ -16,15 +16,15 @@
   };
   const text = value => String(value ?? '').trim();
   function nameKey(value) {
-    return text(value).normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640\u200E\u200F\u061C]/g, '')
+    return numbers.digits(text(value)).normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640\u200E\u200F\u061C]/g, '')
       .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي')
-      .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x660)).replace(/\s+/g, ' ').toLowerCase();
+      .replace(/\s+/g, ' ').toLowerCase();
   }
   // Codes are identifiers: retain case, zeroes and all letters. Never coerce to Number.
-  const codeKey = value => text(value);
+  const codeKey = value => numbers.digits(text(value));
   function fullName(row) {
-    const name = text(row.name), number = text(row.itemNumber);
-    return number && !name.endsWith(' — ' + number) ? name + ' — ' + number : name;
+    const name = text(row.name), number = codeKey(row.itemNumber);
+    return number && !codeKey(name).endsWith(' — ' + number) ? name + ' — ' + number : name;
   }
   const compactName = value => nameKey(value).replace(/[^\p{L}\p{N}]/gu, '');
   const gramCache = new Map();
@@ -42,11 +42,9 @@
     return 2*shared/(a.size+b.size);
   }
   function integer(value, minimum, fallback) {
-    const raw = text(value).replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x660))
-      .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x6f0));
+    const raw = text(value);
     if (!raw) return fallback;
-    const result = /^\d+$/.test(raw) ? Number(raw) : NaN;
-    return Number.isSafeInteger(result) && result >= minimum ? result : NaN;
+    return numbers.integer(raw, minimum);
   }
   function guessColumns(header) {
     return Object.fromEntries(fields.map(field => [field,
@@ -87,7 +85,7 @@
       const item = {index, row, status: 'invalid', message: '', target: null};
       const reject = message => Object.assign(item, {message});
       if (row.selected === false) return Object.assign(item, {status: 'excluded', message: 'مستبعد'});
-      const name = fullName(row), code = text(row.salesCode), number = text(row.itemNumber);
+      const name = fullName(row), code = codeKey(row.salesCode), number = codeKey(row.itemNumber);
       if (!text(row.name) || name.length > 300) return reject('اسم الصنف مطلوب، وبحد أقصى 300 حرف.');
       if (code.length > 100) return reject('الكود أطول من 100 حرف.');
       if (/^[=+@]/.test(code)) return reject('أدخل كودًا نصيًا، وليس صيغة حسابية.');
@@ -109,8 +107,8 @@
       if (number && numberOwners.some(owner => !matches.includes(owner))) return reject('رقم الصنف مرتبط بمنتج آخر.');
       if (matches.length === 1) {
         item.target = matches[0];
-        const existing = products[item.target], previous = text(existing.salesCode);
-        if (number && text(existing.itemNumber) && text(existing.itemNumber)!==number) return reject('المنتج مرتبط برقم صنف مختلف؛ راجع الربط.');
+        const existing = products[item.target], previous = codeKey(existing.salesCode);
+        if (number && text(existing.itemNumber) && codeKey(existing.itemNumber)!==number) return reject('المنتج مرتبط برقم صنف مختلف؛ راجع الربط.');
         if (code && previous && previous !== code && !allowReplace) return reject('الكود الموجود: ' + previous + '؛ فعّل استبدال الأكواد فقط إن كان التغيير مقصودًا.');
         const changes = {};
         if (number) { changes.name = fullName({name: existing.sourceName || existing.name, itemNumber: number}); changes.sourceName = existing.sourceName || existing.name; changes.itemNumber = number; }
