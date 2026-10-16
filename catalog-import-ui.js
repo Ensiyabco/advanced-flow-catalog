@@ -14,7 +14,7 @@
       <p class="bulk-hint">الحد الأقصى 5000 صنف و20 ميجابايت. الصور تُضاف لاحقًا. يدعم PDF النصي؛ الملفات المصوّرة تحتاج تحويلًا إلى نص أولًا.</p>
       <p id="bulk-status" role="status" aria-live="polite"></p>
       <section id="bulk-config" hidden>
-        <div class="bulk-options"><label id="bulk-sheet-label">ورقة العمل <select id="bulk-sheet"></select></label><label>أول صف للبيانات <input id="bulk-start" type="number" min="1" value="2"></label></div>
+        <div class="bulk-options"><label id="bulk-sheet-label">ورقة العمل <select id="bulk-sheet"></select></label><label>أول صف للبيانات <input id="bulk-start" type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" min="1" value="2"></label></div>
         <p>اربط الأعمدة بالحقول. اسم الصنف فقط إلزامي. القيم الفارغة للأصناف الجديدة: الوحدة «حبة»، شد الكرتون 1، والمخزون غير محدد.</p>
         <div id="bulk-mapping" class="bulk-mapping"></div>
         <details id="bulk-pdf-edit" hidden><summary>مراجعة النص المستخرج من PDF وتعديله</summary><p>كل سطر صنف، والأعمدة مفصولة بزر Tab. احذف عناوين الصفحات أو أصلح النص قبل المعاينة.</p><textarea id="bulk-pdf-text" rows="8" spellcheck="false"></textarea><button id="bulk-apply-text" type="button">اعتماد النص المعدّل</button></details>
@@ -148,7 +148,7 @@
     try {
       if (!refresh) {
         const mapping = Object.fromEntries(C.fields.map(f=>[f, Number($('map-'+f).value)]));
-        const start = Number($('start').value);
+        const start = EnsiyabNumbers.integer($('start').value, 1);
         if (!Number.isInteger(start) || start<1 || start>matrix.length) throw new Error('حدد أول صف للبيانات داخل نطاق الملف.');
         rows = C.rowsFromMatrix(matrix, mapping, start-1);
         if (!rows.length) throw new Error('لا توجد أصناف في الصفوف المحددة.');

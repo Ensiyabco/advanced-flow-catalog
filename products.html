@@ -1127,6 +1127,7 @@ body.admin-mode .admin-command-inner .admin-mode-indicator{display:flex}
 }
 @media(display-mode:standalone){.header-shortcut[onclick="installEnsiyabcoApp()"]{display:none!important}.header-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
+<script src="assets/numbers.js?v=20261016"></script>
 <script id="grouped-order-cart-20261004">
 function orderCartKey(item) {
   return item.id != null ? 'id:' + String(item.id).trim() : 'name:' + String(item.name || '').trim();
@@ -1144,7 +1145,7 @@ function normalizeOrderCart(items) {
     const qty=orderCartQuantity(source.qty ?? source.quantity ?? 1);
     const key=JSON.stringify([orderCartKey(source),unit]);
     const found=seen.get(key);
-    if(found){found.qty+=qty;found.quantity=found.qty;}
+    if(found && Number.isSafeInteger(found.qty+qty)){found.qty+=qty;found.quantity=found.qty;}
     else {const item={...source,qty,quantity:qty,unitType:unit,unit};seen.set(key,item);result.push(item);}
   }
   return result;
@@ -1440,7 +1441,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       </div>
       <div class="form-group">
         <label>كمية المخزن المتاحة</label>
-        <input type="number" id="prod-stock-input" value="" min="0" placeholder="أدخل كمية المخزون">
+        <input type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" id="prod-stock-input" value="" min="0" placeholder="أدخل كمية المخزون">
       </div>
       <div class="form-group">
         <label>صور المنتج</label>
@@ -1530,7 +1531,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
     }
 
     function getCurrentVisibleProducts() {
-      const sharedId=new URLSearchParams(location.search).get('product');
+      const sharedId=EnsiyabNumbers.digits(new URLSearchParams(location.search).get('product'));
       const sharedTitle=document.getElementById('current-view-title')?.innerText || '';
       if(sharedId && (sharedTitle.startsWith('المنتج: ') || sharedTitle==='المنتج غير متاح'))return visibleProducts(products).filter(item=>String(item.id)===sharedId);
       const searchTitle = document.getElementById("current-view-title")?.innerText || "";
@@ -1774,7 +1775,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       next.push({name,subCats:[],image,
         description:document.getElementById('new-main-cat-description').value.trim(),
         info:document.getElementById('new-main-cat-info').value.trim(),
-        order:Number(document.getElementById('new-main-cat-order').value)||categories.length+1});
+        order:EnsiyabNumbers.integer(document.getElementById('new-main-cat-order').value, 1)||categories.length+1});
       return commitMainCategory(next,structuredClone(products),{...categoryImages,[name]:image},
         structuredClone(subCategoryMeta),{...(window.ANSIYAB_CLOUD.state?.store_settings?._categoryAliases||{})},name);
     }
@@ -1810,7 +1811,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       cat.name=name;
       cat.description=document.getElementById('new-main-cat-description').value.trim();
       cat.info=document.getElementById('new-main-cat-info').value.trim();
-      cat.order=Number(document.getElementById('new-main-cat-order').value)||index+1;
+      cat.order=EnsiyabNumbers.integer(document.getElementById('new-main-cat-order').value, 1)||index+1;
       const preview=document.getElementById('main-cat-preview').src;
       if(preview && preview!=='about:blank')cat.image=preview;
       const nextProducts=products.map(p=>p.mainCat===oldName?{...p,mainCat:name}:structuredClone(p));
@@ -1920,7 +1921,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
         image:image && image!=='about:blank' ? image : oldMeta.image || categoryImage(cat),
         description:document.getElementById('edit-sub-description').value.trim(),
         info:document.getElementById('edit-sub-info').value.trim(),
-        order:Number(document.getElementById('edit-sub-order').value)||si+1
+        order:EnsiyabNumbers.integer(document.getElementById('edit-sub-order').value, 1)||si+1
       };
       if(oldKey!==newKey) delete subCategoryMeta[oldKey];
 
@@ -2070,7 +2071,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 
           <div class="quantity-control">
             <span style="font-size:12px; font-weight:700;">الطلبية:</span>
-            <input type="number" id="qty-${p.id}" value="" min="1" placeholder="الكمية">
+            <input type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" id="qty-${p.id}" value="" min="1" placeholder="الكمية">
             <select id="unit-type-${p.id}">
               <option value="حبة" ${defaultUnit === 'حبة' ? 'selected' : ''}>حبة</option>
               <option value="كرتون" ${defaultUnit === 'كرتون' ? 'selected' : ''}>كرتون</option>
@@ -2331,7 +2332,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
       if (!prod) return;
       const newStock = prompt(`تحديث الكمية المتاحة في المخزن لـ (${prod.name}):`, prod.stockQty !== undefined && prod.stockQty !== null ? prod.stockQty : '');
       if (newStock !== null) {
-        const parsed = parseInt(newStock);
+        const parsed = EnsiyabNumbers.integer(newStock);
         if (!isNaN(parsed) && parsed >= 0) {
           prod.stockQty = parsed;
           saveProductsData();
@@ -2660,20 +2661,14 @@ const uploadSourceFiles = new Map();
     let productSavePending = false;
     if (window.ANSIYAB_CLOUD) window.ANSIYAB_CLOUD.getProducts = () => products;
     function productNameKey(value) {
-      return String(value || '').normalize('NFKC')
+      return EnsiyabNumbers.digits(value).normalize('NFKC')
         .replace(/[\u064B-\u065F\u0670\u0640\u200E\u200F\u061C]/g, '')
         .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي')
-        .replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 0x0660))
         .replace(/\s+/g, ' ').trim().toLowerCase();
     }
 
     function parsePackQuantity(raw) {
-      const normalized = String(raw).trim()
-        .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
-        .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06F0));
-      if (!/^[0-9]+$/.test(normalized)) return NaN;
-      const value = Number(normalized);
-      return Number.isSafeInteger(value) && value >= 0 ? value : NaN;
+      return EnsiyabNumbers.integer(raw);
     }
 
     async function uploadProductImagesToStorage(imageSources, productId) {
@@ -2725,8 +2720,8 @@ const uploadSourceFiles = new Map();
       const nextProducts = JSON.parse(JSON.stringify(products));
       const editId = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('prod-name-input').value.trim();
-      const salesCode = document.getElementById('prod-code-input').value.trim();
-      const codeDuplicate = salesCode && products.find(p => String(p.id) !== editId && String(p.salesCode || '').trim() === salesCode);
+      const salesCode = EnsiyabNumbers.digits(document.getElementById('prod-code-input').value).trim();
+      const codeDuplicate = salesCode && products.find(p => String(p.id) !== editId && EnsiyabNumbers.digits(p.salesCode).trim() === salesCode);
       if (codeDuplicate && editId === '-1') return alert('الكود مرتبط بمنتج موجود. افتح المنتج الموجود لتعديله أو دمجه.');
       const mainCat = document.getElementById('prod-main-cat-select').value;
       const subCat = document.getElementById('prod-sub-cat-select').value;
@@ -2735,7 +2730,7 @@ const uploadSourceFiles = new Map();
       const stockRaw = document.getElementById('prod-stock-input').value.trim();
       if (boxRaw === '') return alert("الرجاء إدخال شد الكرتون / التعبئة.");
       const boxQty = parsePackQuantity(boxRaw);
-      const stockQty = stockRaw === '' ? null : parseInt(stockRaw, 10);
+      const stockQty = stockRaw === '' ? null : EnsiyabNumbers.integer(stockRaw);
       if (!Number.isInteger(boxQty) || boxQty < 0) return alert("شد الكرتون يجب أن يكون رقمًا صحيحًا غير سالب.");
       if (stockRaw !== '' && (!Number.isInteger(stockQty) || stockQty < 0)) return alert("كمية المخزون يجب أن تكون فارغة أو صفرًا أو رقمًا صحيحًا موجبًا.");
       
@@ -2919,6 +2914,9 @@ const uploadSourceFiles = new Map();
       
       const existing = cart.find(item => String(item.id) === String(prodId) && item.unitType === unitType);
       if (existing) {
+        if (!Number.isSafeInteger(existing.qty + qty)) {
+          return alert('الكمية الإجمالية كبيرة جدًا. أدخل كمية أصغر.');
+        }
         existing.qty += qty;
         existing.quantity = existing.qty;
       } else {
@@ -2941,17 +2939,15 @@ const uploadSourceFiles = new Map();
     }
 
     function updateCartBadge() {
-      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalQty = cart.reduce((sum, item) => sum + BigInt(item.qty), 0n);
       document.querySelectorAll('#cart-count, .cart-count-mirror').forEach(badge => {
         badge.textContent = String(totalQty);
       });
     }
 
     function readOrderQuantity(value) {
-      const text=String(value ?? '').trim().replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-1632)).replace(/[۰-۹]/g,d=>String(d.charCodeAt(0)-1776));
-      if(!/^\d+$/.test(text)) return null;
-      const quantity=Number(text);
-      return Number.isSafeInteger(quantity) && quantity>0 ? quantity : null;
+      const quantity = EnsiyabNumbers.integer(value, 1);
+      return Number.isNaN(quantity) ? null : quantity;
     }
 
     function openCartModal() {
@@ -3103,7 +3099,7 @@ const uploadSourceFiles = new Map();
 
 
     function normalizeCategoryName(value) {
-      return String(value || "")
+      return EnsiyabNumbers.digits(value)
         .trim()
         .replace(/[أإآ]/g, "ا")
         .replace(/ة/g, "ه")
@@ -3125,7 +3121,7 @@ const uploadSourceFiles = new Map();
 function searchCatalogProducts(query) {
  const terms = normalizeCategoryName(query).toLowerCase().split(' ').filter(Boolean);
  return visibleProducts(products).filter(p => {
-  const text = normalizeCategoryName([p.name,p.mainCat,p.subCat,p.description,p.code,p.sku,p.salesCode].filter(v=>v!=null).join(' ')).toLowerCase();
+  const text = normalizeCategoryName([p.name,p.mainCat,p.subCat,p.description,p.code,p.sku,p.salesCode,p.barcode,p.itemNumber,p.id].filter(v=>v!=null).join(' ')).toLowerCase();
   return terms.every(term => text.includes(term));
  });
 }
@@ -3144,7 +3140,7 @@ function clearCatalogSearch() {
 
     function openCategoryFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      const sharedId=params.get('product');
+      const sharedId=EnsiyabNumbers.digits(params.get('product'));
       if(sharedId){
         const match=visibleProducts(products).filter(item=>String(item.id)===sharedId);
         renderProducts(match,match.length?'المنتج: '+match[0].name:'المنتج غير متاح');
@@ -3726,7 +3722,7 @@ window.openProductImageStudio = async function(productId) {
         <div class="form-group"><label>صورة القسم</label><input type="file" id="new-main-cat-image" accept="image/*" onchange="previewMainCategoryImage(this)"></div>
         <div class="form-group"><label>وصف مختصر</label><input type="text" id="new-main-cat-description" placeholder="وصف قصير يظهر للزائر"></div>
         <div class="form-group"><label>المعلومات العامة</label><textarea id="new-main-cat-info" rows="4" placeholder="اكتب معلومات القسم هنا"></textarea></div>
-        <div class="form-group"><label>ترتيب الظهور</label><input type="number" id="new-main-cat-order" min="1" step="1"></div>
+        <div class="form-group"><label>ترتيب الظهور</label><input type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" id="new-main-cat-order" min="1" step="1"></div>
       </div>
     </div>
     <div class="modal-actions">
@@ -3750,7 +3746,7 @@ window.openProductImageStudio = async function(productId) {
         <div class="form-group"><label>صورة القسم الفرعي</label><input type="file" id="edit-sub-image" accept="image/*" onchange="previewSubCategoryImage(this)"></div>
         <div class="form-group"><label>وصف مختصر</label><input type="text" id="edit-sub-description" placeholder="وصف مختصر"></div>
         <div class="form-group"><label>المعلومات العامة</label><textarea id="edit-sub-info" rows="4" placeholder="معلومات القسم الفرعي"></textarea></div>
-        <div class="form-group"><label>ترتيب الظهور</label><input type="number" id="edit-sub-order" min="1" step="1"></div>
+        <div class="form-group"><label>ترتيب الظهور</label><input type="text" inputmode="numeric" pattern="[0-9٠-٩۰-۹]*" id="edit-sub-order" min="1" step="1"></div>
       </div>
     </div>
     <div class="modal-actions">
@@ -4347,8 +4343,8 @@ window.CatalogImportHost = {
   }
 };
 </script>
-<script src="catalog-import-core.js?v=1"></script>
-<script src="catalog-import-ui.js?v=1"></script>
+<script src="catalog-import-core.js?v=20261016"></script>
+<script src="catalog-import-ui.js?v=20261016"></script>
 <script>
 (() => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});

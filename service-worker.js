@@ -1,5 +1,5 @@
-const CACHE = 'ensiyabco-app-v17-storefront-20261016';
-const APP_SHELL = ['./','./index.html','./products.html','./manifest.webmanifest','./offline.html','./assets/images/ensiyabco-product-placeholder-20260910.jpeg','./assets/storefront-experience.css?v=20261016','./assets/storefront-experience.js?v=20261016'];
+const CACHE = 'ensiyabco-app-v18-safe-orders-20261017';
+const APP_SHELL = ['./','./index.html','./products.html','./manifest.webmanifest','./offline.html','./assets/numbers.js?v=20261016','./assets/images/ensiyabco-product-placeholder-20260910.jpeg','./assets/storefront-experience.css?v=20261016','./assets/storefront-experience.js?v=20261016'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
