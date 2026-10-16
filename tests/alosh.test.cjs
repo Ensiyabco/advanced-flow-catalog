@@ -9,6 +9,16 @@ const products = [
 ];
 const categories = [{name:'خاص',adminOnly:true}];
 const draft = query => A.draftProductReply({query,products,categories});
+test('fraction, decimal and code separators never collapse to a different size or code', () => {
+  const products = [{id:1,name:'محبس 1/2 بوصة'},{id:2,name:'محبس 1.2 بوصة'},{id:3,name:'قطعة A-1'}];
+  for (const [query,id] of [['محبس ١/٢ بوصة',1],['محبس ½ بوصة',1],['محبس ١٫٢ بوصة',2],['قطعة A-1',3]]) {
+    const result = A.searchCatalog({query,products});
+    assert.equal(result.status,'matched'); assert.equal(result.matches[0].id,id);
+  }
+  assert.equal(A.searchCatalog({query:'محبس 1.2 بوصة',products:[products[0]]}).status,'not_found');
+  assert.equal(A.searchCatalog({query:'محبس 1/2 بوصة',products:[products[1]]}).status,'not_found');
+  assert.equal(A.searchCatalog({query:'قطعة A1',products}).status,'not_found');
+});
 test('retrieval golden cases: exact, wrong size, ambiguous, Arabic/Persian digits', () => {
   const fixtures = [
     ['سطل لبن 20 لتر','matched',[1]], ['سطل لبن ٢٠ لتر','matched',[1]],

@@ -8,7 +8,8 @@
   function key(value) {
     return numbers.digits(value).normalize('NFKC').replace(/[\u064b-\u065f\u0670\u0640]/g, '')
       .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').toLowerCase()
-      .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+      .replace(/٫/g, '.').replace(/⁄/g, '/')
+      .replace(/[^\p{L}\p{N}./×+\-]+/gu, ' ').trim();
   }
   function hidden(category) {
     return category?.adminOnly === true || /^للمشرف\s*[—–-]?\s*بانتظار التصنيف$/.test(String(category?.name ?? '').trim());
