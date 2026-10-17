@@ -1,0 +1,22 @@
+#ensiyab-support{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:1190;font-family:inherit;color:#173b63;text-align:right}
+body.ensiyab-bottom-navigation #ensiyab-support{bottom:calc(var(--ensiyab-bottom-nav-height,96px) + 16px)}
+#ensiyab-support[hidden],#ensiyab-support [hidden]{display:none!important}
+#ensiyab-support *{box-sizing:border-box}
+#ensiyab-support button,#ensiyab-support a{font:inherit}
+#ensiyab-support .support-launcher{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border:2px solid #fff;border-radius:50%;background:#087c42;color:#fff;cursor:pointer;box-shadow:0 5px 20px #173b6338}
+#ensiyab-support svg{width:30px;height:30px;flex-shrink:0}
+#ensiyab-support-panel{position:absolute;left:0;bottom:68px;width:min(350px,calc(100vw - 32px));max-height:calc(100dvh - 110px);overflow-y:auto;border:1px solid #dce4eb;border-radius:20px;background:#fff;box-shadow:0 12px 45px #173b6333}
+body.ensiyab-bottom-navigation #ensiyab-support-panel{max-height:calc(100dvh - var(--ensiyab-bottom-nav-height,96px) - 100px)}
+#ensiyab-support .support-heading{display:flex;align-items:center;gap:10px;padding:16px 12px;background:#173b63;color:#fff}
+#ensiyab-support .support-heading img{object-fit:contain;background:#fff;border-radius:12px;padding:4px;flex-shrink:0}
+#ensiyab-support .support-heading strong{display:block;font-size:14px;line-height:1.7}
+#ensiyab-support .support-heading span{display:block;font-size:12px;color:#e0e9f2}
+#ensiyab-support .support-close{align-self:flex-start;flex-shrink:0;margin-right:auto;width:44px;height:44px;border:0;border-radius:10px;background:transparent;color:#fff;font-size:28px;cursor:pointer}
+#ensiyab-support .support-body{padding:20px;font-size:14px;line-height:1.9}
+#ensiyab-support .support-body p{margin:0 0 16px}
+#ensiyab-support .support-welcome{font-size:18px;font-weight:700}
+#ensiyab-support .support-enquiry{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:12px;background:#087c42;color:#fff;text-decoration:none;font-weight:700}
+#ensiyab-support small{display:block;margin-top:10px;text-align:center;color:#526272;font-size:11px}
+#ensiyab-support :is(button,a):focus-visible{outline:3px solid #e5aa32;outline-offset:3px}
+/* Keep the existing upward arrow clear of the support launcher. */
+body #products-back-to-top{left:88px!important}
