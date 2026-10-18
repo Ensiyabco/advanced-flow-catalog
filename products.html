@@ -1605,6 +1605,13 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
     const legacyProductLogo = 'https://ensiyabco.github.io/advanced-flow-catalog/assets/images/logo.webp';
     const productPlaceholderLogo = 'https://ensiyabco.github.io/advanced-flow-catalog/assets/images/ensiyabco-product-placeholder-20260910.jpeg';
     const productImageUrl = src => src === legacyProductLogo ? productPlaceholderLogo : src;
+    const replacementProductPlaceholder = 'assets/images/product-unavailable-20261018.png';
+    function productDisplayImages(product) {
+      const images = product.images || [];
+      // Show real photos without redundant logos; keep the stored catalog unchanged.
+      const photos = images.filter(src => src !== legacyProductLogo && src !== productPlaceholderLogo);
+      return photos.length ? photos : (images.length ? [replacementProductPlaceholder] : []);
+    }
 
     const defaultCategoriesList = [
       { name: "ادوات لحام ووصواريخ بقاعدة", subCats: ["مسدسات لحام ايطالي", "مسدسات لحام صيني", "صواريخ بقاعدة", "مسدسات لحام سفري"] },
@@ -2015,12 +2022,11 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
         moreWrap.remove();
         const batch=list.slice(shown, shown + (shown === 0 ? INITIAL_BATCH : NEXT_BATCH));
         batch.forEach(p => {
-        const sources = (p.images || []).map(productImageUrl);
+        const sources = productDisplayImages(p);
         const mainImg = sources.includes(p.imagePresentation?.source) && validCatalogCrop(p.imagePresentation?.crop) ? p.imagePresentation.source : (sources[0] || placeholderImg);
         let thumbsHtml = '';
-        if (p.images && p.images.length > 1) {
-          p.images.forEach((imgSrc, imgIdx) => {
-            imgSrc = productImageUrl(imgSrc);
+        if (sources.length > 1) {
+          sources.forEach((imgSrc, imgIdx) => {
             thumbsHtml += `<img loading="lazy" decoding="async" src="${imgSrc}" alt="${escapeHtml(p.name)} — صورة ${imgIdx + 1}" class="thumb-img ${imgSrc === mainImg ? 'active-thumb' : ''}" onclick="changeMainImage(${p.id}, '${imgSrc}', this)">`;
           });
         }
@@ -2865,7 +2871,7 @@ const uploadSourceFiles = new Map();
       const p = products.find(item => String(item.id) === String(prodId));
       if (!p || !p.images || p.images.length === 0) return;
       trackCatalogEvent('product_view', p);
-      currentLightboxImages = p.images.map(productImageUrl);
+      currentLightboxImages = productDisplayImages(p);
       const shown = document.getElementById(`main-product-img-${prodId}`)?.getAttribute('src');
       currentLightboxIndex = Math.max(0, currentLightboxImages.indexOf(shown));
       currentLightboxTitle = p.name;
