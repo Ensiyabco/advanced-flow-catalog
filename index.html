@@ -472,6 +472,7 @@ function orderCartEscape(value) {
 @media(max-width:560px){.section-title-container h2{font-size:18px}.home-all-products{max-width:128px;font-size:12px;padding:8px;gap:5px}}
 </style>
 <link rel="stylesheet" href="assets/customer-support.css?v=20261017">
+<link rel="stylesheet" href="assets/hig-refresh.css?v=20261020">
 </head>
 <body class="ensiyab-has-icon-nav">
 <div class="ensiyabco-watermark" aria-hidden="true">
@@ -878,6 +879,17 @@ function orderCartEscape(value) {
     items=collect();render();
     document.getElementById("hero-next")?.addEventListener("click",()=>{go(index+1);start()});
     document.getElementById("hero-prev")?.addEventListener("click",()=>{go(index-1);start()});
+    /* السحب بالإصبع على الجوال (الصفحة من اليمين لليسار: السحب لليمين = التالي) */
+    (function(){
+      const slider=document.getElementById("hero-slider");if(!slider)return;
+      let sx=0,sy=0;
+      slider.addEventListener("touchstart",e=>{const t=e.changedTouches[0];sx=t.clientX;sy=t.clientY;},{passive:true});
+      slider.addEventListener("touchend",e=>{
+        const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+        if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.5)return;
+        go(dx>0?index+1:index-1);start();
+      },{passive:true});
+    })();
     const hero=document.getElementById("hero-slider");
     hero?.addEventListener("mouseenter",()=>clearInterval(timer));
     hero?.addEventListener("mouseleave",start);
