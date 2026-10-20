@@ -1269,6 +1269,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
 <link rel="stylesheet" href="assets/product-sharing.css?v=20261013a">
 <link rel="stylesheet" href="assets/image-zoom.css?v=20261013a">
 <link rel="stylesheet" href="assets/customer-support.css?v=20261017">
+<link rel="stylesheet" href="assets/hig-refresh.css?v=20261020">
 </head>
 <body class="ensiyab-has-icon-nav">
 
@@ -3241,13 +3242,14 @@ function clearCatalogSearch() {
       } catch (error) {
         console.warn('تعذر تحميل المنتجات', error);
         const notice = document.createElement('p');
+        notice.className = 'catalog-notice';
         notice.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px';
         notice.setAttribute('role','status');
         notice.textContent = products.length
           ? 'تعذر تحديث المنتجات؛ المعروض هو آخر نسخة محفوظة. '
           : 'تعذر تحميل المنتجات. تحقق من الاتصال ثم أعد المحاولة. ';
         const retry = document.createElement('button');
-        retry.type = 'button'; retry.textContent = 'إعادة المحاولة';
+        retry.type = 'button'; retry.className = 'catalog-retry'; retry.textContent = 'إعادة المحاولة';
         retry.addEventListener('click', () => { notice.remove(); initializeCatalog(); });
         notice.appendChild(retry);
         if (!products.length) {
