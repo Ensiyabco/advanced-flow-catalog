@@ -9,8 +9,11 @@
       categories: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
       cart: '<path d="M4 7h16v14H4zM4 7l3-4h10l3 4M8 11a4 4 0 0 0 8 0"/>',
       search: '<circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>',
-      install: '<path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/>'
+      install: '<path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/>',
+      share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>'
     };
+    const SHARE_URL = 'https://ensiyabco.github.io/advanced-flow-catalog/';
+    const SHARE_TEXT = 'تصفّح منتجات الأنسياب المتقدم — شريككم في كل احتياج:';
     const nav = document.createElement('nav');
     nav.className = 'ensiyab-icon-nav';
     nav.setAttribute('aria-label', 'التنقل الرئيسي');
@@ -19,7 +22,8 @@
       ['categories', 'الأقسام', 'index.html#catalog-categories'],
       ['cart', 'السلة', 'products.html?nav=cart'],
       ['search', 'بحث', 'products.html?nav=search'],
-      ['install', 'تنزيل التطبيق', 'https://github.com/Ensiyabco/advanced-flow-catalog/releases/download/android-v1.0.1/app-debug.apk']
+      ['install', 'تنزيل التطبيق', 'https://github.com/Ensiyabco/advanced-flow-catalog/releases/download/android-v1.0.1/app-debug.apk'],
+      ['share', 'شارك التطبيق', 'https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT + ' ' + SHARE_URL)]
     ];
     items.forEach(([action, label, href]) => {
       const link = document.createElement('a');
@@ -112,6 +116,10 @@
     if (existingBadge) new MutationObserver(updateCount).observe(existingBadge, {childList:true, characterData:true, subtree:true});
     window.addEventListener('storage', updateCount);
     function perform(action) {
+      if (action === 'share') {
+        if (navigator.share) { navigator.share({title:'الأنسياب المتقدم', text:SHARE_TEXT, url:SHARE_URL}).catch(() => {}); return true; }
+        return false; // falls back to the WhatsApp link
+      }
       if (action === 'cart' && typeof window.openCartModal === 'function') { window.openCartModal(); return true; }
       if (action === 'install' && typeof window.installEnsiyabcoApp === 'function') { window.installEnsiyabcoApp(); return true; }
       if (action === 'search') {
