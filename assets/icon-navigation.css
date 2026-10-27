@@ -11,9 +11,12 @@ body.ensiyab-has-icon-nav header .nav-links>a[href="index.html"],body.ensiyab-ha
 @media(max-width:700px){.ensiyab-icon-nav{margin:8px 10px 14px;padding:5px;border-radius:14px}.ensiyab-icon-nav .ensiyab-nav-item{min-height:66px;font-size:13px;gap:4px}.ensiyab-nav-item svg{width:28px;height:28px}}
 
 .ensiyab-icon-nav [data-action="install"]>span:last-child{font-size:clamp(11px,2.8vw,16px)}
-body.ensiyab-native-app .ensiyab-icon-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+body.ensiyab-native-app .ensiyab-icon-nav{grid-template-columns:repeat(5,minmax(0,1fr))}
 body.ensiyab-native-app .ensiyab-icon-nav [data-action="install"]{display:none}
-@media(display-mode:standalone){.ensiyab-icon-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.ensiyab-icon-nav [data-action="install"]{display:none}}
+.ensiyab-icon-nav [data-action="share"]{display:none}
+body.ensiyab-native-app .ensiyab-icon-nav [data-action="share"]{display:flex}
+.ensiyab-icon-nav [data-action="share"]>span:last-child{font-size:clamp(11px,2.8vw,16px)}
+@media(display-mode:standalone){.ensiyab-icon-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.ensiyab-icon-nav [data-action="install"]{display:none}.ensiyab-icon-nav [data-action="share"]{display:flex}}
 
 /* Navigation scrolls with the page so products retain the full screen. */
 body.ensiyab-has-icon-nav>header{position:relative!important;top:auto!important}
