@@ -44,7 +44,6 @@
         <img class="ps-main" loading="lazy" decoding="async" src="${s[0]}" alt="${esc(p.name)}" onerror="this.onerror=null;this.src=placeholderImg;">
         ${s.length > 1 ? `<div class="ps-thumbs">${s.map((u, i) => `<img loading="lazy" src="${u}" alt="صورة ${i + 1}" class="${i ? '' : 'on'}" data-src="${u}">`).join('')}</div>` : ''}
       </div>
-      <div class="ps-badge">⚡ توصيل داخل جدة</div>
       <div class="ps-box">
         <h3 class="ps-name">${esc(p.name)}</h3>
         <div class="ps-meta">
