@@ -16,6 +16,18 @@
     track.className = 'ps-track';
     overlay.appendChild(track);
     overlay.addEventListener('click', e => { if (e.target === overlay || e.target === track) close(); });
+    // السحب الجانبي نتعامل معه بأنفسنا حتى يستجيب من أول محاولة
+    let sx = 0, sy = 0, st = 0, moving = false;
+    track.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); moving = true;
+    }, { passive: true });
+    track.addEventListener('touchend', e => {
+      if (!moving) return; moving = false;
+      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      const fast = Date.now() - st < 300 && Math.abs(dx) > 20;
+      if ((Math.abs(dx) > 40 || fast) && Math.abs(dx) > Math.abs(dy) * 0.8) step(dx > 0 ? 1 : -1);
+    }, { passive: true });
     document.addEventListener('keydown', e => {
       if (!overlay.classList.contains('open')) return;
       if (e.key === 'Escape') close();

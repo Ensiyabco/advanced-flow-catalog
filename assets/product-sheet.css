@@ -37,3 +37,4 @@
 #image-lightbox{z-index:230000!important}
 .ps-add{white-space:nowrap;font-size:15px;min-width:0}
 .ps-qty button{width:32px}.ps-qty input{width:38px}.ps-footer{gap:8px}
+.ps-track,.ps-slide{touch-action:pan-y}
