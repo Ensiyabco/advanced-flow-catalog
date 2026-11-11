@@ -1,0 +1,53 @@
+/* ==========================================================
+   الهوية الموحّدة للأنسياب المتقدم (Taste + Impeccable)
+   لون أساسي واحد بدرجتين، لون ذهبي واحد، خط واحد.
+   أي لون جديد في الموقع يُؤخذ من هنا بدل كتابة رقم لون جديد.
+   ========================================================== */
+:root{
+  --navy:#173b63;        /* الكحلي الأساسي: العناوين والأزرار */
+  --navy-deep:#0b2a4a;   /* الكحلي الغامق: الخلفيات الداكنة والتذييل */
+  --blue:#2563a8;        /* الأزرق المساعد: الروابط والتنبيهات */
+  --gold:#f7b733;        /* الذهبي: زر الطلب الرئيسي فقط */
+  --gold-hover:#ffca4d;
+  --ink:#1f2a37;         /* لون النص العادي */
+  --muted:#5b6b7f;       /* النص الثانوي */
+  --line:#e2e8f0;        /* الحدود */
+  --surface:#f7f9fc;     /* خلفيات البطاقات الفاتحة */
+  --radius:14px;
+  --font:'Tajawal',system-ui,sans-serif;
+}
+
+/* خط واحد للموقع كله */
+body,button,input,select,textarea{font-family:var(--font)}
+
+/* الواجهة الأولى: إخفاء النص المطبوع داخل صورة الغلاف الأولى
+   وإبراز العنوان بتباين واضح خلفه (جهة اليمين لأن الموقع عربي) */
+.hero-slide-brand .hero-slide-overlay{
+  background:linear-gradient(90deg,
+    rgba(11,42,74,.985) 0%,
+    rgba(11,42,74,.97) 38%,
+    rgba(11,42,74,.45) 52%,
+    rgba(11,42,74,.55) 66%,
+    rgba(11,42,74,.88) 100%)!important;
+}
+@media(max-width:700px){
+  .hero-slide-brand .hero-slide-overlay{background:rgba(11,42,74,.80)!important}
+}
+.hero-slide-content h1{letter-spacing:-.5px;text-wrap:balance}
+.hero-slide-content h2{text-wrap:balance}
+
+/* زر واحد بأسلوب واحد: يرتفع قليلاً عند المرور وينضغط عند الضغط */
+.shop-now,.home-install-button,button[type="submit"]{
+  transition:transform .18s ease,background-color .18s ease,box-shadow .18s ease!important;
+}
+.shop-now:active,.home-install-button:active,button[type="submit"]:active{transform:translateY(1px) scale(.98)!important}
+
+/* تركيز واضح لمستخدمي لوحة المفاتيح */
+a:focus-visible,button:focus-visible,input:focus-visible{
+  outline:3px solid var(--gold);outline-offset:2px;border-radius:8px;
+}
+
+/* احترام من يفضّل تقليل الحركة في إعدادات جهازه */
+@media (prefers-reduced-motion: reduce){
+  .hero-slide{transition:none!important}
+}

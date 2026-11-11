@@ -1,4 +1,4 @@
-const CACHE = 'ensiyabco-app-v22-swipe-fix-20261111';
+const CACHE = 'ensiyabco-app-v23-design-20261111';
 const APP_SHELL = ['./','./index.html','./products.html','./manifest.webmanifest','./offline.html','./assets/numbers.js?v=20261016','./assets/images/ensiyabco-product-placeholder-20260910.jpeg','./assets/images/product-unavailable-20261018.png'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
