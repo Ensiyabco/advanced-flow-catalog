@@ -8,3 +8,9 @@
 .ensiyab-image-zoom-controls button{min-width:48px;min-height:44px;border:0;border-radius:8px;padding:8px 14px;background:white;color:#173b63;font:inherit;font-size:20px;cursor:pointer}
 .ensiyab-image-zoom-controls button:disabled{opacity:.45}
 .ensiyab-image-zoom-controls button:focus-visible{outline:3px solid #f5a623;outline-offset:3px}
+
+/* أسهم واضحة فوق أي صورة (كانت بيضاء شفافة فتختفي على الصور ذات الخلفية البيضاء) */
+#image-lightbox .lightbox-nav-btn{background:var(--navy,#173b63)!important;color:#fff!important;border:2px solid #fff!important;border-radius:999px!important;width:48px;height:48px;padding:0!important;font-size:22px!important;line-height:44px;box-shadow:0 4px 14px rgba(0,0,0,.35);z-index:5!important;opacity:.95;direction:ltr;unicode-bidi:isolate}
+#image-lightbox .lightbox-nav-btn:active{transform:translateY(-50%) scale(.94)}
+#image-lightbox .lightbox-nav-btn.prev{right:6px}
+#image-lightbox .lightbox-nav-btn.next{left:6px}

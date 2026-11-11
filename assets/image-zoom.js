@@ -9,7 +9,7 @@
   controls.className = 'ensiyab-image-zoom-controls';
   controls.innerHTML = '<button type="button" aria-label="تصغير الصورة">−</button><button type="button" aria-label="إعادة حجم الصورة">100%</button><button type="button" aria-label="تكبير الصورة">+</button>';
   modal.insertBefore(controls, modal.lastElementChild);
-  let scale = 1, x = 0, y = 0, previous = null;
+  let scale = 1, x = 0, y = 0, previous = null, swipe = null;
   const pointers = new Map();
   const [minus, resetButton, plus] = controls.children;
   function render() {
@@ -44,6 +44,7 @@
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault(); viewport.setPointerCapture(event.pointerId);
     pointers.set(event.pointerId,{x:event.clientX,y:event.clientY}); previous = snapshot();
+    if (pointers.size === 1) swipe = {x:event.clientX, y:event.clientY, t:Date.now()}; else swipe = null;
   });
   viewport.addEventListener('pointermove', event => {
     if (!pointers.has(event.pointerId)) return;
@@ -56,7 +57,26 @@
     }
     previous = next;
   });
-  function release(event) { pointers.delete(event.pointerId); previous = snapshot(); }
+  /* السحب يميناً/يساراً على الصورة غير المكبّرة ينقل للصورة التالية/السابقة */
+  function release(event) {
+    if (swipe && scale <= 1.01 && event.type === 'pointerup' && typeof changeLightboxImage === 'function') {
+      const dx = event.clientX - swipe.x, dy = event.clientY - swipe.y;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - swipe.t < 800) changeLightboxImage(dx > 0 ? 1 : -1);
+    }
+    swipe = null; pointers.delete(event.pointerId); previous = snapshot();
+  }
+  /* أسهم لوحة المفاتيح */
+  document.addEventListener('keydown', event => {
+    if (modal.style.display !== 'flex' || typeof changeLightboxImage !== 'function') return;
+    if (event.key === 'ArrowLeft') changeLightboxImage(1);
+    else if (event.key === 'ArrowRight') changeLightboxImage(-1);
+  });
+  /* إظهار الأسهم فقط عند وجود أكثر من صورة */
+  function syncArrows() {
+    let many = true; try { many = currentLightboxImages.length > 1; } catch (e) {}
+    modal.querySelectorAll('.lightbox-nav-btn').forEach(b => { b.style.display = many ? '' : 'none'; });
+  }
+  new MutationObserver(syncArrows).observe(modal,{attributes:true,attributeFilter:['style']});
   ['pointerup','pointercancel','lostpointercapture'].forEach(type => viewport.addEventListener(type,release));
   viewport.addEventListener('wheel', event => { event.preventDefault(); zoom(scale * (event.deltaY < 0 ? 1.15 : 1/1.15), {x:event.clientX,y:event.clientY}); }, {passive:false});
   viewport.addEventListener('dblclick', event => { if(scale > 1) reset(); else zoom(2,{x:event.clientX,y:event.clientY}); });
