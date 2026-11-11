@@ -1,0 +1,40 @@
+/* بطاقة المنتج الكبيرة مع التمرير الأفقي بين المنتجات (مستوحاة من تطبيقات التوصيل السريع) */
+.ps-overlay{position:fixed;inset:0;z-index:220000;background:rgba(15,30,50,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+.ps-overlay.open{display:flex}
+.ps-track{display:flex;gap:12px;width:100%;height:94vh;height:94dvh;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 6vw;box-sizing:border-box;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.ps-track::-webkit-scrollbar{display:none}
+.ps-slide{flex:0 0 88vw;max-width:520px;scroll-snap-align:center;scroll-snap-stop:always;background:#f7f9fb;border-radius:28px 28px 0 0;overflow-y:auto;position:relative;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.18);animation:psUp .28s ease-out}
+@keyframes psUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.ps-slide{animation:none}}
+.ps-media{position:relative;background:#fff;padding:64px 20px 18px;text-align:center}
+.ps-media img{width:100%;max-height:42vh;object-fit:contain;cursor:zoom-in}
+.ps-btns{position:absolute;top:14px;inset-inline:14px;display:flex;justify-content:space-between;pointer-events:none}
+.ps-btns>div{display:flex;flex-direction:column;gap:10px}
+.ps-round{pointer-events:auto;width:46px;height:46px;border-radius:50%;border:0;background:#fff;box-shadow:0 4px 14px rgba(23,59,99,.15);font-size:20px;cursor:pointer;position:relative;display:grid;place-items:center;color:#173b63}
+.ps-round b{position:absolute;top:-4px;inset-inline-end:-4px;min-width:20px;height:20px;border-radius:10px;background:#0e7c86;color:#fff;font:700 11px/20px Arial,sans-serif;padding:0 4px}
+.ps-thumbs{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.ps-thumbs img{width:44px;height:44px;object-fit:cover;border-radius:8px;border:2px solid transparent;cursor:pointer}
+.ps-thumbs img.on{border-color:#0e7c86}
+.ps-badge{display:inline-flex;gap:6px;align-items:center;margin:14px 16px 0;padding:7px 12px;border:1.5px dashed #0e7c86;border-radius:10px;color:#0e7c86;font-weight:700;font-size:13px;width:fit-content}
+.ps-box{background:#fff;border-radius:18px;margin:12px 16px 0;padding:16px}
+.ps-name{font-size:22px;font-weight:800;color:#173b63;margin:0 0 6px}
+.ps-meta{color:#64748b;font-size:14px;display:flex;flex-wrap:wrap;gap:6px 14px}
+.ps-stock{color:#15803d;font-weight:700}
+.ps-stock.out{color:#dc2626}
+.ps-box h4{margin:0 0 8px;color:#173b63}
+.ps-desc{color:#475569;line-height:1.8;margin:0;white-space:pre-line}
+.ps-more{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#173b63}
+.ps-more a{color:#0e7c86;font-weight:700;text-decoration:none;cursor:pointer}
+.ps-footer{position:sticky;bottom:0;margin-top:auto;background:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center;box-shadow:0 -6px 18px rgba(23,59,99,.08)}
+.ps-qty{display:flex;align-items:center;border:1.5px solid #cbd5e1;border-radius:12px;overflow:hidden}
+.ps-qty button{width:38px;height:44px;border:0;background:#f1f5f9;font-size:20px;cursor:pointer;color:#173b63}
+.ps-qty input{width:46px;height:44px;border:0;text-align:center;font:700 17px Arial,sans-serif;direction:ltr}
+.ps-unit{height:46px;border:1.5px solid #cbd5e1;border-radius:12px;padding:0 6px;font-weight:700;background:#fff}
+.ps-add{flex:1;height:48px;border:0;border-radius:14px;background:#0e7c86;color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+.ps-add:disabled{background:#94a3b8;cursor:not-allowed}
+.ps-hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:220001;background:rgba(15,30,50,.8);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;pointer-events:none;transition:opacity .4s}
+.ps-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:220002;background:#15803d;color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+@media(min-width:900px){.ps-track{padding:0 calc(50vw - 260px)}.ps-slide{flex-basis:520px}}
+#image-lightbox{z-index:230000!important}
+.ps-add{white-space:nowrap;font-size:15px;min-width:0}
+.ps-qty button{width:32px}.ps-qty input{width:38px}.ps-footer{gap:8px}

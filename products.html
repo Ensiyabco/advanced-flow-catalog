@@ -2046,7 +2046,7 @@ body.admin-mode .admin-command-inner .admin-tool-group{display:block!important;m
             <button class="action-icon-btn" style="background:#2b6cb0; color:white;" onclick="editProduct(${p.id})">✏️</button>
             <button class="action-icon-btn" style="background:#e53e3e; color:white;" onclick="deleteProduct(${p.id})">🗑️</button>
           </div>
-          <div class="product-img-box" id="main-img-box-${p.id}" onclick="openLightboxForProduct(${p.id})">
+          <div class="product-img-box" id="main-img-box-${p.id}" onclick="openProductSheet(${p.id})">
             <img loading="lazy" decoding="async" id="main-product-img-${p.id}" src="${mainImg}" alt="${escapeHtml(p.name)}"
                onerror="this.onerror=null;this.src=placeholderImg;">
           </div>
@@ -4358,6 +4358,8 @@ window.CatalogImportHost = {
   };
 })();
 </script>
+<link rel="stylesheet" href="assets/product-sheet.css?v=20261111">
+<script src="assets/product-sheet.js?v=20261111"></script>
 <script defer src="assets/customer-support.js?v=20261017"></script>
 </body>
 </html>
